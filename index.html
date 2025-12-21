@@ -107,8 +107,8 @@
             ALTITUDE_SCALE:1000,
             K: 2,                 // 最短路径数量
             BOX_SIZE: { x: 2000, y: 500, z: 2000 }, // 长方体：x/z水平，y垂直（楼层高度）
-            EDGE_WIDTH: 1500000,        // 通道宽度
-            PATH_WIDTH: 2000000        // 路径宽度
+            EDGE_WIDTH: 15,        // 通道宽度
+            PATH_WIDTH: 20        // 路径宽度
         };
         let minLon = 0, minLat = 0;
         let nodes = {};         // 节点数据
@@ -219,7 +219,7 @@
                     const length = direction.length();
                     const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
 
-                    const cylinderRadius = 800;
+                    const cylinderRadius = 80;
                     const cylinderGeo = new THREE.CylinderGeometry(
                         cylinderRadius,
                         cylinderRadius,
@@ -307,7 +307,7 @@
                 const length = direction.length();
                 const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
 
-                const cylinderRadius = 600;
+                const cylinderRadius = 80;
                 const cylinderGeo = new THREE.CylinderGeometry(
                     cylinderRadius,
                     cylinderRadius,
@@ -633,6 +633,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -414,7 +414,7 @@
         "actual_flow": 10.0,
         "road_type": "side"
       },
-      "6B205": {
+      "6B206": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
@@ -526,15 +526,15 @@
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
-      },
-      "6B207": {
-        "max_cap": 50.0,
-        "actual_flow": 10.0,
-        "road_type": "side"
       }
     },
     "6B206": {
       "6B205": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B207": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
@@ -551,7 +551,7 @@
         "actual_flow": 10.0,
         "road_type": "side"
       },
-      "6B305": {
+      "6B306": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
@@ -663,15 +663,15 @@
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
-      },
-      "6B307": {
-        "max_cap": 50.0,
-        "actual_flow": 10.0,
-        "road_type": "side"
       }
     },
     "6B306": {
       "6B305": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B307": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
@@ -688,7 +688,7 @@
         "actual_flow": 10.0,
         "road_type": "side"
       },
-      "6B405": {
+      "6B406": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
@@ -800,15 +800,15 @@
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"
-      },
-      "6B407": {
-        "max_cap": 50.0,
-        "actual_flow": 10.0,
-        "road_type": "side"
       }
     },
     "6B406": {
       "6B405": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B407": {
         "max_cap": 50.0,
         "actual_flow": 10.0,
         "road_type": "side"

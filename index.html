@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>建筑内3D路径规划（正确分层版）</title>
+    <title>第六教学楼B区3D路径规划>di'liu'
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Arial', sans-serif; }
@@ -75,7 +75,7 @@
             <span>教室</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #ffaa00; border: 2px solid #ff6600;"></div>
+            <div class="legend-color" style="background: #ffffbd;"></div>
             <span>悬停教室</span>
         </div>
         <div class="legend-item">
@@ -88,7 +88,7 @@
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #006600;"></div>
-            <span>连接通道（辅路）</span>
+            <span>连接通道</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #ff0000;"></div>
@@ -107,8 +107,8 @@
             ALTITUDE_SCALE:1000,
             K: 2,                 // 最短路径数量
             BOX_SIZE: { x: 2000, y: 500, z: 2000 }, // 长方体：x/z水平，y垂直（楼层高度）
-            EDGE_WIDTH: 6,        // 通道宽度
-            PATH_WIDTH: 10        // 路径宽度
+            EDGE_WIDTH: 60,        // 通道宽度
+            PATH_WIDTH: 100        // 路径宽度
         };
         let minLon = 0, minLat = 0;
         let nodes = {};         // 节点数据
@@ -498,7 +498,7 @@
             );
 
             if (intersects.length === 0) {
-                updateInfo("请点击有效长方体（彩色教室）", true);
+                updateInfo("请点击有效教室（灰色长方体）", true);
                 return;
             }
 
@@ -597,4 +597,5 @@
         animate();
     </script>
 </body>
+
 </html>

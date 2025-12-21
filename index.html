@@ -186,10 +186,12 @@
         }
 
         // 6. 绘制函数
-        function drawEdges() {
-            const sideRoadMat = new THREE.LineBasicMaterial({
+
+    function drawEdges() {
+        const sideRoadMat = new THREE.MeshLambertMaterial({
                 color: 0x006600,
-                linewidth: CONFIG.EDGE_WIDTH
+                transparent: true,
+                opacity: 0.8
             });
 
             const processed = new Set();
@@ -202,7 +204,6 @@
 
                     if (!nodes[start] || !nodes[end]) continue;
 
-                    // 通道两端坐标（y轴为高度）
                     const startPos = lonlatTo3d(
                         nodes[start].lon,
                         nodes[start].lat,
@@ -214,10 +215,25 @@
                         nodes[end].alt
                     );
 
-                    const geo = new THREE.BufferGeometry().setFromPoints([startPos, endPos]);
-                    const line = new THREE.Line(geo, sideRoadMat);
-                    scene.add(line);
-                    edges[start][end].mesh = line;
+                    const direction = new THREE.Vector3().subVectors(endPos, startPos);
+                    const length = direction.length();
+                    const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
+
+                    const cylinderRadius = 800;
+                    const cylinderGeo = new THREE.CylinderGeometry(
+                        cylinderRadius,
+                        cylinderRadius,
+                        length,
+                        32
+                    );
+        
+                    const cylinderMesh = new THREE.Mesh(cylinderGeo, sideRoadMat);
+                    cylinderMesh.position.copy(midPoint);
+                    cylinderMesh.lookAt(endPos);
+                    cylinderMesh.rotateX(Math.PI / 2);
+
+                    scene.add(cylinderMesh);
+                    edges[start][end].mesh = cylinderMesh;
                 }
             }
             updateInfo(`已加载 ${processed.size} 条通道，楼层垂直分层显示`);
@@ -275,20 +291,38 @@
         }
 
         function drawPath(path, index, color) {
-            const pathPoints = path.map(nodeId => {
-                return nodes[nodeId].mesh.position.clone();
-            });
-
-            const geo = new THREE.BufferGeometry().setFromPoints(pathPoints);
-            const mat = new THREE.LineBasicMaterial({
-                color,
-                linewidth: CONFIG.PATH_WIDTH,
+            const pathMat = new THREE.MeshLambertMaterial({
+                color: color,
                 transparent: true,
                 opacity: 0.9
             });
-            const line = new THREE.Line(geo, mat);
-            scene.add(line);
-            pathMeshes.push(line);
+
+            for(let i = 0; i < path.length - 1; i++) {
+                const nodeId1 = path[i];
+                const nodeId2 = path[i+1];
+                const startPos = nodes[nodeId1].mesh.position.clone();
+                const endPos = nodes[nodeId2].mesh.position.clone();
+
+                const direction = new THREE.Vector3().subVectors(endPos, startPos);
+                const length = direction.length();
+                const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
+
+                const cylinderRadius = 600;
+                const cylinderGeo = new THREE.CylinderGeometry(
+                    cylinderRadius,
+                    cylinderRadius,
+                    length,
+                    32
+                );
+
+                const cylinderMesh = new THREE.Mesh(cylinderGeo, pathMat);
+                cylinderMesh.position.copy(midPoint);
+                cylinderMesh.lookAt(endPos);
+                cylinderMesh.rotateX(Math.PI / 2);
+
+                scene.add(cylinderMesh);
+                pathMeshes.push(cylinderMesh);
+            }
 
             const weight = calculatePathWeight(path);
             const length = calculatePathLength(path);
@@ -296,7 +330,7 @@
 
             const pathEl = document.getElementById(`path${index}`);
             pathEl.innerHTML = `
-                <div style="font-weight: bold;">第${index}条路径</div>
+                <div style="font-weight: bold;">第${index}条最短路径</div>
                 <div>教室序列：${path.join(' → ')}</div>
                 <div>通道总长：${length.toFixed(2)} 米</div>
                 <div>综合权重：${weight.toFixed(2)}</div>
@@ -599,6 +633,7 @@
 </body>
 
 </html>
+
 
 
 

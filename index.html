@@ -434,60 +434,72 @@
             return path[0] === startId ? path : null;
         }
 
-        function yenKShortestPaths(startId, endId, k) {
-            const shortestPaths = [];
+
+        function yenKShortestPaths(startId, endId, K) {
+            const kPaths = [];
+            // 1. 找第一条最短路径（Dijkstra）
             const firstPath = dijkstra(startId, endId);
             if (!firstPath) return [];
-            shortestPaths.push(firstPath);
+            kPaths.push(firstPath);
 
-            const tempEdges = JSON.parse(JSON.stringify(edges));
-
-            for (let i = 1; i < k; i++) {
-                const prevPath = shortestPaths[i - 1];
+            // 2. 迭代找第2~K条路径
+            for (let k = 1; k < K; k++) {
+                const prevPath = kPaths[k-1];
                 const candidates = [];
 
-                for (let j = 0; j < prevPath.length - 1; j++) {
-                    const spurNode = prevPath[j];
-                    const rootPath = prevPath.slice(0, j + 1);
+                // 遍历前一条路径的每个节点，作为“偏离点”
+                for (let i = 0; i < prevPath.length - 1; i++) {
+                    const spurNode = prevPath[i];
+                    const rootPath = prevPath.slice(0, i+1);
 
-                    const removedEdges = [];
-                    shortestPaths.forEach(path => {
-                        if (path.slice(0, j + 1).join(',') === rootPath.join(',')) {
-                            const u = path[j];
-                            const v = path[j + 1];
-                            if (tempEdges[u] && tempEdges[u][v]) {
-                                removedEdges.push({ u, v, data: tempEdges[u][v] });
-                                delete tempEdges[u][v];
-                                if (tempEdges[v] && tempEdges[v][u]) {
-                                    removedEdges.push({ u: v, v: u, data: tempEdges[v][u] });
-                                    delete tempEdges[v][u];
-                                }
+                    // 临时删除“偏离点之前的边”，避免重复路径
+                    const removedEdges = new Map();
+                    kPaths.forEach(path => {
+                        if (path.slice(0, i+1).join(',') === rootPath.join(',')) {
+                            const edgeKey = `${path[i]}-${path[i+1]}`;
+                            if (edges[path[i]]?.[path[i+1]]) {
+                                removedEdges.set(edgeKey, edges[path[i]][path[i+1]]);
+                                delete edges[path[i]][path[i+1]];
                             }
                         }
                     });
 
+                    // 找从“偏离点”到终点的最短路径（spur path）
                     const spurPath = dijkstra(spurNode, endId);
                     if (spurPath) {
-                        const combinedPath = [...rootPath.slice(0, -1), ...spurPath];
-                        if (!candidates.some(c => c.join(',') === combinedPath.join(','))) {
-                            candidates.push(combinedPath);
+                        const newPath = [...rootPath.slice(0, -1), ...spurPath];
+                        // ===== 新增：路径去重（关键！）=====
+                        // 检查新路径是否和已有的路径完全重复
+                        const isDuplicate = kPaths.some(existPath => 
+                            existPath.length === newPath.length && 
+                            existPath.join(',') === newPath.join(',')
+                        );
+                        if (!isDuplicate) {
+                            candidates.push({
+                                path: newPath,
+                                weight: calculatePathWeight(newPath)
+                            });
                         }
+                        // =====================================
                     }
 
-                    removedEdges.forEach(({ u, v, data }) => {
-                        if (!tempEdges[u]) tempEdges[u] = {};
-                        tempEdges[u][v] = data;
-                        if (!tempEdges[v]) tempEdges[v] = {};
-                        tempEdges[v][u] = data;
+                    // 恢复删除的边
+                    removedEdges.forEach((edge, edgeKey) => {
+                        const [u, v] = edgeKey.split('-');
+                        if (!edges[u]) edges[u] = {};
+                        edges[u][v] = edge;
                     });
                 }
 
+                // 没有候选路径，提前结束
                 if (candidates.length === 0) break;
-                candidates.sort((a, b) => calculatePathWeight(a) - calculatePathWeight(b));
-                shortestPaths.push(candidates[0]);
+
+                // 选候选路径中权重最小的，加入kPaths
+                candidates.sort((a, b) => a.weight - b.weight);
+                kPaths.push(candidates[0].path);
             }
 
-            return shortestPaths;
+            return kPaths;
         }
 
         // 8. 交互逻辑
@@ -633,6 +645,7 @@
 </body>
 
 </html>
+
 
 
 

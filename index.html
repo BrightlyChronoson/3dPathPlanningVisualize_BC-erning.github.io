@@ -29,6 +29,7 @@
             color: #333;
             display: none;
             z-index: 100;
+            max-width: 400px;
         }
         .legend {
             position: absolute;
@@ -72,11 +73,11 @@
         <div style="font-weight: bold; margin-bottom: 8px;">图例</div>
         <div class="legend-item">
             <div class="legend-color" style="background: #999999;"></div>
-            <span>教室</span>
+            <span>教室/楼梯</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #eeeeaa;"></div>
-            <span>悬停教室</span>
+            <span>悬停状态</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #00ff00;"></div>
@@ -109,18 +110,18 @@
     </div>
 
     <script>
-        // 1. 全局配置：修正坐标轴映射
+        // 1. 全局配置（严格匹配JSON中的scale）
         const CONFIG = {
-            SCALE: 100000000,         // 坐标缩放系数（拉开水平距离）
-            ALTITUDE_SCALE: 1000,
-            K: 2,                 // 最短路径数量
-            BOX_SIZE: { x: 2000, y: 500, z: 2000 }, // 长方体：x/z水平，y垂直（楼层高度）
-            EDGE_WIDTH: 15,        // 通道宽度
-            PATH_WIDTH: 20         // 路径宽度
+            SCALE: 1000,              // 直接使用JSON中的scale值
+            ALTITUDE_SCALE: 50,       // 海拔缩放（适配楼层高度）
+            K: 2,                     // 最短路径数量
+            BOX_SIZE: { x: 1, y: 2, z: 1 }, // 教室/楼梯尺寸（适配缩放后坐标）
+            EDGE_RADIUS: 0.1,         // 通道半径（适配缩放后坐标）
+            PATH_RADIUS: 0.15         // 路径半径（适配缩放后坐标）
         };
         let minLon = 0, minLat = 0;
-        let nodes = {};         // 节点数据
-        let edges = {};         // 边数据
+        let nodes = {};         // 节点数据（匹配JSON的nodes结构）
+        let edges = {};         // 边数据（匹配JSON的edges嵌套对象结构）
         let selectedNodes = []; // 选中节点
         let pathMeshes = [];    // 路径网格
         let pathData = [];      // 路径详情
@@ -129,15 +130,15 @@
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf8f9fa);
 
-        // 相机：适配y轴为高度，设置水平视角
+        // 相机（适配缩放后的坐标）
         const camera = new THREE.PerspectiveCamera(
-            55,                  
+            60,                  
             window.innerWidth / window.innerHeight,
             0.1,
-            500000
+            1000
         );
-        camera.position.set(20000, 15000, 20000); // 调整为水平或稍高视角，避免从下往上看
-        camera.lookAt(new THREE.Vector3(0, 70, 0)); // 看向场景中心
+        camera.position.set(5, 8, 8); // 适配缩放后的视角
+        camera.lookAt(new THREE.Vector3(0, 3, 0));
 
         // 渲染器
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -146,423 +147,471 @@
         renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // 轨道控制器：限制相机角度，不允许从下方查看
+        // 轨道控制器（适配缩放后的操作）
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        controls.minDistance = 5000;  
-        controls.maxDistance = 100000;
-        controls.target.set(0, 70, 0);
-        controls.maxPolarAngle = Math.PI / 2; // 限制最大极角为90度（水平视角）
+        controls.minDistance = 2;  
+        controls.maxDistance = 50;
+        controls.target.set(0, 3, 0);
+        controls.maxPolarAngle = Math.PI / 2; // 限制从下方查看
 
         // 3. 光照系统
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
         const spotLight = new THREE.SpotLight(0xffffff, 0.8);
-        spotLight.position.set(20000, 20000, 20000); // 斜上方光源
+        spotLight.position.set(10, 15, 10);
         spotLight.castShadow = true;
         spotLight.shadow.mapSize.set(2048, 2048);
-        spotLight.shadow.camera.near = 100;
-        spotLight.shadow.camera.far = 100000;
+        spotLight.shadow.camera.near = 0.1;
+        spotLight.shadow.camera.far = 100;
         scene.add(spotLight);
 
-        // 4. 辅助元素
-        const gridHelper = new THREE.GridHelper(100000, 50); // 地面网格：x/z平面
-        gridHelper.position.y = 0; // 网格在y=0处（底层地面）
+        // 4. 辅助元素（适配缩放后坐标）
+        const gridHelper = new THREE.GridHelper(20, 40); // 地面网格
+        gridHelper.position.y = 0;
         gridHelper.material.opacity = 0.5;
         gridHelper.material.transparent = true;
         scene.add(gridHelper);
-        const axesHelper = new THREE.AxesHelper(10000); // 坐标轴：x红、y绿、z蓝
+        const axesHelper = new THREE.AxesHelper(5); // 坐标轴
         scene.add(axesHelper);
 
-        // 5. 工具函数：修正坐标映射（海拔→y轴）
+        // 5. 核心工具函数（严格匹配JSON坐标）
+        /**
+         * 经纬度+海拔转3D坐标（严格基于JSON的min_lon/min_lat/scale）
+         */
         function lonlatTo3d(lon, lat, alt) {
-            const x = (lon - minLon) * CONFIG.SCALE - 35000; // 经度→x轴（水平）
-            const y = alt * CONFIG.ALTITUDE_SCALE - 60000;   // 海拔→y轴（垂直高度）
-            const z = (lat - minLat) * CONFIG.SCALE - 15000; // 纬度→z轴（水平）
+            const x = (lon - minLon) * CONFIG.SCALE;
+            const y = (alt - 60) * CONFIG.ALTITUDE_SCALE; // 60为最低海拔，让底层在y=0附近
+            const z = (lat - minLat) * CONFIG.SCALE;
             return new THREE.Vector3(x, y, z);
         }
 
-        // 统一使用灰色表示未选择的教室
-        function getColorByAlt(alt) {
-            return 0x999999; // 灰色
-        }
-
+        /**
+         * 更新信息面板
+         */
         function updateInfo(text, isError = false) {
             const panel = document.getElementById('info-panel');
             panel.innerHTML = isError ? `<span class="error提示">${text}</span>` : text;
         }
 
-        // 6. 绘制函数（核心修改：edges根据拥挤度上色 + 适配对象遍历）
+        // 6. 绘制函数（严格匹配JSON结构）
+        /**
+         * 绘制通道（edges嵌套对象遍历）
+         */
         function drawEdges() {
-            const processed = new Set();
-            for (const start in edges) {
-                for (const end in edges[start]) {
-                    const key = `${start}-${end}`;
-                    const reverseKey = `${end}-${start}`;
-                    if (processed.has(key) || processed.has(reverseKey)) continue;
-                    processed.add(key);
+            const processed = new Set(); // 避免重复绘制双向边
+            let edgeCount = 0;
 
-                    if (!nodes[start] || !nodes[end]) continue;
+            // 遍历JSON的edges嵌套结构
+            for (const startId in edges) {
+                const endMap = edges[startId];
+                for (const endId in endMap) {
+                    // 生成唯一键，避免重复处理
+                    const edgeKey = [startId, endId].sort().join('-');
+                    if (processed.has(edgeKey)) continue;
+                    processed.add(edgeKey);
 
-                    // 计算拥挤度（新增逻辑）
-                    const edgeData = edges[start][end];
-                    const maxCap = edgeData.max_cap || 0;
-                    const actualFlow = edgeData.actual_flow || 0;
-                    const crowd = maxCap > 0 ? actualFlow / maxCap : 0; // 避免除零
-
-                    // 根据拥挤度设置颜色（新增逻辑）
-                    let edgeColor;
-                    if (crowd < 0.5) {
-                        edgeColor = 0x00ff00; // 绿色：宽松
-                    } else if (crowd <= 0.8) {
-                        edgeColor = 0xffff00; // 黄色：中等拥挤
-                    } else {
-                        edgeColor = 0xff0000; // 红色：严重拥挤
+                    // 验证节点存在性
+                    if (!nodes[startId] || !nodes[endId]) {
+                        console.warn(`跳过无效边: ${startId} → ${endId}（节点不存在）`);
+                        continue;
                     }
 
-                    // 创建通道材质（仅颜色修改，其余不变）
+                    // 获取边的拥挤度数据（严格匹配JSON字段）
+                    const edgeProps = endMap[endId];
+                    const maxCap = edgeProps.max_cap || 0;
+                    const actualFlow = edgeProps.actual_flow || 0;
+                    const crowdRate = maxCap > 0 ? actualFlow / maxCap : 0;
+
+                    // 拥挤度上色
+                    let edgeColor;
+                    if (crowdRate < 0.5) edgeColor = 0x00ff00;    // 绿色（宽松）
+                    else if (crowdRate <= 0.8) edgeColor = 0xffff00; // 黄色（中等）
+                    else edgeColor = 0xff0000;                     // 红色（拥挤）
+
+                    // 创建通道材质
                     const edgeMat = new THREE.MeshLambertMaterial({
                         color: edgeColor,
                         transparent: true,
-                        opacity: 0.8
+                        opacity: 0.7
                     });
 
-                    // 通道几何体（原有逻辑，无修改）
+                    // 计算通道两端3D坐标
                     const startPos = lonlatTo3d(
-                        nodes[start].lon,
-                        nodes[start].lat,
-                        nodes[start].alt
+                        nodes[startId].lon,
+                        nodes[startId].lat,
+                        nodes[startId].alt
                     );
                     const endPos = lonlatTo3d(
-                        nodes[end].lon,
-                        nodes[end].lat,
-                        nodes[end].alt
+                        nodes[endId].lon,
+                        nodes[endId].lat,
+                        nodes[endId].alt
                     );
+
+                    // 创建圆柱体通道
                     const direction = new THREE.Vector3().subVectors(endPos, startPos);
                     const length = direction.length();
                     const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
-                    const cylinderRadius = 80;
+
                     const cylinderGeo = new THREE.CylinderGeometry(
-                        cylinderRadius,
-                        cylinderRadius,
+                        CONFIG.EDGE_RADIUS,
+                        CONFIG.EDGE_RADIUS,
                         length,
-                        32
+                        16
                     );
                     const cylinderMesh = new THREE.Mesh(cylinderGeo, edgeMat);
+                    
+                    // 定位并旋转圆柱体
                     cylinderMesh.position.copy(midPoint);
                     cylinderMesh.lookAt(endPos);
                     cylinderMesh.rotateX(Math.PI / 2);
+                    cylinderMesh.castShadow = true;
 
                     scene.add(cylinderMesh);
-                    edges[start][end].mesh = cylinderMesh;
+                    edgeCount++;
                 }
             }
-            updateInfo(`已加载 ${processed.size} 条通道，楼层垂直分层显示`);
+            updateInfo(`已加载 ${edgeCount} 条通道（基于path_data.json）`);
         }
 
+        /**
+         * 绘制节点（教室+楼梯，严格匹配JSON的nodes结构）
+         */
         function drawNodes() {
-            // 遍历对象格式的nodes（核心修正：适配JSON对象）
-            for (const id in nodes) {
-                const node = nodes[id];
-                const pos = lonlatTo3d(node.lon, node.lat, node.alt); // y轴为海拔
-                const baseColor = getColorByAlt(node.alt);
+            let nodeCount = 0;
+            for (const nodeId in nodes) {
+                const node = nodes[nodeId];
+                // 强制挂载id属性（解决undefined问题）
+                node.id = nodeId;
+                
+                // 计算3D坐标
+                const pos = lonlatTo3d(node.lon, node.lat, node.alt);
 
-                // 长方体几何体（原有逻辑，无修改）
+                // 定义材质（默认/悬停/起点/终点）
+                const materials = {
+                    default: new THREE.MeshLambertMaterial({ color: 0x999999 }),
+                    hover: new THREE.MeshLambertMaterial({ color: 0xeeeeaa, emissive: 0xffff00, emissiveIntensity: 0.2 }),
+                    start: new THREE.MeshLambertMaterial({ color: 0x00ff00 }),
+                    end: new THREE.MeshLambertMaterial({ color: 0x0000ff })
+                };
+
+                // 创建长方体节点
                 const boxGeo = new THREE.BoxGeometry(
                     CONFIG.BOX_SIZE.x,
                     CONFIG.BOX_SIZE.y,
                     CONFIG.BOX_SIZE.z
                 );
-
-                // 材质定义（完整无语法错误）
-                const materials = {
-                    default: new THREE.MeshLambertMaterial({
-                        color: baseColor,
-                        transparent: false
-                    }),
-                    hover: new THREE.MeshLambertMaterial({
-                        color: baseColor,
-                        emissive: 0xffff00,
-                        emissiveIntensity: 0.3,
-                        transparent: false
-                    }),
-                    start: new THREE.MeshLambertMaterial({
-                        color: 0x00ff00,
-                        transparent: false
-                    }),
-                    end: new THREE.MeshLambertMaterial({
-                        color: 0x0000ff,
-                        transparent: false
-                    })
-                };
-
                 const boxMesh = new THREE.Mesh(boxGeo, materials.default);
+                
+                // 设置位置和用户数据
                 boxMesh.position.copy(pos);
-                boxMesh.userData = { id, alt: node.alt, lon: node.lon, lat: node.lat };
+                boxMesh.userData = { id: nodeId };
                 boxMesh.castShadow = true;
                 boxMesh.receiveShadow = true;
+
+                // 添加到场景
                 scene.add(boxMesh);
 
-                nodes[id] = {
+                // 保存节点完整信息
+                nodes[nodeId] = {
                     ...node,
                     mesh: boxMesh,
                     materials: materials,
-                    originalScale: new THREE.Vector3(1, 1, 1)
+                    originalScale: boxMesh.scale.clone()
                 };
+                nodeCount++;
             }
+            updateInfo(`已加载 ${nodeCount} 个节点（教室+楼梯）`);
         }
 
-        // 绘制路径（原有逻辑，无修改）
+        /**
+         * 绘制路径
+         */
         function drawPath(path, index, color) {
+            if (!path || path.length < 2) return;
+
             const pathMat = new THREE.MeshLambertMaterial({
                 color: color,
                 transparent: true,
                 opacity: 0.9
             });
 
-            for(let i = 0; i < path.length - 1; i++) {
+            for (let i = 0; i < path.length - 1; i++) {
                 const nodeId1 = path[i];
-                const nodeId2 = path[i+1];
+                const nodeId2 = path[i + 1];
+
                 if (!nodes[nodeId1] || !nodes[nodeId2]) continue;
 
-                const startPos = lonlatTo3d(nodes[nodeId1].lon, nodes[nodeId1].lat, nodes[nodeId1].alt);
-                const endPos = lonlatTo3d(nodes[nodeId2].lon, nodes[nodeId2].lat, nodes[nodeId2].alt);
-                
+                // 计算路径端点坐标
+                const startPos = lonlatTo3d(
+                    nodes[nodeId1].lon,
+                    nodes[nodeId1].lat,
+                    nodes[nodeId1].alt
+                );
+                const endPos = lonlatTo3d(
+                    nodes[nodeId2].lon,
+                    nodes[nodeId2].lat,
+                    nodes[nodeId2].alt
+                );
+
+                // 创建路径圆柱体
                 const direction = new THREE.Vector3().subVectors(endPos, startPos);
                 const length = direction.length();
                 const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
 
-                const cylinderGeo = new THREE.CylinderGeometry(CONFIG.PATH_WIDTH, CONFIG.PATH_WIDTH, length, 32);
+                const cylinderGeo = new THREE.CylinderGeometry(
+                    CONFIG.PATH_RADIUS,
+                    CONFIG.PATH_RADIUS,
+                    length,
+                    16
+                );
                 const cylinderMesh = new THREE.Mesh(cylinderGeo, pathMat);
                 
                 cylinderMesh.position.copy(midPoint);
                 cylinderMesh.lookAt(endPos);
                 cylinderMesh.rotateX(Math.PI / 2);
-                
+                cylinderMesh.castShadow = true;
+
                 scene.add(cylinderMesh);
                 pathMeshes.push(cylinderMesh);
             }
         }
 
-        // 清除路径（原有逻辑，无修改）
+        /**
+         * 清除路径
+         */
         function clearPaths() {
             pathMeshes.forEach(mesh => scene.remove(mesh));
             pathMeshes = [];
             document.getElementById('path-detail').style.display = 'none';
+            document.getElementById('path1').innerText = '';
+            document.getElementById('path2').innerText = '';
         }
 
-        // K最短路径算法（原有逻辑，无修改）
-        function kShortestPaths(start, end, k) {
+        // 7. 路径算法（适配JSON的edges嵌套结构）
+        /**
+         * K最短路径算法（Dijkstra基础版，适配嵌套edges）
+         */
+        function kShortestPaths(startId, endId, k) {
             const paths = [];
-            const adj = edges;
 
-            // 简化的Dijkstra求最短路径
+            // 基础Dijkstra算法
             function dijkstra(s, e) {
+                // 初始化距离和前驱
                 const dist = {};
                 const prev = {};
                 const visited = new Set();
-                // 遍历对象格式的nodes（修正：适配对象）
-                for (const node in nodes) dist[node] = Infinity;
+
+                // 初始化所有节点距离为无穷大
+                for (const nodeId in nodes) {
+                    dist[nodeId] = Infinity;
+                }
                 dist[s] = 0;
 
+                // 核心Dijkstra循环
                 while (true) {
+                    // 找到未访问的最小距离节点
                     let minNode = null;
-                    // 遍历对象格式的nodes（修正：适配对象）
-                    for (const node in nodes) {
-                        if (!visited.has(node) && (minNode === null || dist[node] < dist[minNode])) {
-                            minNode = node;
+                    let minDist = Infinity;
+                    for (const nodeId in nodes) {
+                        if (!visited.has(nodeId) && dist[nodeId] < minDist) {
+                            minDist = dist[nodeId];
+                            minNode = nodeId;
                         }
                     }
+
                     if (minNode === null || minNode === e) break;
                     visited.add(minNode);
 
-                    if (adj[minNode]) {
-                        Object.keys(adj[minNode]).forEach(neighbor => {
-                            const newDist = dist[minNode] + 1; // 简化：每条边权重为1
-                            if (newDist < dist[neighbor]) {
-                                dist[neighbor] = newDist;
-                                prev[neighbor] = minNode;
+                    // 遍历邻接节点（适配edges嵌套结构）
+                    if (edges[minNode]) {
+                        for (const neighborId in edges[minNode]) {
+                            if (visited.has(neighborId)) continue;
+                            const newDist = dist[minNode] + 1; // 边权重为1
+                            if (newDist < dist[neighborId]) {
+                                dist[neighborId] = newDist;
+                                prev[neighborId] = minNode;
                             }
-                        });
+                        }
                     }
                 }
 
                 // 回溯路径
                 const path = [];
                 let curr = e;
-                while (curr !== undefined) {
+                while (curr !== undefined && curr !== s) {
                     path.unshift(curr);
                     curr = prev[curr];
                 }
-                return path.length > 1 ? path : [];
+
+                // 验证路径有效性
+                if (curr === s) {
+                    path.unshift(s);
+                    return path;
+                }
+                return []; // 无有效路径
             }
 
-            // 仅返回前k条（简化版，实际需更复杂逻辑，此处保持原有）
-            const shortest = dijkstra(start, end);
-            if (shortest.length > 0) paths.push(shortest);
-            if (k > 1) paths.push([...shortest].reverse()); // 模拟第二条路径
+            // 获取最短路径
+            const shortestPath = dijkstra(startId, endId);
+            if (shortestPath.length > 1) {
+                paths.push(shortestPath);
+                
+                // 生成第二条路径（反转最短路径，模拟K=2）
+                if (k > 1) {
+                    const reversePath = [...shortestPath].reverse();
+                    if (reversePath.length > 1) paths.push(reversePath);
+                }
+            }
 
             return paths.slice(0, k);
         }
 
-        // 鼠标交互（原有逻辑，无修改）
+        // 8. 鼠标交互（严格匹配节点ID）
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hoveredNode = null;
 
+        /**
+         * 鼠标移动 - 悬停效果
+         */
         function onMouseMove(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
-            // 适配对象格式的nodes（修正：Object.values转数组）
-            const nodeMeshes = Object.values(nodes).map(n => n.mesh);
-            const intersects = raycaster.intersectObjects(nodeMeshes);
+            // 重置上一个悬停节点
             if (hoveredNode) {
                 hoveredNode.mesh.material = hoveredNode.materials.default;
                 hoveredNode = null;
             }
 
+            // 检测节点碰撞
+            const nodeMeshes = Object.values(nodes).map(n => n.mesh);
+            const intersects = raycaster.intersectObjects(nodeMeshes);
+            
             if (intersects.length > 0) {
-                const node = nodes[intersects[0].object.userData.id];
-                if (!selectedNodes.includes(node) && node.mesh.material !== node.materials.start && node.mesh.material !== node.materials.end) {
+                const clickedNodeId = intersects[0].object.userData.id;
+                const node = nodes[clickedNodeId];
+                
+                // 仅对未选中节点添加悬停效果
+                if (node && 
+                    node.mesh.material !== node.materials.start && 
+                    node.mesh.material !== node.materials.end) {
                     node.mesh.material = node.materials.hover;
                     hoveredNode = node;
                 }
             }
         }
 
+        /**
+         * 鼠标点击 - 选择起点/终点+计算路径
+         */
         function onMouseClick(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
-            // 适配对象格式的nodes（修正：Object.values转数组）
+            // 检测点击的节点
             const nodeMeshes = Object.values(nodes).map(n => n.mesh);
             const intersects = raycaster.intersectObjects(nodeMeshes);
             if (intersects.length === 0) return;
 
-            const clickedNode = nodes[intersects[0].object.userData.id];
+            // 获取点击的节点ID（核心：从userData取ID）
+            const clickedNodeId = intersects[0].object.userData.id;
+            const clickedNode = nodes[clickedNodeId];
+            if (!clickedNode) return;
+
+            // 选择起点
             if (selectedNodes.length === 0) {
-                // 选择起点
                 clickedNode.mesh.material = clickedNode.materials.start;
                 selectedNodes.push(clickedNode);
                 updateInfo(`已选起点：${clickedNode.id}，请选择终点`);
                 clearPaths();
-            } else if (selectedNodes.length === 1) {
-                // 选择终点
-                if (clickedNode === selectedNodes[0]) {
+            } 
+            // 选择终点
+            else if (selectedNodes.length === 1) {
+                // 验证起点终点不同
+                if (clickedNode.id === selectedNodes[0].id) {
                     updateInfo('起点和终点不能相同，请重新选择终点');
                     return;
                 }
+
                 clickedNode.mesh.material = clickedNode.materials.end;
                 selectedNodes.push(clickedNode);
                 updateInfo(`已选终点：${clickedNode.id}，计算路径中...`);
 
                 // 计算K最短路径
-                const paths = kShortestPaths(selectedNodes[0].id, selectedNodes[1].id, CONFIG.K);
+                const paths = kShortestPaths(selectedNodes[0].id, clickedNode.id, CONFIG.K);
                 pathData = paths;
 
-                // 绘制路径
+                // 显示路径详情
+                document.getElementById('path-detail').style.display = 'block';
                 if (paths.length > 0) {
-                    drawPath(paths[0], 0, 0xff0000); // 第一条红色
+                    drawPath(paths[0], 0, 0xff0000); // 第一条：红色
                     document.getElementById('path1').innerText = `路径1：${paths[0].join(' → ')}`;
                 }
                 if (paths.length > 1) {
-                    drawPath(paths[1], 1, 0x8800ff); // 第二条紫色
+                    drawPath(paths[1], 1, 0x8800ff); // 第二条：紫色
                     document.getElementById('path2').innerText = `路径2：${paths[1].join(' → ')}`;
                 }
 
-                document.getElementById('path-detail').style.display = 'block';
-                updateInfo(`路径计算完成，共${paths.length}条`);
+                // 更新信息
+                updateInfo(`路径计算完成，共${paths.length}条有效路径`);
 
                 // 重置选中状态（下次点击重新选起点）
                 selectedNodes = [];
             }
         }
 
-        // 窗口自适应（原有逻辑，无修改）
+        // 9. 窗口自适应
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // 动画循环（原有逻辑，无修改）
+        // 10. 动画循环
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
         }
 
-        // 加载数据（核心修正：适配JSON对象格式的nodes/edges）
+        // 11. 加载数据（严格匹配JSON结构）
         async function loadData() {
             try {
-                const response = await fetch('path_data.json');
-                if (!response.ok) throw new Error('数据文件加载失败');
-                const data = await response.json();
+                updateInfo('正在加载path_data.json...');
                 
+                // 加载JSON文件
+                const response = await fetch('path_data.json');
+                if (!response.ok) throw new Error(`HTTP错误：${response.status}`);
+                const data = await response.json();
+
+                // 初始化全局变量（严格匹配JSON字段）
                 minLon = data.min_lon;
                 minLat = data.min_lat;
-                nodes = {};
-                edges = {};
+                nodes = { ...data.nodes }; // 直接复制nodes对象
+                edges = { ...data.edges }; // 直接复制edges嵌套对象
 
-                // 修正1：nodes是对象，直接赋值（而非数组遍历）
-                if (typeof data.nodes === 'object' && !Array.isArray(data.nodes)) {
-                    nodes = { ...data.nodes };
-                } else {
-                    throw new Error('nodes格式错误，应为对象');
-                }
-
-                // 修正2：edges是数组时的遍历逻辑（保持原有，但兼容对象）
-                if (Array.isArray(data.edges)) {
-                    data.edges.forEach(edge => {
-                        if (!edges[edge.start]) edges[edge.start] = {};
-                        edges[edge.start][edge.end] = {
-                            max_cap: edge.max_cap,
-                            actual_flow: edge.actual_flow,
-                            road_type: edge.road_type
-                        };
-                        // 双向边
-                        if (!edges[edge.end]) edges[edge.end] = {};
-                        edges[edge.end][edge.start] = {
-                            max_cap: edge.max_cap,
-                            actual_flow: edge.actual_flow,
-                            road_type: edge.road_type
-                        };
-                    });
-                } else if (typeof data.edges === 'object') {
-                    // 兼容edges是对象的情况
-                    for (const start in data.edges) {
-                        for (const end in data.edges[start]) {
-                            const edgeData = data.edges[start][end];
-                            if (!edges[start]) edges[start] = {};
-                            edges[start][end] = edgeData;
-                            // 双向边
-                            if (!edges[end]) edges[end] = {};
-                            edges[end][start] = edgeData;
-                        }
-                    }
-                } else {
-                    throw new Error('edges格式错误，应为数组或对象');
-                }
-
+                // 绘制节点和通道
                 drawNodes();
                 drawEdges();
-                updateInfo('数据加载完成，点击选择起点和终点');
+
+                updateInfo('数据加载完成！点击选择起点和终点');
             } catch (error) {
                 updateInfo(`加载失败：${error.message}`, true);
-                console.error('数据加载错误：', error);
+                console.error('数据加载详细错误：', error);
             }
         }
 
-        // 绑定事件（原有逻辑，无修改）
+        // 12. 绑定事件+初始化
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('click', onMouseClick);
         window.addEventListener('resize', onWindowResize);
 
-        // 初始化
+        // 启动程序
         loadData();
         animate();
     </script>

@@ -150,10 +150,10 @@
         };
         // 校园模式配置（适配大范围、无楼梯）
         const campusConfig = {
-            SCALE: 10000000,           // 坐标缩放（缩小，避免校园区域溢出）
+            SCALE: 100000000,           // 坐标缩放（缩小，避免校园区域溢出）
             ALTITUDE_SCALE: 500,       // 海拔缩放（降低建筑高度差）
             K: 2,
-            BOX_SIZE: { x: 5000, y: 300, z: 5000 }, // 建筑长方体更大
+            BOX_SIZE: { x: 5000, y: 600, z: 5000 }, // 建筑长方体更大
             EDGE_RADIUS: 150,          // 校园道路更宽
             PATH_RADIUS: 150,          // 校园路径更宽
             STAIR_PENALTY: false       // 禁用楼梯惩罚
@@ -713,3 +713,4 @@
     </script>
 </body>
 </html>
+

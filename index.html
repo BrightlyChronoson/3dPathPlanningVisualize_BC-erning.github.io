@@ -193,7 +193,7 @@
             panel.innerHTML = isError ? `<span class="error提示">${text}</span>` : text;
         }
 
-        // 6. 绘制函数（核心修改：edges根据拥挤度上色）
+        // 6. 绘制函数（核心修改：edges根据拥挤度上色 + 适配对象遍历）
         function drawEdges() {
             const processed = new Set();
             for (const start in edges) {
@@ -262,6 +262,7 @@
         }
 
         function drawNodes() {
+            // 遍历对象格式的nodes（核心修正：适配JSON对象）
             for (const id in nodes) {
                 const node = nodes[id];
                 const pos = lonlatTo3d(node.lon, node.lat, node.alt); // y轴为海拔
@@ -274,7 +275,7 @@
                     CONFIG.BOX_SIZE.z
                 );
 
-                // 材质定义（修复原语法错误）
+                // 材质定义（完整无语法错误）
                 const materials = {
                     default: new THREE.MeshLambertMaterial({
                         color: baseColor,
@@ -361,16 +362,18 @@
                 const dist = {};
                 const prev = {};
                 const visited = new Set();
-                Object.keys(nodes).forEach(node => dist[node] = Infinity);
+                // 遍历对象格式的nodes（修正：适配对象）
+                for (const node in nodes) dist[node] = Infinity;
                 dist[s] = 0;
 
                 while (true) {
                     let minNode = null;
-                    Object.keys(nodes).forEach(node => {
+                    // 遍历对象格式的nodes（修正：适配对象）
+                    for (const node in nodes) {
                         if (!visited.has(node) && (minNode === null || dist[node] < dist[minNode])) {
                             minNode = node;
                         }
-                    });
+                    }
                     if (minNode === null || minNode === e) break;
                     visited.add(minNode);
 
@@ -413,7 +416,9 @@
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
-            const intersects = raycaster.intersectObjects(Object.values(nodes).map(n => n.mesh));
+            // 适配对象格式的nodes（修正：Object.values转数组）
+            const nodeMeshes = Object.values(nodes).map(n => n.mesh);
+            const intersects = raycaster.intersectObjects(nodeMeshes);
             if (hoveredNode) {
                 hoveredNode.mesh.material = hoveredNode.materials.default;
                 hoveredNode = null;
@@ -433,7 +438,9 @@
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
-            const intersects = raycaster.intersectObjects(Object.values(nodes).map(n => n.mesh));
+            // 适配对象格式的nodes（修正：Object.values转数组）
+            const nodeMeshes = Object.values(nodes).map(n => n.mesh);
+            const intersects = raycaster.intersectObjects(nodeMeshes);
             if (intersects.length === 0) return;
 
             const clickedNode = nodes[intersects[0].object.userData.id];
@@ -489,7 +496,7 @@
             renderer.render(scene, camera);
         }
 
-        // 加载数据（原有逻辑，无修改）
+        // 加载数据（核心修正：适配JSON对象格式的nodes/edges）
         async function loadData() {
             try {
                 const response = await fetch('path_data.json');
@@ -501,32 +508,45 @@
                 nodes = {};
                 edges = {};
 
-                // 解析节点
-                data.nodes.forEach(node => {
-                    nodes[node.id] = {
-                        id: node.id,
-                        lon: node.lon,
-                        lat: node.lat,
-                        alt: node.alt
-                    };
-                });
+                // 修正1：nodes是对象，直接赋值（而非数组遍历）
+                if (typeof data.nodes === 'object' && !Array.isArray(data.nodes)) {
+                    nodes = { ...data.nodes };
+                } else {
+                    throw new Error('nodes格式错误，应为对象');
+                }
 
-                // 解析边
-                data.edges.forEach(edge => {
-                    if (!edges[edge.start]) edges[edge.start] = {};
-                    edges[edge.start][edge.end] = {
-                        max_cap: edge.max_cap,
-                        actual_flow: edge.actual_flow,
-                        road_type: edge.road_type
-                    };
-                    // 双向边
-                    if (!edges[edge.end]) edges[edge.end] = {};
-                    edges[edge.end][edge.start] = {
-                        max_cap: edge.max_cap,
-                        actual_flow: edge.actual_flow,
-                        road_type: edge.road_type
-                    };
-                });
+                // 修正2：edges是数组时的遍历逻辑（保持原有，但兼容对象）
+                if (Array.isArray(data.edges)) {
+                    data.edges.forEach(edge => {
+                        if (!edges[edge.start]) edges[edge.start] = {};
+                        edges[edge.start][edge.end] = {
+                            max_cap: edge.max_cap,
+                            actual_flow: edge.actual_flow,
+                            road_type: edge.road_type
+                        };
+                        // 双向边
+                        if (!edges[edge.end]) edges[edge.end] = {};
+                        edges[edge.end][edge.start] = {
+                            max_cap: edge.max_cap,
+                            actual_flow: edge.actual_flow,
+                            road_type: edge.road_type
+                        };
+                    });
+                } else if (typeof data.edges === 'object') {
+                    // 兼容edges是对象的情况
+                    for (const start in data.edges) {
+                        for (const end in data.edges[start]) {
+                            const edgeData = data.edges[start][end];
+                            if (!edges[start]) edges[start] = {};
+                            edges[start][end] = edgeData;
+                            // 双向边
+                            if (!edges[end]) edges[end] = {};
+                            edges[end][start] = edgeData;
+                        }
+                    }
+                } else {
+                    throw new Error('edges格式错误，应为数组或对象');
+                }
 
                 drawNodes();
                 drawEdges();

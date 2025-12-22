@@ -87,8 +87,16 @@
             <span>终点</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #006600;"></div>
-            <span>连接通道</span>
+            <div class="legend-color" style="background: #00ff00;"></div>
+            <span>通道（拥挤度 < 0.5）</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffff00;"></div>
+            <span>通道（0.5 ≤ 拥挤度 ≤ 0.8）</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ff0000;"></div>
+            <span>通道（拥挤度 > 0.8）</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #ff0000;"></div>
@@ -188,12 +196,6 @@
         // 6. 绘制函数
 
     function drawEdges() {
-        const sideRoadMat = new THREE.MeshLambertMaterial({
-                color: 0x006600,
-                transparent: true,
-                opacity: 0.8
-            });
-
             const processed = new Set();
             for (const start in edges) {
                 for (const end in edges[start]) {
@@ -203,6 +205,29 @@
                     processed.add(key);
 
                     if (!nodes[start] || !nodes[end]) continue;
+
+                    // 计算拥挤度
+                    const edgeData = edges[start][end];
+                    const maxCap = edgeData.max_cap || 0;
+                    const actualFlow = edgeData.actual_flow || 0;
+                    const crowd = maxCap > 0 ? actualFlow / maxCap : 0; // 避免除零错误
+
+                    // 根据拥挤度设置颜色
+                    let edgeColor;
+                    if (crowd < 0.5) {
+                        edgeColor = 0x00ff00; // 绿色
+                    } else if (crowd <= 0.8) {
+                        edgeColor = 0xffff00; // 黄色
+                    } else {
+                        edgeColor = 0xff0000; // 红色
+                    }
+
+                    // 创建对应颜色的材质
+                    const edgeMat = new THREE.MeshLambertMaterial({
+                        color: edgeColor,
+                        transparent: true,
+                        opacity: 0.8
+                    });
 
                     const startPos = lonlatTo3d(
                         nodes[start].lon,
@@ -227,7 +252,7 @@
                         32
                     );
         
-                    const cylinderMesh = new THREE.Mesh(cylinderGeo, sideRoadMat);
+                    const cylinderMesh = new THREE.Mesh(cylinderGeo, edgeMat);
                     cylinderMesh.position.copy(midPoint);
                     cylinderMesh.lookAt(endPos);
                     cylinderMesh.rotateX(Math.PI / 2);
@@ -252,13 +277,6 @@
                     CONFIG.BOX_SIZE.z
                 );
 
-                const baseColor = getColorByAlt(alt);
-                const materials = {
-                    default: new THREE.MeshLambertMaterial({
-                        color: baseColor,
-                        transparent: false
-                    }),
-                    hover: new THREE.MeshLambertMaterial({
                         color: baseColor,
                         emissive: 0xffff00,
                         emissiveIntensity: 0.3,
@@ -645,6 +663,7 @@
 </body>
 
 </html>
+
 
 
 

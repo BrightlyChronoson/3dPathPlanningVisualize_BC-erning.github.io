@@ -394,62 +394,68 @@
 
 
 
+//缩进1
+    //缩进2
         function calculateEdgeWeight(startId, endId) {
             // 1. 边界判断：边不存在则返回无穷大
             if (!edges[startId] || !edges[startId][endId]) return Infinity;
 
-            // 2. 读取节点和边的原始数据（完全匹配你的JSON结构）
+            // 2. 读取节点和边的原始数据
             const start = nodes[startId];
             const end = nodes[endId];
-            const edge = edges[startId][endId]; // 你的edges结构是edges[起点][终点] = {max_cap, actual_flow...}
+            const edge = edges[startId][endId];
 
-            // 3. 基础地理距离计算（保留原始逻辑，不缩放）
+            // 3. 基础距离计算（核心修正：解决同坐标geoDist=0的问题）
             const x1 = start.lon * 111000;
             const y1 = start.lat * 111000;
             const x2 = end.lon * 111000;
             const y2 = end.lat * 111000;
-            const geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            let geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-            // 4. 楼梯边识别（核心修正：匹配STAIR而非STAR）
-            const isStairEdge = startId.includes("STAIR") || endId.includes("STAIR");
-            // 楼梯边惩罚（平层楼梯×30，跨层楼梯×80，确保权重飙升）
+            // 关键：如果水平距离为0（同坐标，比如楼梯节点），用海拔差+基础值替代
             const altDiff = Math.abs(end.alt - start.alt);
+            if (geoDist < 0.1) { // 近似认为水平距离为0
+                // 基础值=海拔差 + 10（避免0），保证惩罚项能生效
+                geoDist = altDiff + 10; 
+            }
+
+            // 4. 楼梯边识别（匹配STAIR）+ 惩罚
+            const isStairEdge = startId.includes("STAIR") || endId.includes("STAIR");
             let stairPenalty = 1;
             if (isStairEdge) {
-                stairPenalty = altDiff < 5 ? 30 : 80; // 海拔差<5=平层楼梯，≥5=跨层楼梯
+                stairPenalty = altDiff < 5 ? 30 : 80; // 平层楼梯×30，跨层×80
             }
 
-            // 5. 拥挤度惩罚（精准读取你的max_cap/actual_flow，梯度化重罚）
-            const maxCap = edge.max_cap || 1; // 避免除以0
+            // 5. 拥挤度惩罚（精准读取你的字段）
+            const maxCap = edge.max_cap || 1;
             const actualFlow = edge.actual_flow || 0;
-            const congestion = actualFlow / maxCap; // 拥挤度计算
+            const congestion = actualFlow / maxCap;
             let crowdPenalty = 1;
 
-            // 梯度惩罚逻辑（贴合你的数据：max_cap都是50，actual_flow=10时congestion=0.2）
-            if (congestion <= 0.5) { // 低拥挤（≤25人）
-                crowdPenalty = Math.pow(4, 5 * congestion); // 0.5时惩罚≈32倍
-            } else if (congestion <= 0.8) { // 中拥挤（25-40人）
-                crowdPenalty = Math.pow(8, 6 * (congestion - 0.5)) * 32; // 0.8时≈32×262=8384倍
-            } else { // 高拥挤（>40人）
-                crowdPenalty = Math.pow(15, 8 * (congestion - 0.8)) * 8384; // 1.0时≈8384×57648=4.8亿倍
+            // 梯度惩罚（适配你的max_cap=50的场景）
+            if (congestion <= 0.5) {
+                crowdPenalty = Math.pow(4, 5 * congestion); // 0.2（10/50）→≈4倍
+            } else if (congestion <= 0.8) {
+                crowdPenalty = Math.pow(8, 6 * (congestion - 0.5)) * 32;
+            } else {
+                crowdPenalty = Math.pow(15, 8 * (congestion - 0.8)) * 8384;
             }
 
-            // 6. 道路类型系数（匹配你的road_type=side）
+            // 6. 道路类型系数
             const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
 
-            // 7. 调试日志（帮你验证关键参数）
+            // 7. 增强版调试日志（验证geoDist是否为0）
             console.log(`
                 边：${startId} → ${endId}
-                是否楼梯边：${isStairEdge}（节点含STAIR=${startId.includes('STAIR')}/${endId.includes('STAIR')}）
-                拥挤度：${congestion}（actual_flow=${actualFlow}/max_cap=${maxCap}）
-                楼梯惩罚：${stairPenalty} | 拥挤惩罚：${crowdPenalty}
-                基础距离：${geoDist} | 最终权重：${geoDist * roadCoeff * stairPenalty * crowdPenalty}
+                水平距离：${Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))}
+                修正后基础距离：${geoDist}（海拔差=${altDiff}）
+                是否楼梯边：${isStairEdge}
+                拥挤度：${congestion} | 拥挤惩罚：${crowdPenalty}
+                最终权重：${geoDist * roadCoeff * stairPenalty * crowdPenalty}
             `);
 
-            // 8. 最终权重计算（惩罚项全部生效）
+            // 8. 最终权重+边界保护
             const finalWeight = geoDist * roadCoeff * stairPenalty * crowdPenalty;
-
-            // 边界保护：避免权重溢出
             return finalWeight > 1e12 ? 1e12 : finalWeight;
         }
         
@@ -741,6 +747,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html>
 <head>
     <title>第六教学楼B区3D路径规划</title>
@@ -187,13 +187,8 @@
 
         // 6. 绘制函数
 
-    function drawEdges() {
-        const sideRoadMat = new THREE.MeshLambertMaterial({
-                color: 0x006600,
-                transparent: true,
-                opacity: 0.8
-            });
-
+        function drawEdges() {
+            // 移除全局固定材质，改为在循环内为每个边单独创建
             const processed = new Set();
             for (const start in edges) {
                 for (const end in edges[start]) {
@@ -204,6 +199,33 @@
 
                     if (!nodes[start] || !nodes[end]) continue;
 
+            // ========== 新增：计算当前边的拥挤度并设置颜色 ==========
+            // 获取当前边的 actual_flow 和 max_cap 数据
+                    const edgeData = edges[start][end];
+            // 计算拥挤度（限制 0~1 范围，避免数据异常）
+                    const crowd = edgeData.max_cap === 0 
+                        ? 0 // 避免除以0报错
+                        : Math.min(Math.max(edgeData.actual_flow / edgeData.max_cap, 0), 1);
+            
+            // 按区间设置颜色（保留你原有的绿色值 0x006600）
+                    let edgeColor;
+                    if (crowd < 0.5) {
+                        edgeColor = 0x006600; // 原有绿色
+                    } else if (crowd <= 0.8) {
+                        edgeColor = 0xffff00; // 黄色
+                    } else {
+                        edgeColor = 0xff0000; // 红色
+                    }
+
+            // 每个边单独创建材质（移到循环内，使用动态颜色）
+                    const sideRoadMat = new THREE.MeshLambertMaterial({
+                        color: edgeColor,     // 动态颜色
+                        transparent: true,    // 保留原有透明属性
+                        opacity: 0.8          // 保留原有不透明度
+                    });
+            // ======================================================
+
+            // 以下所有逻辑完全保留，无任何修改
                     const startPos = lonlatTo3d(
                         nodes[start].lon,
                         nodes[start].lat,
@@ -226,7 +248,7 @@
                         length,
                         32
                     );
-        
+
                     const cylinderMesh = new THREE.Mesh(cylinderGeo, sideRoadMat);
                     cylinderMesh.position.copy(midPoint);
                     cylinderMesh.lookAt(endPos);
@@ -239,6 +261,7 @@
             updateInfo(`已加载 ${processed.size} 条通道，楼层垂直分层显示`);
         }
 
+        
         function drawNodes() {
             for (const id in nodes) {
                 const node = nodes[id];
@@ -645,6 +668,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -655,7 +655,7 @@
                     updateInfo(`❌ 未找到从 ${selectedNodes[0]} 到 ${nodeId} 的路径`, true);
                 } else {
                     updateInfo(`✅ 找到 ${kPaths.length} 条路径，点击空白处重新选择`);
-                    const pathColors = [0xff0000, 0x8800ff];
+                    const pathColors = [0x0000ff, 0x8800ff];                
                     kPaths.forEach((path, idx) => {
                         drawPath(path, idx + 1, pathColors[idx]);
                     });
@@ -721,6 +721,7 @@
 </body>
 
 </html>
+
 
 
 

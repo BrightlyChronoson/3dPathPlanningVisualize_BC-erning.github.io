@@ -1,93 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>第六教学楼B区3D路径规划</title>
+    <title>3D路径规划系统（双模式隔离版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Arial', sans-serif; }
         #info-panel { 
-            position: absolute; 
-            top: 10px; 
-            left: 10px; 
-            background: rgba(255,255,255,0.9); 
-            padding: 12px 15px; 
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            font-size: 14px;
-            color: #333;
-            z-index: 100;
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(255,255,255,0.9); padding: 12px 15px; 
+            border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 14px; color: #333; z-index: 100;
         }
         #mode-panel {
-            position: absolute;
-            top: 10px;
-            left: 280px;
-            background: rgba(255,255,255,0.9);
-            padding: 10px 15px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: absolute; top: 10px; left: 280px;
+            background: rgba(255,255,255,0.9); padding: 10px 15px;
+            border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 100;
         }
         .mode-btn {
-            padding: 6px 12px;
-            margin: 0 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #f5f5f5;
-            cursor: pointer;
-            font-size: 13px;
+            padding: 6px 12px; margin: 0 5px;
+            border: 1px solid #ccc; border-radius: 4px;
+            background: #f5f5f5; cursor: pointer; font-size: 13px;
             transition: all 0.2s;
         }
         .mode-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
+            background: #007bff; color: white; border-color: #007bff;
         }
-        .mode-btn:hover {
-            background: #e9ecef;
-        }
-        .mode-btn.active:hover {
-            background: #0069d9;
-        }
+        .mode-btn:hover { background: #e9ecef; }
+        .mode-btn.active:hover { background: #0069d9; }
         #path-detail {
-            position: absolute;
-            top: 70px;
-            left: 10px;
-            background: rgba(255,255,255,0.9);
-            padding: 12px 15px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            font-size: 13px;
-            color: #333;
-            display: none;
-            z-index: 100;
+            position: absolute; top: 70px; left: 10px;
+            background: rgba(255,255,255,0.9); padding: 12px 15px;
+            border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 13px; color: #333; display: none; z-index: 100;
         }
         .legend {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.9);
-            padding: 12px 15px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            font-size: 12px;
-            color: #333;
-            z-index: 100;
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.9); padding: 12px 15px;
+            border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 12px; color: #333; z-index: 100;
         }
         .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 6px 0;
+            display: flex; align-items: center; margin: 6px 0;
         }
         .legend-color {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            border-radius: 3px;
+            width: 16px; height: 16px; margin-right: 8px; border-radius: 3px;
         }
-        .error提示 {
-            color: #dc3545;
-            font-weight: bold;
-        }
+        .error提示 { color: #dc3545; font-weight: bold; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/controls/OrbitControls.js"></script>
@@ -96,8 +55,8 @@
     <div id="info-panel">点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）</div>
     <div id="mode-panel">
         <span style="font-size:13px; font-weight:bold; margin-right:8px;">选择模式：</span>
-        <button class="mode-btn active" data-file="path_data_6J.json">教学楼模式</button>
-        <button class="mode-btn" data-file="path_data_campus.json">校园模式</button>
+        <button class="mode-btn active" data-mode="teaching">教学楼模式</button>
+        <button class="mode-btn" data-mode="campus">校园模式</button>
     </div>
     <div id="path-detail">
         <div style="font-weight: bold; margin-bottom: 5px;">路径详情</div>
@@ -108,7 +67,7 @@
         <div style="font-weight: bold; margin-bottom: 8px;">图例</div>
         <div class="legend-item">
             <div class="legend-color" style="background: #999999;"></div>
-            <span>教室/建筑</span>
+            <span id="legend-node-text">教室</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #eeeeaa;"></div>
@@ -137,580 +96,727 @@
     </div>
 
     <script>
-        // ========== 新增：模式专属配置（核心差异化点） ==========
-        // 教学楼模式配置（适配小范围、含楼梯）
-        const teachingConfig = {
-            SCALE: 100000000,         // 坐标缩放（拉开教室间距）
-            ALTITUDE_SCALE: 1000,      // 海拔缩放（突出楼层差）
-            K: 2,
-            BOX_SIZE: { x: 2000, y: 500, z: 2000 }, // 教室长方体大小
-            EDGE_RADIUS: 80,           // 通道半径
-            PATH_RADIUS: 80,           // 路径半径
-            STAIR_PENALTY: true        // 启用楼梯惩罚
-        };
-        // 校园模式配置（适配大范围、无楼梯）
-        const campusConfig = {
-            SCALE: 100000000,           // 坐标缩放（缩小，避免校园区域溢出）
-            ALTITUDE_SCALE: 500,       // 海拔缩放（降低建筑高度差）
-            K: 2,
-            BOX_SIZE: { x: 5000, y: 600, z: 5000 }, // 建筑长方体更大
-            EDGE_RADIUS: 150,          // 校园道路更宽
-            PATH_RADIUS: 150,          // 校园路径更宽
-            STAIR_PENALTY: false       // 禁用楼梯惩罚
-        };
-        // 全局模式状态
-        let currentMode = 'teaching'; // 初始为教学楼模式
-        let currentConfig = teachingConfig;
-        // ========== 模式配置结束 ==========
-
-
-        let minLon = 0, minLat = 0;
-        let nodes = {};         // 节点数据
-        let edges = {};         // 边数据
-        let selectedNodes = []; // 选中节点
-        let pathMeshes = [];    // 路径网格
-        let pathData = [];      // 路径详情
-        let nodeMeshes = [];    // 节点网格（用于清空）
-        let edgeMeshes = [];    // 边网格（用于清空）
-
-
-        // 2. Three.js核心对象初始化（完全保留）
+        // ===================== 全局基础层（共享） =====================
+        // 1. Three.js核心对象（全局唯一，不随模式切换销毁）
         const scene = new THREE.Scene();
-        const skyCanvas = document.createElement('canvas');
-        skyCanvas.width = 256; 
-        skyCanvas.height = 256;
-        const skyCtx = skyCanvas.getContext('2d');
-        const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 256);
-        skyGrad.addColorStop(0, '#E0F7FF'); 
-        skyGrad.addColorStop(1, '#87CEEB'); 
-        skyCtx.fillStyle = skyGrad;
-        skyCtx.fillRect(0, 0, 256, 256);
-        const skyTexture = new THREE.CanvasTexture(skyCanvas);
-        scene.background = skyTexture;
-
-        const camera = new THREE.PerspectiveCamera(
-            55,                  
-            window.innerWidth / window.innerHeight,
-            0.1,
-            500000
-        );
-        camera.position.set(20000, 15000, 20000); 
-        camera.lookAt(new THREE.Vector3(0, 70, 0));
-
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild(renderer.domElement);
-
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
-        controls.minDistance = 5000;  
-        controls.maxDistance = 100000;
-        controls.target.set(0, 70, 0);
-        controls.maxPolarAngle = Math.PI / 2;
+        
+        // 2. 全局状态（仅管理当前激活的模式实例）
+        let currentModeInstance = null; // 当前激活的模式实例
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let hoveredNodeId = null;
 
+        // 3. 初始化全局Three.js环境（仅执行一次）
+        function initGlobalScene() {
+            // 天空背景
+            const skyCanvas = document.createElement('canvas');
+            skyCanvas.width = 256; skyCanvas.height = 256;
+            const skyCtx = skyCanvas.getContext('2d');
+            const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 256);
+            skyGrad.addColorStop(0, '#E0F7FF');
+            skyGrad.addColorStop(1, '#87CEEB');
+            skyCtx.fillStyle = skyGrad;
+            skyCtx.fillRect(0, 0, 256, 256);
+            scene.background = new THREE.CanvasTexture(skyCanvas);
 
-        // 3. 光照系统（完全保留）
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(50000, 80000, 50000);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 200000;
-        dirLight.shadow.camera.left = -50000;
-        dirLight.shadow.camera.right = 50000;
-        dirLight.shadow.camera.top = 50000;
-        dirLight.shadow.camera.bottom = -50000;
-        scene.add(dirLight);
+            // 相机配置
+            camera.position.set(20000, 15000, 20000);
+            camera.lookAt(new THREE.Vector3(0, 70, 0));
 
+            // 渲染器配置
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
 
-        // 4. 辅助元素（完全保留）
-        const floorGeometry = new THREE.PlaneGeometry(300000, 300000); 
-        const floorMaterial = new THREE.MeshStandardMaterial({
-            color: 0xf0f0f0, 
-            roughness: 0.8,
-            metalness: 0.1
-        });
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = 0;
-        scene.add(floor);
+            // 控制器配置
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.minDistance = 5000;
+            controls.maxDistance = 100000;
+            controls.target.set(0, 70, 0);
+            controls.maxPolarAngle = Math.PI / 2;
 
+            // 全局光照
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(50000, 80000, 50000);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.near = 0.5;
+            dirLight.shadow.camera.far = 200000;
+            dirLight.shadow.camera.left = -50000;
+            dirLight.shadow.camera.right = 50000;
+            dirLight.shadow.camera.top = 50000;
+            dirLight.shadow.camera.bottom = -50000;
+            scene.add(dirLight);
 
-        // 5. 工具函数（适配模式配置）
-        function lonlatTo3d(lon, lat, alt) {
-            // 使用当前模式的缩放参数
-            const x = (lon - minLon) * currentConfig.SCALE - 35000;
-            const y = alt * currentConfig.ALTITUDE_SCALE - 58500;
-            const z = (lat - minLat) * currentConfig.SCALE - 20000;
-            return new THREE.Vector3(x, y, z);
+            // 全局地板（共享）
+            const floorGeometry = new THREE.PlaneGeometry(300000, 300000);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0xf0f0f0, roughness: 0.8, metalness: 0.1
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = 0;
+            scene.add(floor);
+
+            // 窗口自适应
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // 动画循环（全局唯一）
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
         }
 
-        function getColorByAlt(alt) {
-            return 0x999999; // 统一灰色（保留）
-        }
-
+        // 4. 全局工具函数（共享）
         function updateInfo(text, isError = false) {
             const panel = document.getElementById('info-panel');
             panel.innerHTML = isError ? `<span class="error提示">${text}</span>` : text;
         }
 
-        function clearScene() {
-            // 清空路径/节点/边网格（保留）
-            pathMeshes.forEach(mesh => scene.remove(mesh));
-            nodeMeshes.forEach(mesh => scene.remove(mesh));
-            edgeMeshes.forEach(mesh => scene.remove(mesh));
-            // 重置变量（保留）
-            nodes = {}; edges = {}; selectedNodes = []; pathData = [];
-            minLon = 0; minLat = 0;
-            pathMeshes = []; nodeMeshes = []; edgeMeshes = [];
-            // 清空面板（保留）
-            document.getElementById('path-detail').style.display = 'none';
-            document.getElementById('path1').innerHTML = '';
-            document.getElementById('path2').innerHTML = '';
-            updateInfo("点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）");
-        }
+        // ===================== 模式基类（抽离核心逻辑） =====================
+        class BaseMode {
+            constructor(modeName, config, dataFile) {
+                this.modeName = modeName; // 模式名称（teaching/campus）
+                this.config = config;     // 模式专属配置
+                this.dataFile = dataFile; // 模式专属数据文件
 
+                // 模式私有资源（完全隔离）
+                this.nodes = {};         // 节点数据
+                this.edges = {};         // 边数据
+                this.selectedNodes = []; // 选中节点
+                this.pathMeshes = [];    // 路径网格
+                this.nodeMeshes = [];    // 节点网格
+                this.edgeMeshes = [];    // 边网格
+                this.minLon = 0;
+                this.minLat = 0;
+            }
 
-        // 6. 绘制函数（适配模式配置）
-        function drawEdges() {
-            const processed = new Set();
-            for (const start in edges) {
-                for (const end in edges[start]) {
-                    const key = `${start}-${end}`;
-                    const reverseKey = `${end}-${start}`;
-                    if (processed.has(key) || processed.has(reverseKey)) continue;
-                    processed.add(key);
-                    if (!nodes[start] || !nodes[end]) continue;
+            // 坐标转换（模式专属）
+            lonlatTo3d(lon, lat, alt) {
+                const x = (lon - this.minLon) * this.config.SCALE - 35000;
+                const y = alt * this.config.ALTITUDE_SCALE - 58500;
+                const z = (lat - this.minLat) * this.config.SCALE - 20000;
+                return new THREE.Vector3(x, y, z);
+            }
 
-                    // 拥挤度颜色逻辑（保留）
-                    const edgeData = edges[start][end];
-                    const crowd = edgeData.max_cap === 0 ? 0 : Math.min(Math.max(edgeData.actual_flow / edgeData.max_cap, 0), 1);
-                    let edgeColor = crowd < 0.5 ? 0x006600 : (crowd <= 0.8 ? 0xffff00 : 0xff0000);
+            // 清空当前模式的所有资源（核心隔离点）
+            destroy() {
+                // 1. 移除所有3D元素
+                this.pathMeshes.forEach(mesh => scene.remove(mesh));
+                this.nodeMeshes.forEach(mesh => scene.remove(mesh));
+                this.edgeMeshes.forEach(mesh => scene.remove(mesh));
+                // 2. 重置所有状态
+                this.nodes = {};
+                this.edges = {};
+                this.selectedNodes = [];
+                this.pathMeshes = [];
+                this.nodeMeshes = [];
+                this.edgeMeshes = [];
+                this.minLon = 0;
+                this.minLat = 0;
+                // 3. 清空路径面板
+                document.getElementById('path-detail').style.display = 'none';
+                document.getElementById('path1').innerHTML = '';
+                document.getElementById('path2').innerHTML = '';
+                // 4. 重置悬停状态
+                hoveredNodeId = null;
+            }
 
-                    // 材质（保留）
-                    const sideRoadMat = new THREE.MeshStandardMaterial({
-                        color: edgeColor, roughness:0.7, metalness:0.1,
-                        transparent: true, opacity: 0.8
+            // 加载模式数据（模式专属）
+            loadData() {
+                updateInfo(`正在加载${this.modeName === 'teaching' ? '教学楼' : '校园'}模式数据...`);
+                fetch(this.dataFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`数据加载失败（${response.status}）`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        this.minLon = data.min_lon;
+                        this.minLat = data.min_lat;
+                        this.nodes = data.nodes;
+                        this.edges = data.edges;
+                        if (!this.nodes || Object.keys(this.nodes).length === 0) throw new Error("节点数据为空");
+                        if (!this.edges || Object.keys(this.edges).length === 0) throw new Error("边数据为空");
+                        // 绘制模式专属元素
+                        this.drawEdges();
+                        this.drawNodes();
+                        // 更新图例文字
+                        document.getElementById('legend-node-text').innerText = this.modeName === 'teaching' ? '教室' : '建筑';
+                        updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式加载完成，点击选择起点`);
+                    })
+                    .catch(error => {
+                        updateInfo(`⚠️ 加载失败：${error.message}`, true);
+                        if (error.message.includes('404')) {
+                            updateInfo(`⚠️ 未找到${this.dataFile}（请确保与index.html同目录）`, true);
+                        }
                     });
+            }
 
-                    // 坐标计算（保留）
-                    const startPos = lonlatTo3d(nodes[start].lon, nodes[start].lat, nodes[start].alt);
-                    const endPos = lonlatTo3d(nodes[end].lon, nodes[end].lat, nodes[end].alt);
+            // ===================== 以下为可覆写的核心逻辑（模式差异化） =====================
+            // 绘制边（默认实现，子类可覆写）
+            drawEdges() {
+                const processed = new Set();
+                for (const start in this.edges) {
+                    for (const end in this.edges[start]) {
+                        const key = `${start}-${end}`;
+                        const reverseKey = `${end}-${start}`;
+                        if (processed.has(key) || processed.has(reverseKey)) continue;
+                        processed.add(key);
+                        if (!this.nodes[start] || !this.nodes[end]) continue;
+
+                        // 拥挤度颜色
+                        const edgeData = this.edges[start][end];
+                        const crowd = edgeData.max_cap === 0 ? 0 : Math.min(Math.max(edgeData.actual_flow / edgeData.max_cap, 0), 1);
+                        let edgeColor = crowd < 0.5 ? 0x006600 : (crowd <= 0.8 ? 0xffff00 : 0xff0000);
+
+                        // 材质
+                        const sideRoadMat = new THREE.MeshStandardMaterial({
+                            color: edgeColor, roughness: 0.7, metalness: 0.1,
+                            transparent: true, opacity: 0.8
+                        });
+
+                        // 坐标计算
+                        const startPos = this.lonlatTo3d(this.nodes[start].lon, this.nodes[start].lat, this.nodes[start].alt);
+                        const endPos = this.lonlatTo3d(this.nodes[end].lon, this.nodes[end].lat, this.nodes[end].alt);
+                        const direction = new THREE.Vector3().subVectors(endPos, startPos);
+                        const length = direction.length();
+                        const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
+
+                        // 通道几何体（模式专属半径）
+                        const cylinderGeo = new THREE.CylinderGeometry(
+                            this.config.EDGE_RADIUS,
+                            this.config.EDGE_RADIUS,
+                            length,
+                            32
+                        );
+
+                        const cylinderMesh = new THREE.Mesh(cylinderGeo, sideRoadMat);
+                        cylinderMesh.position.copy(midPoint);
+                        cylinderMesh.lookAt(endPos);
+                        cylinderMesh.rotateX(Math.PI / 2);
+                        scene.add(cylinderMesh);
+                        this.edges[start][end].mesh = cylinderMesh;
+                        this.edgeMeshes.push(cylinderMesh);
+                    }
+                }
+            }
+
+            // 绘制节点（默认实现，子类可覆写）
+            drawNodes() {
+                for (const id in this.nodes) {
+                    const node = this.nodes[id];
+                    const pos = this.lonlatTo3d(node.lon, node.lat, node.alt);
+                    const alt = node.alt;
+
+                    // 节点几何体（模式专属大小）
+                    const boxGeo = new THREE.BoxGeometry(
+                        this.config.BOX_SIZE.x,
+                        this.config.BOX_SIZE.y,
+                        this.config.BOX_SIZE.z
+                    );
+
+                    // 材质
+                    const baseColor = 0x999999;
+                    const materials = {
+                        default: new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.7, metalness: 0.1 }),
+                        hover: new THREE.MeshStandardMaterial({ color: baseColor, emissive: 0xffff00, emissiveIntensity: 0.3, roughness: 0.7, metalness: 0.1 }),
+                        start: new THREE.MeshStandardMaterial({ color: 0x4CAF50, roughness: 0.7, metalness: 0.1 }),
+                        end: new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.7, metalness: 0.1 })
+                    };
+
+                    const boxMesh = new THREE.Mesh(boxGeo, materials.default);
+                    boxMesh.position.copy(pos);
+                    boxMesh.userData = { id, alt, lon: node.lon, lat: node.lat };
+                    boxMesh.castShadow = true;
+                    boxMesh.receiveShadow = true;
+                    scene.add(boxMesh);
+                    this.nodeMeshes.push(boxMesh);
+
+                    this.nodes[id] = {
+                        ...node,
+                        mesh: boxMesh,
+                        materials,
+                        originalScale: new THREE.Vector3(1, 1, 1)
+                    };
+                }
+            }
+
+            // 计算边权重（核心差异化点，子类必须覆写）
+            calculateEdgeWeight(startId, endId) {
+                throw new Error("子类必须实现calculateEdgeWeight方法");
+            }
+
+            // 绘制路径（默认实现，子类可覆写）
+            drawPath(path, index, color) {
+                const pathMat = new THREE.MeshStandardMaterial({
+                    color: color, roughness: 0.7, metalness: 0.1,
+                    transparent: true, opacity: 0.9
+                });
+
+                for (let i = 0; i < path.length - 1; i++) {
+                    const nodeId1 = path[i];
+                    const nodeId2 = path[i + 1];
+                    const startPos = this.nodes[nodeId1].mesh.position.clone();
+                    const endPos = this.nodes[nodeId2].mesh.position.clone();
+
                     const direction = new THREE.Vector3().subVectors(endPos, startPos);
                     const length = direction.length();
                     const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
 
-                    // ========== 适配模式：使用当前模式的通道半径 ==========
+                    // 路径几何体（模式专属半径）
                     const cylinderGeo = new THREE.CylinderGeometry(
-                        currentConfig.EDGE_RADIUS,
-                        currentConfig.EDGE_RADIUS,
+                        this.config.PATH_RADIUS,
+                        this.config.PATH_RADIUS,
                         length,
                         32
                     );
-                    // ========== 适配结束 ==========
 
-                    const cylinderMesh = new THREE.Mesh(cylinderGeo, sideRoadMat);
+                    const cylinderMesh = new THREE.Mesh(cylinderGeo, pathMat);
                     cylinderMesh.position.copy(midPoint);
                     cylinderMesh.lookAt(endPos);
                     cylinderMesh.rotateX(Math.PI / 2);
                     scene.add(cylinderMesh);
-                    edges[start][end].mesh = cylinderMesh;
-                    edgeMeshes.push(cylinderMesh);
+                    this.pathMeshes.push(cylinderMesh);
                 }
+
+                // 路径详情
+                const weight = this.calculatePathWeight(path);
+                const length = this.calculatePathLength(path);
+                const pathEl = document.getElementById(`path${index}`);
+                pathEl.innerHTML = `
+                    <div style="font-weight: bold;">第${index}条最短路径</div>
+                    <div>${this.modeName === 'teaching' ? '教室' : '建筑'}序列：${path.join(' → ')}</div>
+                    <div>通道总长：${length.toFixed(2)} 米</div>
+                    <div>综合权重：${weight.toFixed(2)}</div>
+                `;
+                document.getElementById('path-detail').style.display = 'block';
             }
-            updateInfo(`已加载 ${processed.size} 条通道（${currentMode === 'teaching' ? '教学楼' : '校园'}模式）`);
+
+            // ===================== 共享算法（无需覆写） =====================
+            calculatePathWeight(path) {
+                let total = 0;
+                for (let i = 0; i < path.length - 1; i++) {
+                    total += this.calculateEdgeWeight(path[i], path[i + 1]);
+                }
+                return total;
+            }
+
+            calculatePathLength(path) {
+                let total = 0;
+                for (let i = 0; i < path.length - 1; i++) {
+                    const start = this.nodes[path[i]];
+                    const end = this.nodes[path[i + 1]];
+                    const x1 = start.lon * 111000;
+                    const y1 = start.lat * 111000;
+                    const x2 = end.lon * 111000;
+                    const y2 = end.lat * 111000;
+                    const planeDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const altDiff = end.alt - start.alt;
+                    const altDist = Math.abs(altDiff);
+                    const spaceDist = Math.sqrt(Math.pow(planeDist, 2) + Math.pow(altDist, 2));
+                    total += spaceDist;
+                }
+                return total;
+            }
+
+            dijkstra(startId, endId) {
+                const distances = {};
+                const predecessors = {};
+                const unvisited = new Set(Object.keys(this.nodes));
+                Object.keys(this.nodes).forEach(id => {
+                    distances[id] = Infinity;
+                    predecessors[id] = null;
+                });
+                distances[startId] = 0;
+
+                while (unvisited.size > 0) {
+                    let currentId = null;
+                    let minDist = Infinity;
+                    for (const id of unvisited) {
+                        if (distances[id] < minDist) {
+                            minDist = distances[id];
+                            currentId = id;
+                        }
+                    }
+                    if (currentId === null || currentId === endId) break;
+                    unvisited.delete(currentId);
+
+                    for (const neighborId in this.edges[currentId]) {
+                        if (!unvisited.has(neighborId)) continue;
+                        const newDist = distances[currentId] + this.calculateEdgeWeight(currentId, neighborId);
+                        if (newDist < distances[neighborId]) {
+                            distances[neighborId] = newDist;
+                            predecessors[neighborId] = currentId;
+                        }
+                    }
+                }
+
+                const path = [];
+                let current = endId;
+                while (current !== null) {
+                    path.push(current);
+                    current = predecessors[current];
+                }
+                path.reverse();
+                return path[0] === startId ? path : null;
+            }
+
+            yenKShortestPaths(startId, endId, K) {
+                const kPaths = [];
+                const firstPath = this.dijkstra(startId, endId);
+                if (!firstPath) return [];
+                kPaths.push(firstPath);
+
+                for (let k = 1; k < K; k++) {
+                    const prevPath = kPaths[k - 1];
+                    const candidates = [];
+
+                    for (let i = 0; i < prevPath.length - 1; i++) {
+                        const spurNode = prevPath[i];
+                        const rootPath = prevPath.slice(0, i + 1);
+                        const removedEdges = new Map();
+
+                        kPaths.forEach(path => {
+                            if (path.slice(0, i + 1).join(',') === rootPath.join(',')) {
+                                const edgeKey = `${path[i]}-${path[i + 1]}`;
+                                if (this.edges[path[i]]?.[path[i + 1]]) {
+                                    removedEdges.set(edgeKey, this.edges[path[i]][path[i + 1]]);
+                                    delete this.edges[path[i]][path[i + 1]];
+                                }
+                            }
+                        });
+
+                        const spurPath = this.dijkstra(spurNode, endId);
+                        if (spurPath) {
+                            const newPath = [...rootPath.slice(0, -1), ...spurPath];
+                            const isDuplicate = kPaths.some(existPath =>
+                                existPath.length === newPath.length && existPath.join(',') === newPath.join(',')
+                            );
+                            if (!isDuplicate) {
+                                candidates.push({ path: newPath, weight: this.calculatePathWeight(newPath) });
+                            }
+                        }
+
+                        // 恢复删除的边
+                        removedEdges.forEach((edge, edgeKey) => {
+                            const [u, v] = edgeKey.split('-');
+                            if (!this.edges[u]) this.edges[u] = {};
+                            this.edges[u][v] = edge;
+                        });
+                    }
+
+                    if (candidates.length === 0) break;
+                    candidates.sort((a, b) => a.weight - b.weight);
+                    kPaths.push(candidates[0].path);
+                }
+
+                return kPaths;
+            }
         }
 
-        function drawNodes() {
-            for (const id in nodes) {
-                const node = nodes[id];
-                const pos = lonlatTo3d(node.lon, node.lat, node.alt);
-                const alt = node.alt;
-
-                // ========== 适配模式：使用当前模式的长方体大小 ==========
-                const boxGeo = new THREE.BoxGeometry(
-                    currentConfig.BOX_SIZE.x,
-                    currentConfig.BOX_SIZE.y,
-                    currentConfig.BOX_SIZE.z
-                );
-                // ========== 适配结束 ==========
-
-                // 材质（保留）
-                const baseColor = getColorByAlt(alt);
-                const materials = {
-                    default: new THREE.MeshStandardMaterial({color: baseColor, roughness:0.7, metalness:0.1}),
-                    hover: new THREE.MeshStandardMaterial({color: baseColor, emissive: 0xffff00, emissiveIntensity: 0.3, roughness:0.7, metalness:0.1}),
-                    start: new THREE.MeshStandardMaterial({color: 0x4CAF50, roughness:0.7, metalness:0.1}),
-                    end: new THREE.MeshStandardMaterial({color: 0x0000ff, roughness:0.7, metalness:0.1})
+        // ===================== 教学楼模式（子类，完全独立） =====================
+        class TeachingMode extends BaseMode {
+            constructor() {
+                // 教学楼专属配置
+                const config = {
+                    SCALE: 100000000,
+                    ALTITUDE_SCALE: 1000,
+                    K: 2,
+                    BOX_SIZE: { x: 2000, y: 500, z: 2000 },
+                    EDGE_RADIUS: 80,
+                    PATH_RADIUS: 80,
+                    STAIR_PENALTY: true
                 };
-
-                const boxMesh = new THREE.Mesh(boxGeo, materials.default);
-                boxMesh.position.copy(pos);
-                boxMesh.userData = { id, alt, lon: node.lon, lat: node.lat };
-                boxMesh.castShadow = true;
-                boxMesh.receiveShadow = true;
-                scene.add(boxMesh);
-                nodeMeshes.push(boxMesh);
-
-                nodes[id] = {
-                    ...node,
-                    mesh: boxMesh,
-                    materials,
-                    originalScale: new THREE.Vector3(1, 1, 1)
-                };
-            }
-        }
-
-        function drawPath(path, index, color) {
-            const pathMat = new THREE.MeshStandardMaterial({
-                color: color, roughness: 0.7, metalness: 0.1,
-                transparent: true, opacity: 0.9
-            });
-
-            for(let i = 0; i < path.length - 1; i++) {
-                const nodeId1 = path[i];
-                const nodeId2 = path[i+1];
-                const startPos = nodes[nodeId1].mesh.position.clone();
-                const endPos = nodes[nodeId2].mesh.position.clone();
-
-                const direction = new THREE.Vector3().subVectors(endPos, startPos);
-                const length = direction.length();
-                const midPoint = new THREE.Vector3().addVectors(startPos, endPos).divideScalar(2);
-
-                // ========== 适配模式：使用当前模式的路径半径 ==========
-                const cylinderGeo = new THREE.CylinderGeometry(
-                    currentConfig.PATH_RADIUS,
-                    currentConfig.PATH_RADIUS,
-                    length,
-                    32
-                );
-                // ========== 适配结束 ==========
-
-                const cylinderMesh = new THREE.Mesh(cylinderGeo, pathMat);
-                cylinderMesh.position.copy(midPoint);
-                cylinderMesh.lookAt(endPos);
-                cylinderMesh.rotateX(Math.PI / 2);
-                scene.add(cylinderMesh);
-                pathMeshes.push(cylinderMesh);
+                super('teaching', config, 'path_data_6J.json');
             }
 
-            // 路径详情（保留，仅调整文字适配模式）
-            const weight = calculatePathWeight(path);
-            const length = calculatePathLength(path);
-            pathData.push({ index, nodes: path, weight, length });
-            const pathEl = document.getElementById(`path${index}`);
-            pathEl.innerHTML = `
-                <div style="font-weight: bold;">第${index}条最短路径</div>
-                <div>${currentMode === 'teaching' ? '教室' : '建筑'}序列：${path.join(' → ')}</div>
-                <div>通道总长：${length.toFixed(2)} 米</div>
-                <div>综合权重：${weight.toFixed(2)}</div>
-            `;
-            document.getElementById('path-detail').style.display = 'block';
-        }
+            // 教学楼专属权重算法（含楼梯惩罚）
+            calculateEdgeWeight(startId, endId) {
+                if (!this.edges[startId] || !this.edges[startId][endId]) return Infinity;
+                const start = this.nodes[startId];
+                const end = this.nodes[endId];
+                const edge = this.edges[startId][endId];
 
-
-        // 7. 权重/路径算法（适配模式）
-        function calculateEdgeWeight(startId, endId) {
-            if (!edges[startId] || !edges[startId][endId]) return Infinity;
-            const start = nodes[startId];
-            const end = nodes[endId];
-            const edge = edges[startId][endId];
-
-            // 基础距离计算（保留）
-            const x1 = start.lon * 111000;
-            const y1 = start.lat * 111000;
-            const x2 = end.lon * 111000;
-            const y2 = end.lat * 111000;
-            let geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-            const altDiff = Math.abs(end.alt - start.alt);
-            if (geoDist < 0.1) geoDist = altDiff + 10;
-
-            // ========== 适配模式：仅教学楼启用楼梯惩罚 ==========
-            let stairPenalty = 1;
-            if (currentConfig.STAIR_PENALTY) {
-                const isStairEdge = startId.includes("STAIR") || endId.includes("STAIR");
-                if (isStairEdge) stairPenalty = altDiff < 5 ? 30 : 80;
-            }
-            // ========== 适配结束 ==========
-
-            // 拥挤度惩罚（保留）
-            const maxCap = edge.max_cap || 1;
-            const actualFlow = edge.actual_flow || 0;
-            const congestion = actualFlow / maxCap;
-            let crowdPenalty = 1;
-            if (congestion <= 0.5) crowdPenalty = Math.pow(4, 5 * congestion);
-            else if (congestion <= 0.8) crowdPenalty = Math.pow(8, 6 * (congestion - 0.5)) * 32;
-            else crowdPenalty = Math.pow(15, 8 * (congestion - 0.8)) * 8384;
-
-            // 道路类型系数（保留）
-            const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
-
-            // 最终权重（保留）
-            const finalWeight = geoDist * roadCoeff * stairPenalty * crowdPenalty;
-            return finalWeight > 1e12 ? 1e12 : finalWeight;
-        }
-
-        // 其余算法（calculatePathWeight、calculatePathLength、dijkstra、yenKShortestPaths）完全保留
-        function calculatePathWeight(path) {
-            let total = 0;
-            for (let i = 0; i < path.length - 1; i++) {
-                total += calculateEdgeWeight(path[i], path[i + 1]);
-            }
-            return total;
-        }
-
-        function calculatePathLength(path) {
-            let total = 0;
-            for (let i = 0; i < path.length - 1; i++) {
-                const start = nodes[path[i]];
-                const end = nodes[path[i + 1]];
+                // 基础距离计算
                 const x1 = start.lon * 111000;
                 const y1 = start.lat * 111000;
                 const x2 = end.lon * 111000;
                 const y2 = end.lat * 111000;
-                const planeDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                const altDiff = end.alt - start.alt;
-                const altDist = Math.abs(altDiff);
-                const spaceDist = Math.sqrt(Math.pow(planeDist, 2) + Math.pow(altDist, 2));
-                total += spaceDist;
+                let geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const altDiff = Math.abs(end.alt - start.alt);
+                if (geoDist < 0.1) geoDist = altDiff + 10;
+
+                // 楼梯惩罚（教学楼专属）
+                let stairPenalty = 1;
+                const isStairEdge = startId.includes("STAIR") || endId.includes("STAIR");
+                if (isStairEdge) stairPenalty = altDiff < 5 ? 30 : 80;
+
+                // 拥挤度惩罚
+                const maxCap = edge.max_cap || 1;
+                const actualFlow = edge.actual_flow || 0;
+                const congestion = actualFlow / maxCap;
+                let crowdPenalty = 1;
+                if (congestion <= 0.5) crowdPenalty = Math.pow(4, 5 * congestion);
+                else if (congestion <= 0.8) crowdPenalty = Math.pow(8, 6 * (congestion - 0.5)) * 32;
+                else crowdPenalty = Math.pow(15, 8 * (congestion - 0.8)) * 8384;
+
+                // 道路类型系数
+                const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
+
+                const finalWeight = geoDist * roadCoeff * stairPenalty * crowdPenalty;
+                return finalWeight > 1e12 ? 1e12 : finalWeight;
             }
-            return total;
         }
 
-        function dijkstra(startId, endId) {
-            const distances = {};
-            const predecessors = {};
-            const unvisited = new Set(Object.keys(nodes));
-            Object.keys(nodes).forEach(id => {
-                distances[id] = Infinity;
-                predecessors[id] = null;
-            });
-            distances[startId] = 0;
-            while (unvisited.size > 0) {
-                let currentId = null;
-                let minDist = Infinity;
-                for (const id of unvisited) {
-                    if (distances[id] < minDist) {
-                        minDist = distances[id];
-                        currentId = id;
-                    }
-                }
-                if (currentId === null || currentId === endId) break;
-                unvisited.delete(currentId);
-                for (const neighborId in edges[currentId]) {
-                    if (!unvisited.has(neighborId)) continue;
-                    const newDist = distances[currentId] + calculateEdgeWeight(currentId, neighborId);
-                    if (newDist < distances[neighborId]) {
-                        distances[neighborId] = newDist;
-                        predecessors[neighborId] = currentId;
-                    }
+        // ===================== 校园模式（子类，完全独立） =====================
+        class CampusMode extends BaseMode {
+            constructor() {
+                // 校园专属配置
+                const config = {
+                    SCALE: 10000000,
+                    ALTITUDE_SCALE: 500,
+                    K: 2,
+                    BOX_SIZE: { x: 5000, y: 300, z: 5000 },
+                    EDGE_RADIUS: 150,
+                    PATH_RADIUS: 150,
+                    STAIR_PENALTY: false
+                };
+                super('campus', config, 'path_data_campus.json');
+            }
+
+            // 校园专属权重算法（无楼梯惩罚，可自定义其他规则）
+            calculateEdgeWeight(startId, endId) {
+                if (!this.edges[startId] || !this.edges[startId][endId]) return Infinity;
+                const start = this.nodes[startId];
+                const end = this.nodes[endId];
+                const edge = this.edges[startId][endId];
+
+                // 基础距离计算（校园适配：放大基础距离，适配大区域）
+                const x1 = start.lon * 111000;
+                const y1 = start.lat * 111000;
+                const x2 = end.lon * 111000;
+                const y2 = end.lat * 111000;
+                let geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const altDiff = Math.abs(end.alt - start.alt);
+                if (geoDist < 0.1) geoDist = altDiff + 50; // 校园专属：更大的基础值
+
+                // 无楼梯惩罚（校园专属）
+                const stairPenalty = 1;
+
+                // 拥挤度惩罚（校园专属：降低惩罚系数，适配大区域）
+                const maxCap = edge.max_cap || 1;
+                const actualFlow = edge.actual_flow || 0;
+                const congestion = actualFlow / maxCap;
+                let crowdPenalty = 1;
+                if (congestion <= 0.5) crowdPenalty = Math.pow(2, 5 * congestion); // 更低的惩罚
+                else if (congestion <= 0.8) crowdPenalty = Math.pow(4, 6 * (congestion - 0.5)) * 16;
+                else crowdPenalty = Math.pow(8, 8 * (congestion - 0.8)) * 4096;
+
+                // 道路类型系数（校园专属：主干道惩罚更低）
+                const roadCoeff = edge.road_type === 'main' ? 0.7 : 1.3;
+
+                const finalWeight = geoDist * roadCoeff * stairPenalty * crowdPenalty;
+                return finalWeight > 1e12 ? 1e12 : finalWeight;
+            }
+
+            // 可选：覆写校园模式的节点绘制逻辑（比如更大的悬停缩放）
+            drawNodes() {
+                for (const id in this.nodes) {
+                    const node = this.nodes[id];
+                    const pos = this.lonlatTo3d(node.lon, node.lat, node.alt);
+                    const alt = node.alt;
+
+                    const boxGeo = new THREE.BoxGeometry(
+                        this.config.BOX_SIZE.x,
+                        this.config.BOX_SIZE.y,
+                        this.config.BOX_SIZE.z
+                    );
+
+                    const baseColor = 0x999999;
+                    const materials = {
+                        default: new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.7, metalness: 0.1 }),
+                        hover: new THREE.MeshStandardMaterial({ color: baseColor, emissive: 0xffff00, emissiveIntensity: 0.4, roughness: 0.7, metalness: 0.1 }), // 校园专属：更强的悬停发光
+                        start: new THREE.MeshStandardMaterial({ color: 0x4CAF50, roughness: 0.7, metalness: 0.1 }),
+                        end: new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.7, metalness: 0.1 })
+                    };
+
+                    const boxMesh = new THREE.Mesh(boxGeo, materials.default);
+                    boxMesh.position.copy(pos);
+                    boxMesh.userData = { id, alt, lon: node.lon, lat: node.lat };
+                    boxMesh.castShadow = true;
+                    boxMesh.receiveShadow = true;
+                    scene.add(boxMesh);
+                    this.nodeMeshes.push(boxMesh);
+
+                    this.nodes[id] = {
+                        ...node,
+                        mesh: boxMesh,
+                        materials,
+                        originalScale: new THREE.Vector3(1, 1, 1)
+                    };
                 }
             }
-            const path = [];
-            let current = endId;
-            while (current !== null) {
-                path.push(current);
-                current = predecessors[current];
-            }
-            path.reverse();
-            return path[0] === startId ? path : null;
         }
 
-        function yenKShortestPaths(startId, endId, K) {
-            const kPaths = [];
-            const firstPath = dijkstra(startId, endId);
-            if (!firstPath) return [];
-            kPaths.push(firstPath);
-            for (let k = 1; k < K; k++) {
-                const prevPath = kPaths[k-1];
-                const candidates = [];
-                for (let i = 0; i < prevPath.length - 1; i++) {
-                    const spurNode = prevPath[i];
-                    const rootPath = prevPath.slice(0, i+1);
-                    const removedEdges = new Map();
-                    kPaths.forEach(path => {
-                        if (path.slice(0, i+1).join(',') === rootPath.join(',')) {
-                            const edgeKey = `${path[i]}-${path[i+1]}`;
-                            if (edges[path[i]]?.[path[i+1]]) {
-                                removedEdges.set(edgeKey, edges[path[i]][path[i+1]]);
-                                delete edges[path[i]][path[i+1]];
-                            }
-                        }
-                    });
-                    const spurPath = dijkstra(spurNode, endId);
-                    if (spurPath) {
-                        const newPath = [...rootPath.slice(0, -1), ...spurPath];
-                        const isDuplicate = kPaths.some(existPath => 
-                            existPath.length === newPath.length && existPath.join(',') === newPath.join(',')
-                        );
-                        if (!isDuplicate) {
-                            candidates.push({path: newPath, weight: calculatePathWeight(newPath)});
-                        }
-                    }
-                    removedEdges.forEach((edge, edgeKey) => {
-                        const [u, v] = edgeKey.split('-');
-                        if (!edges[u]) edges[u] = {};
-                        edges[u][v] = edge;
-                    });
-                }
-                if (candidates.length === 0) break;
-                candidates.sort((a, b) => a.weight - b.weight);
-                kPaths.push(candidates[0].path);
+        // ===================== 模式切换逻辑（核心隔离） =====================
+        function switchMode(modeType) {
+            // 1. 销毁当前模式（彻底清理资源）
+            if (currentModeInstance) {
+                currentModeInstance.destroy();
+                currentModeInstance = null;
             }
-            return kPaths;
+
+            // 2. 实例化新模式
+            if (modeType === 'teaching') {
+                currentModeInstance = new TeachingMode();
+            } else if (modeType === 'campus') {
+                currentModeInstance = new CampusMode();
+            }
+
+            // 3. 加载新模式数据
+            currentModeInstance.loadData();
+
+            // 4. 更新UI状态
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.mode-btn[data-mode="${modeType}"]`).classList.add('active');
         }
 
-
-        // 8. 交互逻辑（仅适配模式提示文字）
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let hoveredNodeId = null;
-
+        // ===================== 全局交互逻辑（绑定到当前模式） =====================
         function onMouseMove(event) {
+            if (!currentModeInstance) return;
+
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(Object.values(nodes).map(n => n.mesh), false);
-            if (hoveredNodeId && !selectedNodes.includes(hoveredNodeId)) {
-                const prevNode = nodes[hoveredNodeId];
-                prevNode.mesh.material = prevNode.materials.default;
-                prevNode.mesh.scale.copy(prevNode.originalScale);
+
+            // 检测当前模式的节点
+            const intersects = raycaster.intersectObjects(currentModeInstance.nodeMeshes, false);
+
+            // 重置上一个悬停节点
+            if (hoveredNodeId && !currentModeInstance.selectedNodes.includes(hoveredNodeId)) {
+                const prevNode = currentModeInstance.nodes[hoveredNodeId];
+                if (prevNode) {
+                    prevNode.mesh.material = prevNode.materials.default;
+                    prevNode.mesh.scale.copy(prevNode.originalScale);
+                }
                 hoveredNodeId = null;
             }
+
+            // 悬停新节点
             if (intersects.length > 0) {
                 const targetNode = intersects[0].object;
                 const nodeId = targetNode.userData.id;
-                if (!selectedNodes.includes(nodeId)) {
+                if (!currentModeInstance.selectedNodes.includes(nodeId)) {
                     hoveredNodeId = nodeId;
-                    const currNode = nodes[nodeId];
-                    currNode.mesh.material = currNode.materials.hover;
-                    currNode.mesh.scale.set(1.2, 1.2, 1.2);
+                    const currNode = currentModeInstance.nodes[nodeId];
+                    if (currNode) {
+                        currNode.mesh.material = currNode.materials.hover;
+                        currNode.mesh.scale.set(1.2, 1.2, 1.2);
+                    }
                 }
             }
         }
 
         function onMouseClick() {
+            if (!currentModeInstance) return;
+
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(Object.values(nodes).map(n => n.mesh), false);
+            const intersects = raycaster.intersectObjects(currentModeInstance.nodeMeshes, false);
+
             if (intersects.length === 0) {
-                // 适配模式：提示文字区分“教室”/“建筑”
-                updateInfo(`请点击有效${currentMode === 'teaching' ? '教室' : '建筑'}（灰色长方体）`, true);
+                updateInfo(`请点击有效${currentModeInstance.modeName === 'teaching' ? '教室' : '建筑'}（灰色长方体）`, true);
                 return;
             }
+
             const targetNode = intersects[0].object;
             const nodeId = targetNode.userData.id;
+            const mode = currentModeInstance;
 
-            pathMeshes.forEach(mesh => scene.remove(mesh));
-            pathMeshes = [];
-            pathData = [];
+            // 清空路径
+            mode.pathMeshes.forEach(mesh => scene.remove(mesh));
+            mode.pathMeshes = [];
             document.getElementById('path-detail').style.display = 'none';
             document.getElementById('path1').innerHTML = '';
             document.getElementById('path2').innerHTML = '';
 
-            if (selectedNodes.length === 0) {
-                selectedNodes.push(nodeId);
-                nodes[nodeId].mesh.material = nodes[nodeId].materials.start;
-                nodes[nodeId].mesh.scale.copy(nodes[nodeId].originalScale);
+            // 选择起点
+            if (mode.selectedNodes.length === 0) {
+                mode.selectedNodes.push(nodeId);
+                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.start;
+                mode.nodes[nodeId].mesh.scale.copy(mode.nodes[nodeId].originalScale);
                 updateInfo(`✅ 起点已选择：${nodeId}（绿色），点击选择终点（蓝色）`);
-            } else if (selectedNodes.length === 1) {
-                if (nodeId === selectedNodes[0]) {
+            }
+            // 选择终点
+            else if (mode.selectedNodes.length === 1) {
+                if (nodeId === mode.selectedNodes[0]) {
                     updateInfo("❌ 不能选择同一长方体作为终点，请重新点击", true);
                     return;
                 }
-                selectedNodes.push(nodeId);
-                nodes[nodeId].mesh.material = nodes[nodeId].materials.end;
-                nodes[nodeId].mesh.scale.copy(nodes[nodeId].originalScale);
-                updateInfo(`🔍 正在计算路径：${selectedNodes[0]} → ${nodeId}`);
-                const kPaths = yenKShortestPaths(selectedNodes[0], nodeId, currentConfig.K);
+                mode.selectedNodes.push(nodeId);
+                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.end;
+                mode.nodes[nodeId].mesh.scale.copy(mode.nodes[nodeId].originalScale);
+                updateInfo(`🔍 正在计算路径：${mode.selectedNodes[0]} → ${nodeId}`);
+
+                // 计算K最短路径
+                const kPaths = mode.yenKShortestPaths(mode.selectedNodes[0], nodeId, mode.config.K);
                 if (kPaths.length === 0) {
-                    updateInfo(`❌ 未找到从 ${selectedNodes[0]} 到 ${nodeId} 的路径`, true);
+                    updateInfo(`❌ 未找到从 ${mode.selectedNodes[0]} 到 ${nodeId} 的路径`, true);
                 } else {
                     updateInfo(`✅ 找到 ${kPaths.length} 条路径，点击空白处重新选择`);
-                    const pathColors = [0x00ffff, 0x8800ff];                
+                    const pathColors = [0x00ffff, 0x8800ff];
                     kPaths.forEach((path, idx) => {
-                        drawPath(path, idx + 1, pathColors[idx]);
+                        mode.drawPath(path, idx + 1, pathColors[idx]);
                     });
                 }
-            } else {
-                selectedNodes.forEach(id => {
-                    nodes[id].mesh.material = nodes[id].materials.default;
-                    nodes[id].mesh.scale.copy(nodes[id].originalScale);
+            }
+            // 重新选择起点
+            else {
+                mode.selectedNodes.forEach(id => {
+                    mode.nodes[id].mesh.material = mode.nodes[id].materials.default;
+                    mode.nodes[id].mesh.scale.copy(mode.nodes[id].originalScale);
                 });
-                selectedNodes = [nodeId];
-                nodes[nodeId].mesh.material = nodes[nodeId].materials.start;
+                mode.selectedNodes = [nodeId];
+                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.start;
                 updateInfo(`✅ 起点已选择：${nodeId}（绿色），点击选择终点（蓝色）`);
             }
         }
 
+        // ===================== 初始化 =====================
+        window.addEventListener('load', () => {
+            // 1. 初始化全局Three.js场景
+            initGlobalScene();
 
-        // 9. 数据加载（增加模式配置切换）
-        function loadData(fileName) {
-            clearScene();
-            // 切换当前模式&配置
-            currentMode = fileName === 'path_data_6J.json' ? 'teaching' : 'campus';
-            currentConfig = currentMode === 'teaching' ? teachingConfig : campusConfig;
-            
-            fetch(fileName)
-                .then(response => {
-                    if (!response.ok) throw new Error(`数据加载失败（${response.status}）`);
-                    return response.json();
-                })
-                .then(data => {
-                    minLon = data.min_lon;
-                    minLat = data.min_lat;
-                    nodes = data.nodes;
-                    edges = data.edges;
-                    if (!nodes || Object.keys(nodes).length === 0) throw new Error("节点数据为空");
-                    if (!edges || Object.keys(edges).length === 0) throw new Error("边数据为空");
-                    drawEdges();
-                    drawNodes();
-                })
-                .catch(error => {
-                    updateInfo(`⚠️ 初始化失败：${error.message}`, true);
-                    if (error.message.includes('404')) {
-                        updateInfo(`⚠️ 未找到${fileName}（请确保与index.html同目录）`, true);
-                    } else if (error.message.includes('JSON')) {
-                        updateInfo(`⚠️ ${fileName}格式错误（重新运行Python导出）`, true);
-                    }
+            // 2. 绑定模式切换事件
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const modeType = this.getAttribute('data-mode');
+                    switchMode(modeType);
                 });
-        }
-
-
-        // 10. 事件绑定（完全保留）
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const fileName = this.getAttribute('data-file');
-                loadData(fileName);
             });
+
+            // 3. 绑定交互事件
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onMouseClick);
+
+            // 4. 默认加载教学楼模式
+            switchMode('teaching');
         });
-
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('click', onMouseClick);
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // 初始化加载教学楼模式
-        loadData('path_data_6J.json');
-        animate();
     </script>
 </body>
 </html>
-

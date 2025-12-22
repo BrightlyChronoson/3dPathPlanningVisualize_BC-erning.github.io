@@ -98,6 +98,7 @@
     <script>
         // ===================== 全局基础层（共享） =====================
         // 1. Three.js核心对象（全局唯一，不随模式切换销毁）
+        let cameraPosition = { x: 20000, y: 15000, z: 20000 }; 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -123,7 +124,7 @@
             scene.background = new THREE.CanvasTexture(skyCanvas);
 
             // 相机配置
-            camera.position.set(20000, 15000, 20000);
+            camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
             camera.lookAt(new THREE.Vector3(0, 70, 0));
 
             // 渲染器配置
@@ -209,10 +210,26 @@
 
             // 坐标转换（模式专属）
             lonlatTo3d(lon, lat, alt) {
-                const x = (lon - this.minLon) * this.config.SCALE - 35000;
-                const y = alt * this.config.ALTITUDE_SCALE - 58500;
-                const z = (lat - this.minLat) * this.config.SCALE - 20000;
-                return new THREE.Vector3(x, y, z);
+    // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
+            const x = (lon - this.minLon) * this.config.SCALE;
+    // y轴：去掉-58500，改为+1000确保在地板（y=0）上方显示
+            const y = alt * this.config.ALTITUDE_SCALE + 1000;
+            const z = (lat - this.minLat) * this.config.SCALE;
+            return new THREE.Vector3(x, y, z);
+        }
+
+            adjustCamera() {
+                if (this.modeName === 'campus') {
+        // 校园模式：相机拉远，覆盖大区域
+                    cameraPosition = { x: 80000, y: 40000, z: 80000 };
+                } else {
+        // 教学楼模式：恢复原相机位置
+                    cameraPosition = { x: 20000, y: 15000, z: 20000 };
+                }
+    // 更新相机位置
+                camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+                camera.lookAt(new THREE.Vector3(0, 1000, 0)); // 看向地板上方核心区域
+                controls.target.set(0, 1000, 0); // 控制器目标同步
             }
 
             // 清空当前模式的所有资源（核心隔离点）
@@ -256,7 +273,8 @@
                         // 绘制模式专属元素
                         this.drawEdges();
                         this.drawNodes();
-                        // 更新图例文字
+                        this.adjustCamera(); // 新增：加载完成后调整相机
+// 更新图例文字
                         document.getElementById('legend-node-text').innerText = this.modeName === 'teaching' ? '教室' : '建筑';
                         updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式加载完成，点击选择起点`);
                     })
@@ -820,3 +838,4 @@
     </script>
 </body>
 </html>
+

@@ -194,7 +194,7 @@
         function lonlatTo3d(lon, lat, alt) {
             const x = (lon - minLon) * CONFIG.SCALE - 35000; // 经度→x轴（水平）
             const y = alt * CONFIG.ALTITUDE_SCALE - 60000;   // 海拔→y轴（垂直高度）
-            const z = (lat - minLat) * CONFIG.SCALE - 15000; // 纬度→z轴（水平）
+            const z = (lat - minLat) * CONFIG.SCALE - 12000; // 纬度→z轴（水平）
             return new THREE.Vector3(x, y, z);
         }
 
@@ -714,6 +714,7 @@
 </body>
 
 </html>
+
 
 
 

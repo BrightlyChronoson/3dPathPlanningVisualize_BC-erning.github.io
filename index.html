@@ -413,17 +413,16 @@
                 : edge.actual_flow / edge.max_cap;
     
             // 2. 指数惩罚核心逻辑（可调整base和exponent控制惩罚强度）
-            const base = 2; // 底数（越大，惩罚增长越快）
-            const exponent = 3; // 指数（越大，高拥挤度惩罚越重）
+            const base = 5; // 底数（越大，惩罚增长越快）
+            const exponent = 7; // 指数（越大，高拥挤度惩罚越重）
             let congestionRatio;
 
             if (congestion <= 1.0) {
-                // 拥挤度≤1时：指数增长（比如congestion=0.8→2^(3*0.8)=2^2.4≈5.27；congestion=0.9→2^2.7≈6.49）
                 congestionRatio = Math.pow(base, exponent * congestion);
             } else {
                 // 拥挤度>1时：在指数基础上叠加额外惩罚（比原线性更重）
                 const overCongestion = congestion - 1.0;
-                congestionRatio = Math.pow(base, exponent * 1.0) * (1 + overCongestion * 5); // 5是超负载惩罚系数，可调
+                congestionRatio = Math.pow(base, exponent * 1.0) * (1 + overCongestion * 10); // 5是超负载惩罚系数，可调
             }
     
             const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
@@ -722,6 +721,7 @@
 </body>
 
 </html>
+
 
 
 

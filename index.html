@@ -364,7 +364,7 @@
         // 7. 路径算法（无修改）
         function calculateEdgeWeight(startId, endId) {
             if (!edges[startId] || !edges[startId][endId]) return Infinity;
-            
+    
             const start = nodes[startId];
             const end = nodes[endId];
             const edge = edges[startId][endId];
@@ -375,13 +375,26 @@
             const y2 = end.lat * 111000;
             const geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-            const congestion = edge.actual_flow / edge.max_cap;
-            let congestionCoeff = 1.0;
-            if (0.7 < congestion <= 0.9) congestionCoeff = 1.5;
-            else if (0.9 < congestion <= 1.0) congestionCoeff = 2.0;
-            else if (congestion > 1.0) congestionCoeff = 3.0;
-            const congestionRatio = congestion <= 1 ? 1.0 : 1 + (congestion - 1) * congestionCoeff;
+            // ========== 以下是核心修改：指数级拥挤度惩罚 ==========
+            // 1. 增加边界处理，避免max_cap=0时除以0报错
+            const congestion = edge.max_cap === 0 
+                ? 0 
+                : edge.actual_flow / edge.max_cap;
+    
+            // 2. 指数惩罚核心逻辑（可调整base和exponent控制惩罚强度）
+            const base = 2; // 底数（越大，惩罚增长越快）
+            const exponent = 3; // 指数（越大，高拥挤度惩罚越重）
+            let congestionRatio;
 
+            if (congestion <= 1.0) {
+                // 拥挤度≤1时：指数增长（比如congestion=0.8→2^(3*0.8)=2^2.4≈5.27；congestion=0.9→2^2.7≈6.49）
+                congestionRatio = Math.pow(base, exponent * congestion);
+            } else {
+                // 拥挤度>1时：在指数基础上叠加额外惩罚（比原线性更重）
+                const overCongestion = congestion - 1.0;
+                congestionRatio = Math.pow(base, exponent * 1.0) * (1 + overCongestion * 5); // 5是超负载惩罚系数，可调
+            }
+    
             const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
 
             const altDiff = end.alt - start.alt;
@@ -668,6 +681,7 @@
 </body>
 
 </html>
+
 
 
 

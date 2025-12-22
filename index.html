@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>第六教学楼B区3D路径规划</title>
@@ -17,6 +17,39 @@
             color: #333;
             z-index: 100;
         }
+        <!-- 新增：模式选择面板样式 -->
+        #mode-panel {
+            position: absolute;
+            top: 10px;
+            left: 280px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+        .mode-btn {
+            padding: 6px 12px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .mode-btn:hover {
+            background: #e9ecef;
+        }
+        .mode-btn.active:hover {
+            background: #0069d9;
+        }
+        <!-- 新增结束 -->
         #path-detail {
             position: absolute;
             top: 70px;
@@ -63,6 +96,13 @@
 </head>
 <body>
     <div id="info-panel">点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）</div>
+    <!-- 新增：模式选择面板 -->
+    <div id="mode-panel">
+        <span style="font-size:13px; font-weight:bold; margin-right:8px;">选择模式：</span>
+        <button class="mode-btn active" data-file="path_data_6J.json">教学楼模式</button>
+        <button class="mode-btn" data-file="path_data_campus.json">校园模式</button>
+    </div>
+    <!-- 新增结束 -->
     <div id="path-detail">
         <div style="font-weight: bold; margin-bottom: 5px;">路径详情</div>
         <div id="path1"></div>
@@ -72,11 +112,11 @@
         <div style="font-weight: bold; margin-bottom: 8px;">图例</div>
         <div class="legend-item">
             <div class="legend-color" style="background: #999999;"></div>
-            <span>教室</span>
+            <span>教室/建筑</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #eeeeaa;"></div>
-            <span>悬停教室</span>
+            <span>悬停目标</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #00ff00;"></div>
@@ -116,6 +156,9 @@
         let selectedNodes = []; // 选中节点
         let pathMeshes = [];    // 路径网格
         let pathData = [];      // 路径详情
+        // 新增：存储当前场景中的节点/边网格（用于切换模式时清空）
+        let nodeMeshes = [];
+        let edgeMeshes = [];
 
         // 2. Three.js核心对象初始化
         const scene = new THREE.Scene();
@@ -198,7 +241,7 @@
             return new THREE.Vector3(x, y, z);
         }
 
-        // 统一使用灰色表示未选择的教室
+        // 统一使用灰色表示未选择的教室/建筑
         function getColorByAlt(alt) {
             return 0x999999; // 灰色
         }
@@ -208,8 +251,33 @@
             panel.innerHTML = isError ? `<span class="error提示">${text}</span>` : text;
         }
 
-        // 6. 绘制函数
+        // 新增：清空场景（切换模式时调用）
+        function clearScene() {
+            // 清空路径网格
+            pathMeshes.forEach(mesh => scene.remove(mesh));
+            pathMeshes = [];
+            // 清空节点网格
+            nodeMeshes.forEach(mesh => scene.remove(mesh));
+            nodeMeshes = [];
+            // 清空边网格
+            edgeMeshes.forEach(mesh => scene.remove(mesh));
+            edgeMeshes = [];
+            // 重置全局变量
+            nodes = {};
+            edges = {};
+            selectedNodes = [];
+            pathData = [];
+            minLon = 0;
+            minLat = 0;
+            // 清空路径详情面板
+            document.getElementById('path-detail').style.display = 'none';
+            document.getElementById('path1').innerHTML = '';
+            document.getElementById('path2').innerHTML = '';
+            // 重置提示信息
+            updateInfo("点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）");
+        }
 
+        // 6. 绘制函数
         function drawEdges() {
             // 移除全局固定材质，改为在循环内为每个边单独创建
             const processed = new Set();
@@ -281,6 +349,7 @@
 
                     scene.add(cylinderMesh);
                     edges[start][end].mesh = cylinderMesh;
+                    edgeMeshes.push(cylinderMesh); // 新增：记录边网格
                 }
             }
             updateInfo(`已加载 ${processed.size} 条通道，楼层垂直分层显示`);
@@ -332,6 +401,7 @@
                 boxMesh.castShadow = true;
                 boxMesh.receiveShadow = true;
                 scene.add(boxMesh);
+                nodeMeshes.push(boxMesh); // 新增：记录节点网格
 
                 nodes[id] = {
                     ...node,
@@ -385,17 +455,13 @@
             const pathEl = document.getElementById(`path${index}`);
             pathEl.innerHTML = `
                 <div style="font-weight: bold;">第${index}条最短路径</div>
-                <div>教室序列：${path.join(' → ')}</div>
+                <div>节点序列：${path.join(' → ')}</div>
                 <div>通道总长：${length.toFixed(2)} 米</div>
                 <div>综合权重：${weight.toFixed(2)}</div>
             `;
             document.getElementById('path-detail').style.display = 'block';
         }
 
-
-
-//缩进1
-    //缩进2
         function calculateEdgeWeight(startId, endId) {
             // 1. 边界判断：边不存在则返回无穷大
             if (!edges[startId] || !edges[startId][endId]) return Infinity;
@@ -536,7 +602,6 @@
             return path[0] === startId ? path : null;
         }
 
-
         function yenKShortestPaths(startId, endId, K) {
             const kPaths = [];
             // 1. 找第一条最短路径（Dijkstra）
@@ -646,7 +711,7 @@
             );
 
             if (intersects.length === 0) {
-                updateInfo("请点击有效教室（灰色长方体）", true);
+                updateInfo("请点击有效目标（灰色长方体）", true);
                 return;
             }
 
@@ -697,9 +762,12 @@
             }
         }
 
-        // 9. 数据加载
-        function loadData() {
-            fetch('path_data_6J.json')
+        // 9. 数据加载（修改：支持动态文件名）
+        function loadData(fileName) {
+            // 清空原有场景
+            clearScene();
+            
+            fetch(fileName)
                 .then(response => {
                     if (!response.ok) throw new Error(`数据加载失败（${response.status}）`);
                     return response.json();
@@ -719,12 +787,24 @@
                 .catch(error => {
                     updateInfo(`⚠️ 初始化失败：${error.message}`, true);
                     if (error.message.includes('404')) {
-                        updateInfo(`⚠️ 未找到path_data_6J.json（请确保与index.html同目录）`, true);
+                        updateInfo(`⚠️ 未找到${fileName}（请确保与index.html同目录）`, true);
                     } else if (error.message.includes('JSON')) {
-                        updateInfo(`⚠️ path_data_6J.json格式错误（重新运行Python导出）`, true);
+                        updateInfo(`⚠️ ${fileName}格式错误（重新运行Python导出）`, true);
                     }
                 });
         }
+
+        // 新增：模式切换事件绑定
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 切换按钮激活状态
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // 加载对应文件
+                const fileName = this.getAttribute('data-file');
+                loadData(fileName);
+            });
+        });
 
         // 10. 事件与动画
         window.addEventListener('mousemove', onMouseMove);
@@ -741,41 +821,9 @@
             renderer.render(scene, camera);
         }
 
-        loadData();
+        // 初始化：默认加载教学楼模式
+        loadData('path_data_6J.json');
         animate();
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

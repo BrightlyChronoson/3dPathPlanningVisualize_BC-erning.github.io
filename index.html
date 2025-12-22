@@ -392,7 +392,7 @@
             document.getElementById('path-detail').style.display = 'block';
         }
 
-        // 7. 路径算法（无修改）
+
         function calculateEdgeWeight(startId, endId) {
             if (!edges[startId] || !edges[startId][endId]) return Infinity;
 
@@ -400,53 +400,40 @@
             const end = nodes[endId];
             const edge = edges[startId][endId];
 
-            // 1. 基础地理距离计算（保留原有逻辑）
+            // 基础距离（缩放到百米级，弱化距离主导性）
             const x1 = start.lon * 111000;
             const y1 = start.lat * 111000;
             const x2 = end.lon * 111000;
             const y2 = end.lat * 111000;
-            const geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const geoDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 100;
 
-            // ========== 核心优化1：指数级强化拥挤度惩罚（力度大幅提升） ==========
+            // 楼梯/上下楼梯度惩罚（贴合实际通行成本）
+            const isStairEdge = startId.includes("STAR") || endId.includes("STAR");
+            const altDiff = Math.abs(end.alt - start.alt);
+            let stairAltPenalty = 1;
+            if (isStairEdge) {
+                stairAltPenalty = altDiff < 1 ? 3 : 8;
+            }
+
+            // 拥挤度梯度指数惩罚（0→1逐步加重）
             const congestion = edge.max_cap === 0 ? 0 : edge.actual_flow / edge.max_cap;
-            // 优化点：
-            // - 底数从5→8，指数从7→12，惩罚增长更陡峭
-            // - 拥挤度≤0时惩罚系数=1（无惩罚），避免低拥挤度被误惩罚
-            const base = 8; // 底数越大，惩罚增长越快
-            const exponent = 12; // 指数越高，高拥挤度惩罚越重
-            let congestionRatio = congestion <= 0 
-                ? 1 
-                : Math.pow(base, exponent * congestion);
-
-            // 超拥挤惩罚（拥挤度>1时，叠加指数级额外惩罚，而非线性）
-            if (congestion > 1.0) {
-                const overCongestion = congestion - 1.0;
-                congestionRatio *= Math.pow(10, overCongestion); // 超负载时惩罚指数级飙升
+            let crowdPenalty = 1;
+            if (congestion <= 0.5) {
+                crowdPenalty = Math.pow(2, 4 * congestion);
+            } else if (congestion <= 0.8) {
+                crowdPenalty = Math.pow(3, 6 * (congestion - 0.5)) * 4;
+            } else {
+                crowdPenalty = Math.pow(5, 8 * (congestion - 0.8)) * 32;
             }
 
-            // ========== 核心优化2：大幅提升海拔升高的惩罚力度 ==========
-            const altDiff = end.alt - start.alt;
-            let altPenalty = 0;
-            if (altDiff > 0) {
-                // 海拔升高：采用「指数+线性」复合惩罚（升高越多，惩罚越陡）
-                // 优化点：
-                // 1. 基础系数从0.001→0.008（线性惩罚提升8倍）
-                // 2. 叠加指数惩罚，避免“小幅度升高惩罚不足”
-                altPenalty = (altDiff * 0.008) * Math.exp(altDiff * 0.005); 
-            } else if (altDiff < 0) {
-                // 海拔降低：适度惩罚（保持原有逻辑，系数微调）
-                altPenalty = Math.abs(altDiff) * 0.0015;
-            }
+            // 道路类型次要调整
+            const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.1;
 
-            // 道路类型系数（保留原有逻辑，可按需微调）
-            const roadCoeff = edge.road_type === 'main' ? 0.9 : 1.2;
+            // 最终权重（比例平衡）
+            const finalWeight = geoDist * roadCoeff * stairAltPenalty * crowdPenalty;
 
-            // 最终权重：地理距离 * 拥挤惩罚 * 道路系数 + 海拔惩罚（海拔惩罚独立叠加，优先级更高）
-            // 优化点：把海拔惩罚从“加项”改为“乘项”，进一步放大海拔影响
-            const finalWeight = geoDist * congestionRatio * roadCoeff * (1 + altPenalty);
-
-            // 边界保护：避免权重溢出
-            return finalWeight > 1e10 ? 1e10 : finalWeight;
+            // 边界保护
+            return finalWeight > 1e6 ? 1e6 : finalWeight;
         }
         
         function calculatePathWeight(path) {
@@ -737,6 +724,7 @@
 </body>
 
 </html>
+
 
 
 

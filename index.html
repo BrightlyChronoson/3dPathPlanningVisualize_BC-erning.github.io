@@ -416,11 +416,21 @@
             for (let i = 0; i < path.length - 1; i++) {
                 const start = nodes[path[i]];
                 const end = nodes[path[i + 1]];
+                        // 平面距离：经纬度转米后的水平距离
                 const x1 = start.lon * 111000;
                 const y1 = start.lat * 111000;
                 const x2 = end.lon * 111000;
                 const y2 = end.lat * 111000;
-                total += Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const planeDist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                        
+                        // 海拔距离：楼层高度差的绝对值
+                const altDiff = end.alt - start.alt;
+                const altDist = Math.abs(altDiff);
+                        
+                        // 3D空间距离：平面+海拔的勾股定理计算
+                const spaceDist = Math.sqrt(Math.pow(planeDist, 2) + Math.pow(altDist, 2));
+                        
+                total += spaceDist;
             }
             return total;
         }
@@ -681,6 +691,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -674,7 +674,7 @@
 
         // 9. 数据加载
         function loadData() {
-            fetch('path_data.json')
+            fetch('path_data_6J.json')
                 .then(response => {
                     if (!response.ok) throw new Error(`数据加载失败（${response.status}）`);
                     return response.json();
@@ -694,9 +694,9 @@
                 .catch(error => {
                     updateInfo(`⚠️ 初始化失败：${error.message}`, true);
                     if (error.message.includes('404')) {
-                        updateInfo(`⚠️ 未找到path_data.json（请确保与index.html同目录）`, true);
+                        updateInfo(`⚠️ 未找到path_data_6J.json（请确保与index.html同目录）`, true);
                     } else if (error.message.includes('JSON')) {
-                        updateInfo(`⚠️ path_data.json格式错误（重新运行Python导出）`, true);
+                        updateInfo(`⚠️ path_data_6J.json格式错误（重新运行Python导出）`, true);
                     }
                 });
         }
@@ -722,6 +722,7 @@
 </body>
 
 </html>
+
 
 
 

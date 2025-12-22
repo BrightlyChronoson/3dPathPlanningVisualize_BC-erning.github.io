@@ -119,7 +119,7 @@
 
         // 2. Three.js核心对象初始化
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8f9fa);
+        scene.background = new THREE.Color(0x87CEEB);
 
         // 相机：适配y轴为高度，设置水平视角
         const camera = new THREE.PerspectiveCamera(
@@ -159,13 +159,16 @@
         scene.add(spotLight);
 
         // 4. 辅助元素
-        const gridHelper = new THREE.GridHelper(100000, 50); // 地面网格：x/z平面
-        gridHelper.position.y = 0; // 网格在y=0处（底层地面）
-        gridHelper.material.opacity = 0.5;
-        gridHelper.material.transparent = true;
-        scene.add(gridHelper);
-        const axesHelper = new THREE.AxesHelper(10000); // 坐标轴：x红、y绿、z蓝
-        scene.add(axesHelper);
+        const floorGeometry = new THREE.PlaneGeometry(100000, 100000); // 与原网格同大小
+        const floorMaterial = new THREE.MeshLambertMaterial({
+            color: 0x999999, // 灰色地板
+            transparent: false
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2; // 旋转为水平平面
+        floor.position.y = 0; // 位于y=0高度
+        floor.receiveShadow = true; // 允许接收阴影（增强真实感）
+        scene.add(floor);
 
         // 5. 工具函数：修正坐标映射（海拔→y轴）
         function lonlatTo3d(lon, lat, alt) {
@@ -691,6 +694,7 @@
 </body>
 
 </html>
+
 
 
 

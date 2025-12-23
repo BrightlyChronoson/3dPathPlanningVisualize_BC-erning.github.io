@@ -204,6 +204,7 @@
                 requestAnimationFrame(animate);
                 controls.update();
                 renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
             }
             animate();
         }
@@ -594,7 +595,7 @@
                     ALTITUDE_SCALE: 1000,//竖直缩放规模
                     X_OFFSET: 0,//X轴偏移量
                     Y_OFFSET: -58000,//Y轴偏移量
-                    X_OFFSET: 0,//Z轴偏移量
+                    Z_OFFSET: 0,//Z轴偏移量
                     K: 2,
                     BOX_SIZE: { x: 2000, y: 500, z: 2000 },//节点尺寸大小
                     EDGE_RADIUS: 80,
@@ -651,7 +652,7 @@
                     ALTITUDE_SCALE: 500,//竖直缩放规模
                     X_OFFSET: 0,//X轴偏移量
                     Y_OFFSET: -58000,//Y轴偏移量
-                    X_OFFSET: 0,//Z轴偏移量
+                    Z_OFFSET: 0,//Z轴偏移量
                     K: 2,
                     BOX_SIZE: { x: 500, y: 300, z: 500 },//节点尺寸大小
                     EDGE_RADIUS: 150,
@@ -980,6 +981,7 @@
     </script>
 </body>
 </html>
+
 
 
 

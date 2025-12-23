@@ -210,22 +210,22 @@
 
             // 坐标转换（模式专属）
             lonlatTo3d(lon, lat, alt) {
-    // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
-            const x = (lon - this.minLon) * this.config.SCALE;
+            // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
+            const x = (lon - this.minLon) * this.config.SCALE + this.config.X_OFFSET;
             const y = alt * this.config.ALTITUDE_SCALE + this.config.Y_OFFSET;
-            const z = (lat - this.minLat) * this.config.SCALE;
+            const z = (lat - this.minLat) * this.config.SCALE + this.config.Z_OFFSET;
             return new THREE.Vector3(x, y, z);
         }
 
             adjustCamera() {
                 if (this.modeName === 'campus') {
-        // 校园模式：相机拉远，覆盖大区域
+                // 校园模式：相机拉远，覆盖大区域
                     cameraPosition = { x: 80000, y: 40000, z: 80000 };
                 } else {
-        // 教学楼模式：恢复原相机位置
+                // 教学楼模式：恢复原相机位置
                     cameraPosition = { x: 20000, y: 15000, z: 20000 };
                 }
-    // 更新相机位置
+                // 更新相机位置
                 camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
                 camera.lookAt(new THREE.Vector3(0, 1000, 0)); // 看向地板上方核心区域
                 controls.target.set(0, 1000, 0); // 控制器目标同步
@@ -552,11 +552,13 @@
             constructor() {
                 // 教学楼专属配置
                 const config = {
-                    SCALE: 100000000,
-                    ALTITUDE_SCALE: 1000,
-                    Y_OFFSET: -58000,
+                    SCALE: 100000000,//水平缩放规模
+                    ALTITUDE_SCALE: 1000,//竖直缩放规模
+                    X_OFFSET: 0,//X轴偏移量
+                    Y_OFFSET: -58000,//Y轴偏移量
+                    X_OFFSET: 0,//Z轴偏移量
                     K: 2,
-                    BOX_SIZE: { x: 2000, y: 500, z: 2000 },
+                    BOX_SIZE: { x: 2000, y: 500, z: 2000 },//节点尺寸大小
                     EDGE_RADIUS: 80,
                     PATH_RADIUS: 80,
                     STAIR_PENALTY: true
@@ -607,11 +609,13 @@
             constructor() {
                 // 校园专属配置
                 const config = {
-                    SCALE: 10000000,
-                    ALTITUDE_SCALE: 500,
-                    Y_OFFSET: -10000,
+                    SCALE: 10000000,//水平缩放规模
+                    ALTITUDE_SCALE: 500,//竖直缩放规模
+                    X_OFFSET: 0,//X轴偏移量
+                    Y_OFFSET: -58000,//Y轴偏移量
+                    X_OFFSET: 0,//Z轴偏移量
                     K: 2,
-                    BOX_SIZE: { x: 5000, y: 300, z: 5000 },
+                    BOX_SIZE: { x: 500, y: 300, z: 500 },//节点尺寸大小
                     EDGE_RADIUS: 150,
                     PATH_RADIUS: 150,
                     STAIR_PENALTY: false
@@ -839,6 +843,7 @@
     </script>
 </body>
 </html>
+
 
 
 

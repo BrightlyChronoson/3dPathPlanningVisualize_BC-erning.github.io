@@ -197,6 +197,15 @@
                 this.config = config;     // 模式专属配置
                 this.dataFile = dataFile; // 模式专属数据文件
 
+                // ========== 新增：经纬度范围/中心变量（核心修复） ==========
+                this.lonMin = 0;    // 当前模式经度最小值
+                this.lonMax = 0;    // 当前模式经度最大值
+                this.latMin = 0;    // 当前模式纬度最小值
+                this.latMax = 0;    // 当前模式纬度最大值
+                this.lonCenter = 0; // 当前模式经度中心
+                this.latCenter = 0; // 当前模式纬度中心
+                // ==========================================================
+
                 // 模式私有资源（完全隔离）
                 this.nodes = {};         // 节点数据
                 this.edges = {};         // 边数据
@@ -206,16 +215,23 @@
                 this.edgeMeshes = [];    // 边网格
                 this.minLon = 0;
                 this.minLat = 0;
-            }
+              }
 
             // 坐标转换（模式专属）
             lonlatTo3d(lon, lat, alt) {
-            // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
-            const x = (lon - this.minLon) * this.config.SCALE;
-            const y = alt * this.config.ALTITUDE_SCALE - 58500;
-            const z = (lat - this.minLat) * this.config.SCALE;
-            return new THREE.Vector3(x, y, z);
-        }
+                // ========== 核心修复：基于当前模式的经纬度中心做偏移 ==========
+                const lonOffset = lon - this.lonCenter; // 节点相对于经度中心的偏移
+                const latOffset = lat - this.latCenter; // 节点相对于纬度中心的偏移
+                // ==========================================================
+
+                // 用当前模式的SCALE缩放（不同模式的SCALE差异被适配）
+                const x = lonOffset * this.config.SCALE;
+                // y轴：确保在地板上方（所有模式通用）
+                const y = alt * this.config.ALTITUDE_SCALE + 1000;
+                const z = latOffset * this.config.SCALE;
+
+                return new THREE.Vector3(x, y, z);
+            }
 
             adjustCamera() {
                 if (this.modeName === 'campus') {
@@ -837,5 +853,6 @@
     </script>
 </body>
 </html>
+
 
 

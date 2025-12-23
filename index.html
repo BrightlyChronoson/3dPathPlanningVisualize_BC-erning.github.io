@@ -227,7 +227,7 @@
                 // 用当前模式的SCALE缩放（不同模式的SCALE差异被适配）
                 const x = lonOffset * this.config.SCALE;
                 // y轴：确保在地板上方（所有模式通用）
-                const y = alt * this.config.ALTITUDE_SCALE - 60000;
+                const y = alt * this.config.ALTITUDE_SCALE ;
                 const z = latOffset * this.config.SCALE;
 
                 return new THREE.Vector3(x, y, z);
@@ -853,6 +853,7 @@
     </script>
 </body>
 </html>
+
 
 
 

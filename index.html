@@ -212,8 +212,7 @@
             lonlatTo3d(lon, lat, alt) {
     // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
             const x = (lon - this.minLon) * this.config.SCALE;
-    // y轴：去掉-58500，改为+1000确保在地板（y=0）上方显示
-            const y = alt * this.config.ALTITUDE_SCALE + 1000;
+            const y = alt * this.config.ALTITUDE_SCALE + this.config.Y_OFFSET;
             const z = (lat - this.minLat) * this.config.SCALE;
             return new THREE.Vector3(x, y, z);
         }
@@ -555,6 +554,7 @@
                 const config = {
                     SCALE: 100000000,
                     ALTITUDE_SCALE: 1000,
+                    Y_OFFSTE = -58000,
                     K: 2,
                     BOX_SIZE: { x: 2000, y: 500, z: 2000 },
                     EDGE_RADIUS: 80,
@@ -609,6 +609,7 @@
                 const config = {
                     SCALE: 10000000,
                     ALTITUDE_SCALE: 500,
+                    Y_OFFSET: -10000，
                     K: 2,
                     BOX_SIZE: { x: 5000, y: 300, z: 5000 },
                     EDGE_RADIUS: 150,
@@ -838,3 +839,4 @@
     </script>
 </body>
 </html>
+

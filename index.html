@@ -210,10 +210,9 @@
 
             // 坐标转换（模式专属）
             lonlatTo3d(lon, lat, alt) {
-    // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
+            // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
             const x = (lon - this.minLon) * this.config.SCALE;
-    // y轴：去掉-58500，改为+1000确保在地板（y=0）上方显示
-            const y = alt * this.config.ALTITUDE_SCALE + 1000;
+            const y = alt * this.config.ALTITUDE_SCALE - 58500;
             const z = (lat - this.minLat) * this.config.SCALE;
             return new THREE.Vector3(x, y, z);
         }
@@ -838,4 +837,5 @@
     </script>
 </body>
 </html>
+
 

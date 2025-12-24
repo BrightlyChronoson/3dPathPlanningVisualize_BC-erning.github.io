@@ -278,6 +278,37 @@
             panel.innerHTML = isError ? `<span class="error-tip">${text}</span>` : text; // 修正：类名改为error-tip
         }
 
+        function clearSelectedPath() {
+            if (!currentModeInstance) return; // 无激活模式时不执行
+    
+            // 1. 恢复起点/终点节点的默认材质
+            currentModeInstance.selectedNodes.forEach(id => {
+                const node = currentModeInstance.nodes[id];
+                if (node) {
+                    node.mesh.material = node.materials.default;
+                    node.mesh.scale.copy(node.originalScale); // 恢复节点缩放
+                }
+            });
+
+            // 2. 移除所有路径网格
+            currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
+            currentModeInstance.pathMeshes = [];
+
+            // 3. 清空选中节点数组
+            currentModeInstance.selectedNodes = [];
+
+            // 4. 隐藏路径详情面板
+            document.getElementById('path-detail').style.display = 'none';
+            document.getElementById('path1').innerHTML = '';
+            document.getElementById('path2').innerHTML = '';
+
+            // 5. 重置悬停节点状态
+            hoveredNodeId = null;
+        
+            // 6. 更新提示信息
+            updateInfo(`点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）`);
+        }
+        
         // ===================== 模式基类（抽离核心逻辑） =====================
         class BaseMode {
             constructor(modeName, config, dataFile) {
@@ -1073,6 +1104,12 @@
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('click', onMouseClick);
 
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' || e.keyCode === 27) { // 兼容不同浏览器的ESC键判断
+                    clearSelectedPath();
+                }
+            });
+
             // 4. 默认加载教学楼模式
             switchMode('teaching');
             initSearchPanel();
@@ -1083,6 +1120,7 @@
     </script>
 </body>
 </html>
+
 
 
 

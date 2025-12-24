@@ -50,6 +50,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/renderers/CSS2DRenderer.js"></script>
 </head>
 <body>
     <div id="info-panel">点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）</div>
@@ -95,6 +96,22 @@
         </div>
     </div>
 
+    <div id="search-panel" style="position: absolute; top: 220px; left: 10px; background: rgba(255,255,255,0.9); padding: 12px 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;">
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">节点查找（直接设置起/终点）</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <div style="flex: 1;">
+                <label style="font-size: 12px; color: #666;">起点：</label>
+                <input type="text" id="start-node-input" placeholder="输入节点名（如教室101）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 12px; color: #666;">终点：</label>
+                <input type="text" id="end-node-input" placeholder="输入节点名（如教室102）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
+            </div>
+        </div>
+        <button id="search-path-btn" style="padding: 5px 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">计算路径</button>
+        <div id="search-tip" style="margin-top: 6px; font-size: 12px; color: #dc3545; display: none;"></div>
+    </div>
+    
     <script>
         // ===================== 全局基础层（共享） =====================
         // 1. Three.js核心对象（全局唯一，不随模式切换销毁）
@@ -134,6 +151,13 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
 
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0';
+            labelRenderer.domElement.style.pointerEvents = 'none'; // 不遮挡交互
+            document.body.appendChild(labelRenderer.domElement);
+            
             // 控制器配置
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
@@ -180,6 +204,7 @@
                 requestAnimationFrame(animate);
                 controls.update();
                 renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
             }
             animate();
         }
@@ -365,6 +390,20 @@
                     scene.add(boxMesh);
                     this.nodeMeshes.push(boxMesh);
 
+                    const labelDiv = document.createElement('div');
+                    labelDiv.style.fontSize = '12px';
+                    labelDiv.style.fontWeight = 'bold';
+                    labelDiv.style.color = '#333';
+                    labelDiv.style.background = 'rgba(255,255,255,0.8)';
+                    labelDiv.style.padding = '2px 6px';
+                    labelDiv.style.borderRadius = '3px';
+                    labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+                    labelDiv.textContent = id;
+
+                    const label = new THREE.CSS2DObject(labelDiv);
+                    label.position.set(0, this.config.BOX_SIZE.y / 2 + 200, 0); // 标签在节点上方
+                    boxMesh.add(label); // 标签绑定到节点
+                    
                     this.nodes[id] = {
                         ...node,
                         mesh: boxMesh,
@@ -612,7 +651,7 @@
                     SCALE: 10000000,//水平缩放规模
                     ALTITUDE_SCALE: 500,//竖直缩放规模
                     X_OFFSET: 0,//X轴偏移量
-                    Y_OFFSET: -10000,//Y轴偏移量
+                    Y_OFFSET: -58000,//Y轴偏移量
                     Z_OFFSET: 0,//Z轴偏移量
                     K: 2,
                     BOX_SIZE: { x: 500, y: 300, z: 500 },//节点尺寸大小
@@ -687,6 +726,20 @@
                     scene.add(boxMesh);
                     this.nodeMeshes.push(boxMesh);
 
+                    const labelDiv = document.createElement('div');
+                    labelDiv.style.fontSize = '14px';
+                    labelDiv.style.fontWeight = 'bold';
+                    labelDiv.style.color = '#333';
+                    labelDiv.style.background = 'rgba(255,255,255,0.8)';
+                    labelDiv.style.padding = '3px 8px';
+                    labelDiv.style.borderRadius = '3px';
+                    labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+                    labelDiv.textContent = id;
+
+                    const label = new THREE.CSS2DObject(labelDiv);
+                    label.position.set(0, this.config.BOX_SIZE.y / 2 + 300, 0); // 适配校园节点尺寸
+                    boxMesh.add(label);
+                    
                     this.nodes[id] = {
                         ...node,
                         mesh: boxMesh,
@@ -820,6 +873,91 @@
             }
         }
 
+        function initSearchPanel() {
+            const startInput = document.getElementById('start-node-input');
+            const endInput = document.getElementById('end-node-input');
+            const searchBtn = document.getElementById('search-path-btn');
+            const searchTip = document.getElementById('search-tip');
+
+    // 匹配节点名（模糊匹配）
+            function matchNodeId(inputText) {
+                if (!currentModeInstance || !inputText) return null;
+                const lowerText = inputText.trim().toLowerCase();
+                for (const id in currentModeInstance.nodes) {
+                    if (id.toLowerCase().includes(lowerText)) {
+                        return id;
+                    }
+                }
+                return null;
+            }
+
+            searchBtn.addEventListener('click', () => {
+                if (!currentModeInstance) {
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = '请先选择模式（教学楼/校园）';
+                    return;
+                }
+
+                searchTip.style.display = 'none';
+                const startId = matchNodeId(startInput.value);
+                const endId = matchNodeId(endInput.value);
+
+                if (!startId) {
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = `未找到起点：${startInput.value}`;
+                    return;
+                }
+                if (!endId) {
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = `未找到终点：${endInput.value}`;
+                    return;
+                }
+                if (startId === endId) {
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = '起点和终点不能相同';
+                    return;
+                }
+
+                // 重置原有选中状态
+                if (currentModeInstance.selectedNodes.length > 0) {
+                    currentModeInstance.selectedNodes.forEach(id => {
+                        currentModeInstance.nodes[id].mesh.material = currentModeInstance.nodes[id].materials.default;
+                        currentModeInstance.nodes[id].mesh.scale.copy(currentModeInstance.nodes[id].originalScale);
+                    });
+                }
+
+        // 设置新起终点并计算路径
+                currentModeInstance.selectedNodes = [startId, endId];
+                currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
+                currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
+        
+                currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
+                currentModeInstance.pathMeshes = [];
+
+                updateInfo(`🔍 正在计算路径：${startId} → ${endId}`);
+                const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
+                if (kPaths.length === 0) {
+                    updateInfo(`❌ 未找到从 ${startId} 到 ${endId} 的路径`, true);
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = `未找到从 ${startId} 到 ${endId} 的路径`;
+                } else {
+                    updateInfo(`✅ 找到 ${kPaths.length} 条路径`);
+                    const pathColors = [0x00ffff, 0x8800ff];
+                    kPaths.forEach((path, idx) => {
+                        currentModeInstance.drawPath(path, idx + 1, pathColors[idx]);
+                    });
+                }
+            });
+
+
+            startInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchBtn.click();
+            });
+            endInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchBtn.click();
+            });
+        }
+        
         // ===================== 初始化 =====================
         window.addEventListener('load', () => {
             // 1. 初始化全局Three.js场景
@@ -843,6 +981,7 @@
     </script>
 </body>
 </html>
+
 
 
 

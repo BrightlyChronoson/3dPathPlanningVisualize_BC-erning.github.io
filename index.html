@@ -10,12 +10,14 @@
             background: rgba(255,255,255,0.9); padding: 12px 15px; 
             border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             font-size: 14px; color: #333; z-index: 100;
+            cursor: move; 
         }
         #mode-panel {
             position: absolute; top: 10px; left: 280px;
             background: rgba(255,255,255,0.9); padding: 10px 15px;
             border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 100;
+            cursor: move; 
         }
         .mode-btn {
             padding: 6px 12px; margin: 0 5px;
@@ -33,6 +35,13 @@
             background: rgba(255,255,255,0.9); padding: 12px 15px;
             border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             font-size: 13px; color: #333; display: none; z-index: 100;
+            cursor: move; 
+        }
+        #search-panel {
+            cursor: move !important; /* 覆盖内联样式 */
+        }
+        .legend {
+            cursor: move; /* 图例面板也支持拖拽 */
         }
         .legend {
             position: absolute; top: 10px; right: 10px;
@@ -131,6 +140,48 @@
         let hoveredNodeId = null;
         let labelRenderer;
 
+        function makePanelDraggable(panelElement) {
+            if (!panelElement) return; // 避免空元素报错
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            // 鼠标按下：记录初始位置
+            panelElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                // 记录鼠标初始坐标
+                startX = e.clientX;
+                startY = e.clientY;
+                // 记录面板当前位置（兼容内联/外部样式）
+                initialLeft = parseInt(window.getComputedStyle(panelElement).left) || 0;
+                initialTop = parseInt(window.getComputedStyle(panelElement).top) || 0;
+                // 防止拖拽时选中文字
+                panelElement.style.userSelect = 'none';
+                // 提升层级，避免被遮挡
+                panelElement.style.zIndex = 200;
+            });
+
+            // 鼠标移动：更新面板位置
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                // 计算鼠标偏移量
+                const offsetX = e.clientX - startX;
+                const offsetY = e.clientY - startY;
+                // 更新面板位置（保留原有位置 + 偏移）
+                panelElement.style.left = `${initialLeft + offsetX}px`;
+                panelElement.style.top = `${initialTop + offsetY}px`;
+            });
+
+            // 鼠标松开：结束拖拽
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    panelElement.style.userSelect = '';
+                    // 恢复层级
+                    panelElement.style.zIndex = 100;
+                }
+            });
+        }
+        
         // 3. 初始化全局Three.js环境（仅执行一次）
         function initGlobalScene() {
             // 天空背景
@@ -1029,8 +1080,15 @@
             // 4. 默认加载教学楼模式
             switchMode('teaching');
             initSearchPanel();
+
+            makePanelDraggable(document.getElementById('info-panel'));
+            makePanelDraggable(document.getElementById('mode-panel'));
+            makePanelDraggable(document.getElementById('path-detail'));
+            makePanelDraggable(document.getElementById('search-panel'));
+            makePanelDraggable(document.querySelector('.legend'));
         });
     </script>
 </body>
 </html>
+
 

@@ -209,9 +209,15 @@
                 controls.update();
                 renderer.render(scene, camera);
                 labelRenderer.render(scene, camera);
+    
+                // 标签大小随相机距离调整（防重叠+适配视角）
+                const distance = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+                const scale = Math.max(0.5, 2 - distance / 50000); // 距离越远，标签越小（最小0.5倍）
+                document.querySelectorAll('.css2d-label').forEach(el => {
+                    el.style.transform = `scale(${scale})`;
+                    el.style.transformOrigin = 'center'; // 缩放中心为标签中点
+                });
             }
-            animate();
-        }
 
         // 4. 全局工具函数（共享）
         function updateInfo(text, isError = false) {
@@ -385,10 +391,22 @@
                     // 材质
                     const baseColor = 0x999999;
                     const materials = {
-                        default: new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.7, metalness: 0.1 }),
-                        hover: new THREE.MeshStandardMaterial({ color: baseColor, emissive: 0xffff00, emissiveIntensity: 0.3, roughness: 0.7, metalness: 0.1 }),
-                        start: new THREE.MeshStandardMaterial({ color: 0x4CAF50, roughness: 0.7, metalness: 0.1 }),
-                        end: new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.7, metalness: 0.1 })
+                        default: new THREE.MeshStandardMaterial({ 
+                            color: baseColor, roughness: 0.7, metalness: 0.1,
+                            emissive: 0x000000, emissiveIntensity: 0 // 默认无发光
+                        }),
+                        hover: new THREE.MeshStandardMaterial({ 
+                            color: baseColor, roughness: 0.7, metalness: 0.1,
+                            emissive: 0xffff00, emissiveIntensity: 0.5 // 更强的悬停黄色发光
+                        }),
+                        start: new THREE.MeshStandardMaterial({ 
+                            color: 0x4CAF50, roughness: 0.7, metalness: 0.2, // 轻微金属质感
+                            emissive: 0x00ff00, emissiveIntensity: 0.3 // 起点绿色自发光
+                        }),
+                        end: new THREE.MeshStandardMaterial({ 
+                            color: 0x0000ff, roughness: 0.7, metalness: 0.2, // 轻微金属质感
+                            emissive: 0x0000ff, emissiveIntensity: 0.3 // 终点蓝色自发光
+                        })
                     };
 
                     const boxMesh = new THREE.Mesh(boxGeo, materials.default);
@@ -400,9 +418,11 @@
                     this.nodeMeshes.push(boxMesh);
 
                     const labelDiv = document.createElement('div');
+                    labelDiv.classList.add('css2d-label'); // 新增类名，用于后续自适应大小
                     labelDiv.style.fontSize = '12px';
                     labelDiv.style.fontWeight = 'bold';
-                    labelDiv.style.color = '#333';
+                    // 区分节点类型颜色：楼梯/路口为蓝色，普通节点为黑色
+                    labelDiv.style.color = id.includes('STAIR') || id.includes('CROSS') || id.includes('TURN') ? '#ffd070' : '#333';
                     labelDiv.style.background = 'rgba(255,255,255,0.8)';
                     labelDiv.style.padding = '2px 6px';
                     labelDiv.style.borderRadius = '3px';
@@ -815,7 +835,7 @@
                     const currNode = currentModeInstance.nodes[nodeId];
                     if (currNode) {
                         currNode.mesh.material = currNode.materials.hover;
-                        currNode.mesh.scale.set(1.2, 1.2, 1.2);
+                        currNode.mesh.scale.lerp(new THREE.Vector3(1.3, 1.3, 1.3), 0.1);
                     }
                 }
             }
@@ -994,3 +1014,4 @@
     </script>
 </body>
 </html>
+

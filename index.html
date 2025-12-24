@@ -663,7 +663,7 @@
                     Y_OFFSET: -25000,//Y轴偏移量
                     Z_OFFSET: 50000,//Z轴偏移量
                     K: 2,
-                    BOX_SIZE: { x: 1000, y: 300, z: 1000 },//节点尺寸大小
+                    BOX_SIZE: { x: 2000, y: 300, z: 2000 },//节点尺寸大小
                     EDGE_RADIUS: 150,
                     PATH_RADIUS: 150,
                     STAIR_PENALTY: false
@@ -714,9 +714,9 @@
                     const alt = node.alt;
 
                     const boxGeo = new THREE.BoxGeometry(
-                        this.config.BOX_SIZE.x,
-                        this.config.BOX_SIZE.y,
-                        this.config.BOX_SIZE.z
+                    this.config.BOX_SIZE.x,
+                    this.config.BOX_SIZE.y,
+                    this.config.BOX_SIZE.z
                     );
 
                     const baseColor = 0x999999;
@@ -745,10 +745,13 @@
                     labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
                     labelDiv.textContent = id;
 
+                     if (!id.includes("CROSS")&&!id.includes("TURN"))
+                    {
                     const label = new THREE.CSS2DObject(labelDiv);
                     label.position.set(0, this.config.BOX_SIZE.y / 2 + 300, 0); // 适配校园节点尺寸
                     boxMesh.add(label);
-                    
+                    }
+
                     this.nodes[id] = {
                         ...node,
                         mesh: boxMesh,
@@ -991,13 +994,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-

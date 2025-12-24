@@ -1171,8 +1171,10 @@
             endInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') searchBtn.click();
             });
-        }
         
+        initInputAutoComplete(startInput);
+        initInputAutoComplete(endInput);
+    }
         // ===================== 初始化 =====================
         window.addEventListener('load', () => {
             // 1. 初始化全局Three.js场景
@@ -1206,6 +1208,7 @@
     </script>
 </body>
 </html>
+
 
 
 

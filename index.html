@@ -46,7 +46,10 @@
         .legend-color {
             width: 16px; height: 16px; margin-right: 8px; border-radius: 3px;
         }
-        .error提示 { color: #dc3545; font-weight: bold; }
+        .error-tip { color: #dc3545; font-weight: bold; } /* 修正：类名去掉空格 */
+        .css2d-label { /* 新增：标签基础样式，统一管理 */
+            transition: transform 0.2s ease;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/controls/OrbitControls.js"></script>
@@ -218,11 +221,13 @@
                     el.style.transformOrigin = 'center'; // 缩放中心为标签中点
                 });
             }
+            animate(); // 新增：启动动画循环
+        } // 新增：闭合initGlobalScene函数
 
         // 4. 全局工具函数（共享）
         function updateInfo(text, isError = false) {
             const panel = document.getElementById('info-panel');
-            panel.innerHTML = isError ? `<span class="error提示">${text}</span>` : text;
+            panel.innerHTML = isError ? `<span class="error-tip">${text}</span>` : text; // 修正：类名改为error-tip
         }
 
         // ===================== 模式基类（抽离核心逻辑） =====================
@@ -245,12 +250,12 @@
 
             // 坐标转换（模式专属）
             lonlatTo3d(lon, lat, alt) {
-            // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
-            const x = (lon - this.minLon) * this.config.SCALE + this.config.X_OFFSET;
-            const y = alt * this.config.ALTITUDE_SCALE + this.config.Y_OFFSET;
-            const z = (this.minLat - lat) * this.config.SCALE + this.config.Z_OFFSET;
-            return new THREE.Vector3(x, y, z);
-        }
+                // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
+                const x = (lon - this.minLon) * this.config.SCALE + this.config.X_OFFSET;
+                const y = alt * this.config.ALTITUDE_SCALE + this.config.Y_OFFSET;
+                const z = (this.minLat - lat) * this.config.SCALE + this.config.Z_OFFSET;
+                return new THREE.Vector3(x, y, z);
+            }
 
             adjustCamera() {
                 if (this.modeName === 'campus') {
@@ -313,7 +318,7 @@
                         this.drawEdges();
                         this.drawNodes();
                         this.adjustCamera(); // 新增：加载完成后调整相机
-// 更新图例文字
+                        // 更新图例文字
                         document.getElementById('legend-node-text').innerText = this.modeName === 'teaching' ? '教室' : '建筑';
                         updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式加载完成，点击选择起点`);
                     })
@@ -734,17 +739,30 @@
                     const alt = node.alt;
 
                     const boxGeo = new THREE.BoxGeometry(
-                    this.config.BOX_SIZE.x,
-                    this.config.BOX_SIZE.y,
-                    this.config.BOX_SIZE.z
+                        this.config.BOX_SIZE.x,
+                        this.config.BOX_SIZE.y,
+                        this.config.BOX_SIZE.z
                     );
 
+                    // 统一材质（和教学楼模式保持视觉一致）
                     const baseColor = 0x999999;
                     const materials = {
-                        default: new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.7, metalness: 0.1 }),
-                        hover: new THREE.MeshStandardMaterial({ color: baseColor, emissive: 0xffff00, emissiveIntensity: 0.4, roughness: 0.7, metalness: 0.1 }), // 校园专属：更强的悬停发光
-                        start: new THREE.MeshStandardMaterial({ color: 0x4CAF50, roughness: 0.7, metalness: 0.1 }),
-                        end: new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.7, metalness: 0.1 })
+                        default: new THREE.MeshStandardMaterial({ 
+                            color: baseColor, roughness: 0.7, metalness: 0.1,
+                            emissive: 0x000000, emissiveIntensity: 0 
+                        }),
+                        hover: new THREE.MeshStandardMaterial({ 
+                            color: baseColor, roughness: 0.7, metalness: 0.1,
+                            emissive: 0xffff00, emissiveIntensity: 0.5 
+                        }),
+                        start: new THREE.MeshStandardMaterial({ 
+                            color: 0x4CAF50, roughness: 0.7, metalness: 0.2,
+                            emissive: 0x00ff00, emissiveIntensity: 0.3 
+                        }),
+                        end: new THREE.MeshStandardMaterial({ 
+                            color: 0x0000ff, roughness: 0.7, metalness: 0.2,
+                            emissive: 0x0000ff, emissiveIntensity: 0.3 
+                        })
                     };
 
                     const boxMesh = new THREE.Mesh(boxGeo, materials.default);
@@ -756,6 +774,7 @@
                     this.nodeMeshes.push(boxMesh);
 
                     const labelDiv = document.createElement('div');
+                    labelDiv.classList.add('css2d-label'); // 新增：添加缩放类名
                     labelDiv.style.fontSize = '14px';
                     labelDiv.style.fontWeight = 'bold';
                     labelDiv.style.color = '#333';
@@ -765,11 +784,11 @@
                     labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
                     labelDiv.textContent = id;
 
-                     if (!id.includes("CROSS")&&!id.includes("TURN"))
-                    {
-                    const label = new THREE.CSS2DObject(labelDiv);
-                    label.position.set(0, this.config.BOX_SIZE.y / 2 + 300, 0); // 适配校园节点尺寸
-                    boxMesh.add(label);
+                    // 修正：添加{}包裹完整逻辑
+                    if (!id.includes("CROSS") && !id.includes("TURN")) {
+                        const label = new THREE.CSS2DObject(labelDiv);
+                        label.position.set(0, this.config.BOX_SIZE.y / 2 + 300, 0); // 适配校园节点尺寸
+                        boxMesh.add(label);
                     }
 
                     this.nodes[id] = {
@@ -911,7 +930,7 @@
             const searchBtn = document.getElementById('search-path-btn');
             const searchTip = document.getElementById('search-tip');
 
-    // 匹配节点名（模糊匹配）
+            // 匹配节点名（模糊匹配）
             function matchNodeId(inputText) {
                 if (!currentModeInstance || !inputText) return null;
                 const lowerText = inputText.trim().toLowerCase();
@@ -958,7 +977,7 @@
                     });
                 }
 
-        // 设置新起终点并计算路径
+                // 设置新起终点并计算路径
                 currentModeInstance.selectedNodes = [startId, endId];
                 currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
                 currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
@@ -980,7 +999,6 @@
                     });
                 }
             });
-
 
             startInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') searchBtn.click();
@@ -1014,4 +1032,3 @@
     </script>
 </body>
 </html>
-

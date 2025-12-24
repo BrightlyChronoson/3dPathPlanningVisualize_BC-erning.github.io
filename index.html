@@ -126,6 +126,7 @@
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hoveredNodeId = null;
+        let labelRenderer;
 
         // 3. 初始化全局Three.js环境（仅执行一次）
         function initGlobalScene() {
@@ -151,7 +152,7 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
 
-            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer = new THREE.CSS2DRenderer();
             labelRenderer.setSize(window.innerWidth, window.innerHeight);
             labelRenderer.domElement.style.position = 'absolute';
             labelRenderer.domElement.style.top = '0';
@@ -197,6 +198,9 @@
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
+                if (labelRenderer) {
+                    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                }
             });
 
             // 动画循环（全局唯一）
@@ -262,6 +266,11 @@
                 this.pathMeshes.forEach(mesh => scene.remove(mesh));
                 this.nodeMeshes.forEach(mesh => scene.remove(mesh));
                 this.edgeMeshes.forEach(mesh => scene.remove(mesh));
+
+                if (labelRenderer) {
+                    labelRenderer.domElement.innerHTML = '';
+                }
+                
                 // 2. 重置所有状态
                 this.nodes = {};
                 this.edges = {};
@@ -977,10 +986,12 @@
 
             // 4. 默认加载教学楼模式
             switchMode('teaching');
+            initSearchPanel();
         });
     </script>
 </body>
 </html>
+
 
 
 

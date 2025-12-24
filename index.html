@@ -1009,6 +1009,92 @@
             const searchBtn = document.getElementById('search-path-btn');
             const searchTip = document.getElementById('search-tip');
 
+            function initInputAutoComplete(inputEl) {
+                // 1. 创建下拉列表容器（样式和面板统一）
+                const dropdown = document.createElement('div');
+                dropdown.style.cssText = `
+                    position: absolute;
+                    background: rgba(255,255,255,0.95);
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    max-height: 180px;
+                    overflow-y: auto;
+                    z-index: 300;
+                    display: none;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    font-size: 12px;
+                `;
+                inputEl.parentNode.appendChild(dropdown);
+
+                // 2. 输入监听：匹配节点并渲染下拉
+                inputEl.addEventListener('input', () => {
+                    if (!currentModeInstance) return; // 无激活模式时不触发
+                    const inputVal = inputEl.value.trim().toLowerCase();
+            
+                    // 输入为空时关闭下拉
+                    if (inputVal.length < 1) {
+                        dropdown.style.display = 'none';
+                        return;
+                    }
+
+                    // 匹配所有包含关键词的节点（不区分大小写）
+                    const matchNodes = Object.keys(currentModeInstance.nodes).filter(nodeId => 
+                        nodeId.toLowerCase().includes(inputVal)
+                    );
+
+                    // 渲染下拉选项
+                    if (matchNodes.length > 0) {
+                        dropdown.innerHTML = matchNodes.map(nodeId => `
+                            <div style="padding: 6px 8px; cursor: pointer; transition: background 0.2s;">
+                                ${nodeId}
+                            </div>
+                        `).join('');
+                        dropdown.style.display = 'block';
+
+                        // 定位下拉列表（和输入框对齐）
+                        const rect = inputEl.getBoundingClientRect();
+                        const parentRect = inputEl.parentNode.getBoundingClientRect();
+                        dropdown.style.top = `${rect.bottom - parentRect.top + 2}px`; // 相对父容器定位
+                        dropdown.style.left = `${rect.left - parentRect.left}px`;
+                        dropdown.style.width = `${rect.width}px`;
+
+                        // 点击选项填充输入框
+                        dropdown.querySelectorAll('div').forEach(item => {
+                            item.addEventListener('click', () => {
+                                inputEl.value = item.textContent;
+                                dropdown.style.display = 'none';
+                                searchTip.style.display = 'none'; // 清空错误提示
+                            });
+
+                            // 悬停高亮
+                            item.addEventListener('mouseover', () => {
+                                item.style.background = '#f5f9ff';
+                            });
+                            item.addEventListener('mouseout', () => {
+                                item.style.background = 'transparent';
+                            });
+                        });
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // 3. 点击空白处关闭下拉
+                document.addEventListener('click', (e) => {
+                    if (!inputEl.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // 4. 回车关闭下拉（避免遮挡）
+                inputEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            }
+
+            
             // 匹配节点名（模糊匹配）
             function matchNodeId(inputText) {
                 if (!currentModeInstance || !inputText) return null;
@@ -1120,6 +1206,7 @@
     </script>
 </body>
 </html>
+
 
 
 

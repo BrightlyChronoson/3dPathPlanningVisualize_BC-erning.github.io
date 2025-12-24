@@ -293,18 +293,34 @@
                     el.style.transform = `${el.style.transform} scale(${scale})`;
                     el.style.transformOrigin = 'center'; // 缩放中心为标签中点
                 });
-                const isCtrlPressed = pressedKeys['Control'] || pressedKeys['Meta']; // 检测CTRL/Command键
+                const isCtrlPressed = pressedKeys['ctrl']; // 读取记录的Ctrl状态
                 if (pressedKeys['ArrowUp']) {
-                    isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
+                    if (isCtrlPressed) {
+                        throttledMove('forward'); // 按Ctrl+↑：只移动
+                    } else {
+                        throttledRotate('up');    // 只按↑：只旋转
+                    }
                 }
                 if (pressedKeys['ArrowDown']) {
-                    isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
+                    if (isCtrlPressed) {
+                        throttledMove('backward'); // 按Ctrl+↓：只移动
+                    } else {
+                        throttledRotate('down');   // 只按↓：只旋转
+                    }
                 }
                 if (pressedKeys['ArrowLeft']) {
-                    isCtrlPressed ? throttledMove('left') : throttledRotate('left');
+                    if (isCtrlPressed) {
+                        throttledMove('left'); // 按Ctrl+←：只移动
+                    } else {
+                        throttledRotate('left');// 只按←：只旋转
+                    }
                 }
                 if (pressedKeys['ArrowRight']) {
-                    isCtrlPressed ? throttledMove('right') : throttledRotate('right');
+                    if (isCtrlPressed) {
+                        throttledMove('right'); // 按Ctrl+→：只移动
+                    } else {
+                        throttledRotate('right');// 只按→：只旋转
+                    }
                 }
             }
             animate(); // 新增：启动动画循环
@@ -1313,29 +1329,12 @@
                 if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                     e.preventDefault();
                 }
-
-                // 单次按键触发（兼容长按）
-                const isCtrlPressed = e.ctrlKey || e.metaKey; // 兼容Mac的Command键
-                switch(e.key) {
-                    // 普通方向键：旋转视角
-                    case 'ArrowUp':
-                        isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
-                        break;
-                    case 'ArrowDown':
-                        isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
-                        break;
-                    case 'ArrowLeft':
-                        isCtrlPressed ? throttledMove('left') : throttledRotate('left');
-                        break;
-                    case 'ArrowRight':
-                        isCtrlPressed ? throttledMove('right') : throttledRotate('right');
-                        break;
-                }
             });
 
             // 2. 释放按键
             window.addEventListener('keyup', (e) => {
                 pressedKeys[e.key] = false;
+                pressedKeys['ctrl'] = false;
             });
 
             // 4. 默认加载教学楼模式
@@ -1348,6 +1347,7 @@
     </script>
 </body>
 </html>
+
 
 
 

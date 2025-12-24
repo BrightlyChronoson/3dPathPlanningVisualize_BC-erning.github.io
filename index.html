@@ -213,11 +213,12 @@
                 renderer.render(scene, camera);
                 labelRenderer.render(scene, camera);
     
-                // 标签大小随相机距离调整（防重叠+适配视角）
+                // 标签大小随相机距离调整（保留原有位置+叠加缩放）
                 const distance = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
                 const scale = Math.max(0.5, 2 - distance / 50000); // 距离越远，标签越小（最小0.5倍）
                 document.querySelectorAll('.css2d-label').forEach(el => {
-                    el.style.transform = `scale(${scale})`;
+                    // 保留CSS2DObject自动生成的位置transform，仅叠加缩放
+                    el.style.transform = `${el.style.transform} scale(${scale})`;
                     el.style.transformOrigin = 'center'; // 缩放中心为标签中点
                 });
             }
@@ -1032,3 +1033,4 @@
     </script>
 </body>
 </html>
+

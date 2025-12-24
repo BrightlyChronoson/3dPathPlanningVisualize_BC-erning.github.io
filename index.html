@@ -124,6 +124,31 @@
         // ===================== 全局基础层（共享） =====================
         // 1. Three.js核心对象（全局唯一，不随模式切换销毁）
         let cameraPosition = { x: 20000, y: 15000, z: 20000 }; 
+        // ===================== 通用节流函数（控制触发频率） =====================
+        function throttle(func, delay) {
+            let lastExecuteTime = 0; // 记录上次执行时间
+            return function(...args) {
+              const now = Date.now();
+              // 只有当当前时间与上次执行时间的间隔 ≥ delay时，才执行函数
+              if (now - lastExecuteTime >= delay) {
+                func.apply(this, args); // 传递上下文和参数
+                lastExecuteTime = now;
+              }
+            };
+        }
+
+        // ===================== 相机控制配置（全局） =====================
+        const CAMERA_CONFIG = {
+            moveSpeed: 5000,    // 相机移动速度（像素/帧）
+            rotateSpeed: 0.02,  // 相机旋转速度（弧度/帧）
+            maxPolarAngle: Math.PI / 2 - 0.1, // 向上旋转最大角度（避免翻倒）
+            minPolarAngle: 0.1, // 向下旋转最小角度
+            throttleDelay: 50   // 长按触发间隔（毫秒，建议30~100）
+        };
+
+        // 存储按键状态（避免长按重复触发卡顿）
+        const pressedKeys = {};
+        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -268,10 +293,93 @@
                     el.style.transform = `${el.style.transform} scale(${scale})`;
                     el.style.transformOrigin = 'center'; // 缩放中心为标签中点
                 });
+                const isCtrlPressed = pressedKeys['Control'] || pressedKeys['Meta']; // 检测CTRL/Command键
+                if (pressedKeys['ArrowUp']) {
+                    isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
+                }
+                if (pressedKeys['ArrowDown']) {
+                    isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
+                }
+                if (pressedKeys['ArrowLeft']) {
+                    isCtrlPressed ? throttledMove('left') : throttledRotate('left');
+                }
+                if (pressedKeys['ArrowRight']) {
+                    isCtrlPressed ? throttledMove('right') : throttledRotate('right');
+                }
             }
             animate(); // 新增：启动动画循环
         } // 新增：闭合initGlobalScene函数
 
+            // ===================== 相机控制核心函数 =====================
+            // 1. 相机旋转（绕目标点）
+            function rotateCamera(direction) {
+                const target = controls.target; // 旋转中心（始终看向场景中心）
+                const offset = new THREE.Vector3();
+                offset.subVectors(camera.position, target); // 相机到目标的向量
+
+                // 左右旋转（绕Y轴）
+                if (direction === 'left') {
+                    offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), CAMERA_CONFIG.rotateSpeed);
+                } else if (direction === 'right') {
+                    offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), -CAMERA_CONFIG.rotateSpeed);
+                }
+
+                // 上下旋转（绕X轴，限制角度）
+                if (direction === 'up' || direction === 'down') {
+                    const currentPolarAngle = camera.position.angleTo(new THREE.Vector3(0, camera.position.y, 0));
+                    const newAngle = direction === 'up' 
+                        ? currentPolarAngle - CAMERA_CONFIG.rotateSpeed 
+                        : currentPolarAngle + CAMERA_CONFIG.rotateSpeed;
+        
+                    // 限制上下旋转角度（避免翻倒）
+                    if (newAngle > CAMERA_CONFIG.minPolarAngle && newAngle < CAMERA_CONFIG.maxPolarAngle) {
+                        offset.applyAxisAngle(new THREE.Vector3(1, 0, 0), direction === 'up' ? CAMERA_CONFIG.rotateSpeed : -CAMERA_CONFIG.rotateSpeed);
+                    }
+                }
+
+                // 更新相机位置
+                camera.position.copy(target).add(offset);
+                camera.lookAt(target);
+                controls.update(); // 同步控制器状态
+            }
+
+            // 2. 相机移动（前后左右，保持高度）
+            function moveCamera(direction) {
+                const forward = new THREE.Vector3();
+                camera.getWorldDirection(forward);
+                forward.y = 0; // 保持Y轴高度不变，只在水平面移动
+                forward.normalize();
+
+                const right = new THREE.Vector3();
+                right.crossVectors(camera.up, forward).normalize(); // 相机右侧向量
+
+                // 移动逻辑
+                const speed = CAMERA_CONFIG.moveSpeed;
+                switch(direction) {
+                    case 'forward': // 上键：向前（朝向）
+                        camera.position.add(forward.multiplyScalar(speed));
+                        controls.target.add(forward.multiplyScalar(speed)); // 控制器目标同步移动
+                        break;
+                    case 'backward': // 下键：向后
+                        camera.position.sub(forward.multiplyScalar(speed));
+                        controls.target.sub(forward.multiplyScalar(speed));
+                        break;
+                    case 'left': // 左键：向左
+                        camera.position.add(right.multiplyScalar(speed));
+                        controls.target.add(right.multiplyScalar(speed));
+                        break;
+                    case 'right': // 右键：向右
+                        camera.position.sub(right.multiplyScalar(speed));
+                        controls.target.sub(right.multiplyScalar(speed));
+                        break;
+                }
+                controls.update();
+            }
+
+            // 用节流包装旋转/移动函数（限制触发频率）
+            const throttledRotate = throttle(rotateCamera, CAMERA_CONFIG.throttleDelay);
+            const throttledMove = throttle(moveCamera, CAMERA_CONFIG.throttleDelay);
+        
         // 4. 全局工具函数（共享）
         function updateInfo(text, isError = false) {
             const panel = document.getElementById('info-panel');
@@ -1198,6 +1306,38 @@
                 }
             });
 
+            window.addEventListener('keydown', (e) => {
+                pressedKeys[e.key] = true;
+    
+                // 阻止方向键默认滚动行为
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                }
+
+                // 单次按键触发（兼容长按）
+                const isCtrlPressed = e.ctrlKey || e.metaKey; // 兼容Mac的Command键
+                switch(e.key) {
+                    // 普通方向键：旋转视角
+                    case 'ArrowUp':
+                        isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
+                        break;
+                    case 'ArrowDown':
+                        isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
+                        break;
+                    case 'ArrowLeft':
+                        isCtrlPressed ? throttledMove('left') : throttledRotate('left');
+                        break;
+                    case 'ArrowRight':
+                        isCtrlPressed ? throttledMove('right') : throttledRotate('right');
+                        break;
+                }
+            });
+
+            // 2. 释放按键
+            window.addEventListener('keyup', (e) => {
+                pressedKeys[e.key] = false;
+            });
+
             // 4. 默认加载教学楼模式
             switchMode('teaching');
             initSearchPanel();
@@ -1208,6 +1348,7 @@
     </script>
 </body>
 </html>
+
 
 
 

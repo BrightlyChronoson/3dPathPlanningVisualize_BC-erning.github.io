@@ -242,7 +242,7 @@
             // 去掉x/z的固定偏移，改为纯坐标缩放（让节点居中）
             const x = (lon - this.minLon) * this.config.SCALE + this.config.X_OFFSET;
             const y = alt * this.config.ALTITUDE_SCALE + this.config.Y_OFFSET;
-            const z = (lat - this.minLat) * this.config.SCALE + this.config.Z_OFFSET;
+            const z = (this.minLat - lat) * this.config.SCALE + this.config.Z_OFFSET;
             return new THREE.Vector3(x, y, z);
         }
 
@@ -600,11 +600,11 @@
             constructor() {
                 // 教学楼专属配置
                 const config = {
-                    SCALE: 100000000,//水平缩放规模
-                    ALTITUDE_SCALE: 1000,//竖直缩放规模
-                    X_OFFSET: 0,//X轴偏移量
-                    Y_OFFSET: -58000,//Y轴偏移量
-                    Z_OFFSET: 0,//Z轴偏移量
+                    SCALE: 50000000,//水平缩放规模
+                    ALTITUDE_SCALE: 500,//竖直缩放规模
+                    X_OFFSET: -17000,//X轴偏移量
+                    Y_OFFSET: -29000,//Y轴偏移量
+                    Z_OFFSET: 15000,//Z轴偏移量
                     K: 2,
                     BOX_SIZE: { x: 2000, y: 500, z: 2000 },//节点尺寸大小
                     EDGE_RADIUS: 80,
@@ -659,11 +659,11 @@
                 const config = {
                     SCALE: 10000000,//水平缩放规模
                     ALTITUDE_SCALE: 500,//竖直缩放规模
-                    X_OFFSET: 0,//X轴偏移量
-                    Y_OFFSET: -10000,//Y轴偏移量
-                    Z_OFFSET: 0,//Z轴偏移量
+                    X_OFFSET: -40000,//X轴偏移量
+                    Y_OFFSET: -25000,//Y轴偏移量
+                    Z_OFFSET: 50000,//Z轴偏移量
                     K: 2,
-                    BOX_SIZE: { x: 500, y: 300, z: 500 },//节点尺寸大小
+                    BOX_SIZE: { x: 1000, y: 300, z: 1000 },//节点尺寸大小
                     EDGE_RADIUS: 150,
                     PATH_RADIUS: 150,
                     STAIR_PENALTY: false
@@ -991,6 +991,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -266,7 +266,7 @@
         const throttledMove = throttle(moveCamera, CAMERA_CONFIG.throttleDelay);
 
         // ===================== 全局键盘事件（只绑定一次） =====================
-        // 按键按下
+        // 按键按下：只记录状态，不执行逻辑
         window.addEventListener('keydown', (e) => {
             pressedKeys[e.key] = true;
             
@@ -275,24 +275,9 @@
                 e.preventDefault();
             }
 
-            // 单次按键触发
-            const isCtrlPressed = e.ctrlKey || e.metaKey; // 兼容Windows/Mac
-            switch(e.key) {
-                case 'ArrowUp':
-                    isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
-                    break;
-                case 'ArrowDown':
-                    isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
-                    break;
-                case 'ArrowLeft':
-                    isCtrlPressed ? throttledMove('left') : throttledRotate('left');
-                    break;
-                case 'ArrowRight':
-                    isCtrlPressed ? throttledMove('right') : throttledRotate('right');
-                    break;
-                case 'Escape': // ESC键清空路径
-                    clearSelectedPath();
-                    break;
+            // 仅保留ESC键逻辑
+            if (e.key === 'Escape') { 
+                clearSelectedPath();
             }
         });
 
@@ -393,19 +378,34 @@
                     el.style.transformOrigin = 'center';
                 });
 
-                // 长按相机控制
+                // ===================== 修复后的长按相机控制（唯一触发源） =====================
                 const isCtrlPressed = pressedKeys['Control'] || pressedKeys['Meta'];
-                if (pressedKeys['ArrowUp']) {
+                // 互斥锁：确保同一时间只执行移动/旋转中的一个
+                let cameraActionLocked = false;
+
+                // 上键
+                if (pressedKeys['ArrowUp'] && !cameraActionLocked) {
+                    cameraActionLocked = true;
                     isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
+                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
                 }
-                if (pressedKeys['ArrowDown']) {
+                // 下键
+                if (pressedKeys['ArrowDown'] && !cameraActionLocked) {
+                    cameraActionLocked = true;
                     isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
+                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
                 }
-                if (pressedKeys['ArrowLeft']) {
+                // 左键
+                if (pressedKeys['ArrowLeft'] && !cameraActionLocked) {
+                    cameraActionLocked = true;
                     isCtrlPressed ? throttledMove('left') : throttledRotate('left');
+                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
                 }
-                if (pressedKeys['ArrowRight']) {
+                // 右键
+                if (pressedKeys['ArrowRight'] && !cameraActionLocked) {
+                    cameraActionLocked = true;
                     isCtrlPressed ? throttledMove('right') : throttledRotate('right');
+                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
                 }
             }
             animate();
@@ -1321,4 +1321,3 @@
     </script>
 </body>
 </html>
-

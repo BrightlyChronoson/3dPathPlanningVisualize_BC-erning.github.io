@@ -310,16 +310,16 @@
                 }
                 if (pressedKeys['ArrowLeft']) {
                     if (isCtrlPressed) {
-                        throttledMove('left'); // 按Ctrl+←：只移动
+                        throttledMove('leftward'); // 按Ctrl+←：只移动
                     } else {
                         throttledRotate('left');// 只按←：只旋转
                     }
                 }
                 if (pressedKeys['ArrowRight']) {
                     if (isCtrlPressed) {
-                        throttledMove('right'); // 按Ctrl+→：只移动
+                        throttledMove('rightward'); // 按Ctrl+←：只移动
                     } else {
-                        throttledRotate('right');// 只按→：只旋转
+                        throttledRotate('right');// 只按←：只旋转
                     }
                 }
             }
@@ -380,11 +380,11 @@
                         camera.position.sub(forward.multiplyScalar(speed));
                         controls.target.sub(forward.multiplyScalar(speed));
                         break;
-                    case 'left': // 左键：向左
+                    case 'leftward': // 左键：向左
                         camera.position.add(right.multiplyScalar(speed));
                         controls.target.add(right.multiplyScalar(speed));
                         break;
-                    case 'right': // 右键：向右
+                    case 'rightward': // 右键：向右
                         camera.position.sub(right.multiplyScalar(speed));
                         controls.target.sub(right.multiplyScalar(speed));
                         break;
@@ -1346,6 +1346,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -409,7 +409,7 @@
 
 
             // ===================== 新增：地板上的白色道路线条（教学楼外围） =====================
-            function createRoadLine(startX, startZ, endX, endZ, width = 1000) {
+            function createRoadLine(startX, startZ, endX, endZ, width = 10000) {
                 // 计算道路方向和长度
                 const start = new THREE.Vector3(startX, 0, startZ);
                 const end = new THREE.Vector3(endX, 0, endZ);
@@ -417,7 +417,7 @@
                 const length = direction.length();
     
                 // 道路几何体（扁平长方体，y轴0.1贴地，避免和地板重叠闪烁）
-                const roadGeo = new THREE.BoxGeometry(length, 100, width);
+                const roadGeo = new THREE.BoxGeometry(length, 0.1, width);
                 const roadMat = new THREE.MeshStandardMaterial({
                     color: 0xffffff, // 白色
                     roughness: 0.8,  // 轻微粗糙，有真实
@@ -1455,6 +1455,7 @@
     </script>
 </body>
 </html>
+
 
 
 

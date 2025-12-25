@@ -143,7 +143,7 @@
             rotateSpeed: 0.02,  // 相机旋转速度（弧度/帧）
             maxPolarAngle: Math.PI / 2 - 0.1, // 向上旋转最大角度（避免翻倒）
             minPolarAngle: 0.1, // 向下旋转最小角度
-            throttleDelay: 50   // 长按触发间隔（毫秒，建议30~100）
+            throttleDelay: 20   // 长按触发间隔（毫秒，建议30~100）
         };
 
         // 存储按键状态（避免长按重复触发卡顿）
@@ -1334,7 +1334,6 @@
             // 2. 释放按键
             window.addEventListener('keyup', (e) => {
                 pressedKeys[e.key] = false;
-                pressedKeys['ctrl'] = false;
             });
 
             // 4. 默认加载教学楼模式
@@ -1347,6 +1346,7 @@
     </script>
 </body>
 </html>
+
 
 
 

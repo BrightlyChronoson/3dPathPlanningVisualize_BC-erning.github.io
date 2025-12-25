@@ -407,6 +407,43 @@
             floor.position.y = 0;
             scene.add(floor);
 
+
+            // ===================== 新增：地板上的白色道路线条（教学楼外围） =====================
+            function createRoadLine(startX, startZ, endX, endZ, width = 1000) {
+                // 计算道路方向和长度
+                const start = new THREE.Vector3(startX, 0, startZ);
+                const end = new THREE.Vector3(endX, 0, endZ);
+                const direction = new THREE.Vector3().subVectors(end, start);
+                const length = direction.length();
+    
+                // 道路几何体（扁平长方体，y轴0.1贴地，避免和地板重叠闪烁）
+                const roadGeo = new THREE.BoxGeometry(length, 0.1, width);
+                const roadMat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff, // 白色
+                    roughness: 0.8,  // 轻微粗糙，有真实感
+                    metalness: 0.1
+                });
+                const road = new THREE.Mesh(roadGeo, roadMat);
+    
+                // 定位+旋转：让道路对齐起点→终点
+                const midPoint = new THREE.Vector3().addVectors(start, end).divideScalar(2);
+                road.position.copy(midPoint);
+                road.lookAt(end);
+                road.rotateX(Math.PI / 2); // 平铺在地面
+    
+                road.receiveShadow = true; // 接收阴影，更真实
+                scene.add(road);
+            }
+
+            // 自定义道路路径（可根据需要调整坐标，围绕教学楼分布）
+            // 示例：4条主路 + 2条辅路，形成教学楼外围道路网
+            createRoadLine(-40000, -40000, 40000, -40000, 1200); // 南侧主路
+            createRoadLine(40000, -40000, 40000, 40000, 1200);  // 东侧主路
+            createRoadLine(40000, 40000, -40000, 40000, 1200);  // 北侧主路
+            createRoadLine(-40000, 40000, -40000, -40000, 1200); // 西侧主路
+            createRoadLine(-20000, -40000, -20000, 40000, 800);  // 西侧辅路
+            createRoadLine(20000, -40000, 20000, 40000, 800);   // 东侧辅路
+            
             // ===================== 新增：校园周围生成树木 =====================
             function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
                 // 1. 树干（圆柱体）
@@ -1418,5 +1455,6 @@
     </script>
 </body>
 </html>
+
 
 

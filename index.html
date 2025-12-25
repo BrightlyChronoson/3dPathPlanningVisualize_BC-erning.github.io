@@ -315,6 +315,44 @@
             floor.position.y = 0;
             scene.add(floor);
 
+            // ===================== 新增：校园周围生成树木 =====================
+            function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
+                // 1. 树干（圆柱体）
+                const trunkGeo = new THREE.CylinderGeometry(trunkRadius, trunkRadius, height * 0.7, 16);
+                const trunkMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x8B4513, roughness: 0.8, metalness: 0.1 
+                });
+                const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+                trunk.position.set(x, height * 0.35, z); // 树干底部贴地（y轴居中）
+                trunk.castShadow = true;
+                scene.add(trunk);
+
+                // 2. 树冠（圆锥体）
+                const crownGeo = new THREE.ConeGeometry(crownRadius, height * 0.8, 16);
+                const crownMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x228B22, roughness: 0.7, metalness: 0.05 
+                });
+                const crown = new THREE.Mesh(crownGeo, crownMat);
+                crown.position.set(x, height * 0.7 + height * 0.35, z); // 树冠接树干顶部
+                crown.castShadow = true;
+                scene.add(crown);
+            }
+
+            // 批量生成树木（围绕校园/教学楼，半径50000~100000范围内）
+            const treeCount = 80; // 树木数量，可调整
+            const minRadius = 50000;
+            const maxRadius = 100000;
+            for (let i = 0; i < treeCount; i++) {
+                // 随机角度 + 随机半径，生成环形分布的树
+                const angle = Math.random() * Math.PI * 2;
+                const radius = minRadius + Math.random() * (maxRadius - minRadius);
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                // 随机树高（5000~10000），避免单调
+                const treeHeight = 5000 ;
+                createTree(x, z, treeHeight);
+            }
+
             // 窗口自适应
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -426,6 +464,15 @@
                 if (labelRenderer) {
                     labelRenderer.domElement.innerHTML = '';
                 }
+
+                scene.children.forEach(child => {
+                if (child.geometry instanceof THREE.CylinderGeometry && child.material.color.getHex() === 0x8B4513) {
+                    scene.remove(child); // 销毁树干
+                }
+                if (child.geometry instanceof THREE.ConeGeometry) {
+                    scene.remove(child); // 销毁树冠
+                }
+            });
                 
                 // 重置状态
                 this.nodes = {};
@@ -1257,3 +1304,4 @@
     </script>
 </body>
 </html>
+

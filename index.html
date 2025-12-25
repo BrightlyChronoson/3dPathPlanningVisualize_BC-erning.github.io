@@ -410,7 +410,7 @@
 
             // ===================== 新增：地板上的白色道路线条（教学楼外围） =====================
             // ===================== 修正：地板上的白色道路（平铺，无旋转错误） =====================
-            function createRoadLine(startX, startZ, endX, endZ, width = 1000) {
+            function createRoadLine(startX, startZ, endX, endZ, width = 100000) {
                 // 1. 计算道路的方向和长度
                 const start = new THREE.Vector3(startX, 0, startZ);
                 const end = new THREE.Vector3(endX, 0, endZ);
@@ -441,12 +441,12 @@
             }
 
             // 示例：教学楼外围平铺的白色道路（坐标可按需调整）
-            createRoadLine(-40000, -40000, 40000, -40000, 1200); // 南侧主路（水平）
-            createRoadLine(40000, -40000, 40000, 40000, 1200);  // 东侧主路（垂直）
-            createRoadLine(40000, 40000, -40000, 40000, 1200);  // 北侧主路（水平）
-            createRoadLine(-40000, 40000, -40000, -40000, 1200); // 西侧主路（垂直）
-            createRoadLine(-20000, -40000, -20000, 40000, 800);  // 西侧辅路
-            createRoadLine(20000, -40000, 20000, 40000, 800);   // 东侧辅路
+            createRoadLine(-40000, -80000, 40000, -80000, 1200); // 南侧主路（水平）
+            createRoadLine(80000, -40000, 80000, 40000, 1200);  // 东侧主路（垂直）
+            createRoadLine(40000, 80000, -40000, 80000, 1200);  // 北侧主路（水平）
+            createRoadLine(-80000, 40000, -40000, -80000, 1200); // 西侧主路（垂直）
+            createRoadLine(-40000, -40000, -40000, 40000, 800);  // 西侧辅路
+            createRoadLine(40000, -40000, 40000, 40000, 800);   // 东侧辅路
             
             // ===================== 新增：校园周围生成树木 =====================
             function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
@@ -1459,6 +1459,7 @@
     </script>
 </body>
 </html>
+
 
 
 

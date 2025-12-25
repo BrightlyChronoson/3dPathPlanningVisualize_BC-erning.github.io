@@ -145,11 +145,11 @@
 
         // ===================== 相机控制配置（全局） =====================
         const CAMERA_CONFIG = {
-            moveSpeed: 200,       // 适配场景的移动速度（平缓不飘）
+            moveSpeed: 50,       // 适配场景的移动速度（平缓不飘）
             rotateSpeed: 0.01,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 30     // 长按触发间隔（流畅不卡顿）
+            throttleDelay: 10     // 长按触发间隔（流畅不卡顿）
         };
 
         // 存储按键状态
@@ -1321,3 +1321,4 @@
     </script>
 </body>
 </html>
+

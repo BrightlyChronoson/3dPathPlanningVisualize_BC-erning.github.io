@@ -346,14 +346,13 @@
                 }
 
                 for (let i = 0; i < cloudLayerCount; i++) {
-                    const cloudMat = new THREE.MeshStandardMaterial({
-                        map: createCloudTexture(),
+                    // 云材质改用MeshBasicMaterial（不受光照影响，稳定显示白色）
+                    const cloudMat = new THREE.MeshBasicMaterial({
+                        map: createCloudTexture(), // 保持之前的白色纹理
                         transparent: true,
-                        opacity: 0.4 + Math.random() * 0.3, // 更淡，避免厚重
+                        opacity: 0.4 + Math.random() * 0.3,
                         side: THREE.DoubleSide,
-                        depthWrite: false,
-                        roughness: 1, // 无反光，更像云
-                        metalness: 0
+                        depthWrite: false
                     });
 
                     // 每层云大小/形状随机（避免统一）
@@ -1432,6 +1431,7 @@
     </script>
 </body>
 </html>
+
 
 
 

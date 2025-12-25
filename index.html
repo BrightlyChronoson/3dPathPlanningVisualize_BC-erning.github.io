@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D路径规划系统（双模式隔离版）</title>
+    <title>3D路径规划系统（仅旋转版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Arial', sans-serif; }
@@ -124,7 +124,7 @@
         // ===================== 全局基础层（共享） =====================
         let cameraPosition = { x: 20000, y: 15000, z: 20000 }; 
 
-        // ===================== 通用节流函数（优化版，避免触发累积） =====================
+        // ===================== 通用节流函数 =====================
         function throttle(func, delay) {
             let lastExecuteTime = 0;
             let timeoutId = null;
@@ -143,13 +143,12 @@
             };
         }
 
-        // ===================== 相机控制配置（全局） =====================
+        // ===================== 相机控制配置（仅保留旋转） =====================
         const CAMERA_CONFIG = {
-            moveSpeed: 10,       // 适配场景的移动速度（平缓不飘）
             rotateSpeed: 0.01,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 10     // 长按触发间隔（流畅不卡顿）
+            throttleDelay: 30     // 长按触发间隔
         };
 
         // 存储按键状态
@@ -201,8 +200,7 @@
             });
         }
         
-        // ===================== 相机控制核心函数（修复版） =====================
-        // 1. 相机旋转（球面坐标计算，更准确）
+        // ===================== 相机旋转函数（仅保留旋转） =====================
         function rotateCamera(direction) {
             if (!controls) return;
             const spherical = new THREE.Spherical();
@@ -228,45 +226,10 @@
             controls.update();
         }
 
-        // 2. 相机移动（统一方向命名，保持高度）
-        function moveCamera(direction) {
-            if (!controls) return;
-            const forward = new THREE.Vector3();
-            camera.getWorldDirection(forward);
-            forward.y = 0; // 保持Y轴高度不变
-            forward.normalize();
-
-            const right = new THREE.Vector3();
-            right.crossVectors(camera.up, forward).normalize();
-
-            const speed = CAMERA_CONFIG.moveSpeed;
-            switch(direction) {
-                case 'forward': // 上键：向前
-                    camera.position.add(forward.multiplyScalar(speed));
-                    controls.target.add(forward.multiplyScalar(speed));
-                    break;
-                case 'backward': // 下键：向后
-                    camera.position.sub(forward.multiplyScalar(speed));
-                    controls.target.sub(forward.multiplyScalar(speed));
-                    break;
-                case 'left': // 左键：向左
-                    camera.position.add(right.multiplyScalar(speed));
-                    controls.target.add(right.multiplyScalar(speed));
-                    break;
-                case 'right': // 右键：向右
-                    camera.position.sub(right.multiplyScalar(speed));
-                    controls.target.sub(right.multiplyScalar(speed));
-                    break;
-            }
-            controls.update();
-        }
-
-        // 节流包装相机控制函数
+        // 节流包装旋转函数
         const throttledRotate = throttle(rotateCamera, CAMERA_CONFIG.throttleDelay);
-        const throttledMove = throttle(moveCamera, CAMERA_CONFIG.throttleDelay);
 
-        // ===================== 全局键盘事件（只绑定一次） =====================
-        // 按键按下：只记录状态，不执行逻辑
+        // ===================== 全局键盘事件（仅处理旋转和ESC） =====================
         window.addEventListener('keydown', (e) => {
             pressedKeys[e.key] = true;
             
@@ -275,13 +238,12 @@
                 e.preventDefault();
             }
 
-            // 仅保留ESC键逻辑
+            // ESC键清空路径
             if (e.key === 'Escape') { 
                 clearSelectedPath();
             }
         });
 
-        // 按键松开
         window.addEventListener('keyup', (e) => {
             pressedKeys[e.key] = false;
         });
@@ -318,14 +280,14 @@
             labelRenderer.domElement.style.pointerEvents = 'none';
             document.body.appendChild(labelRenderer.domElement);
             
-            // 控制器配置（关闭自带键盘控制，避免冲突）
+            // 控制器配置（关闭自带键盘控制）
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
             controls.minDistance = 5000;
             controls.maxDistance = 100000;
             controls.target.set(0, 70, 0);
             controls.maxPolarAngle = Math.PI / 2;
-            controls.enableKeys = false; // 关键：关闭OrbitControls自带键盘控制
+            controls.enableKeys = false; // 关闭OrbitControls自带键盘控制
 
             // 全局光照
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -358,12 +320,10 @@
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                if (labelRenderer) {
-                    labelRenderer.setSize(window.innerWidth, window.innerHeight);
-                }
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            // 动画循环
+            // 动画循环（仅处理旋转）
             function animate() {
                 requestAnimationFrame(animate);
                 controls.update();
@@ -378,35 +338,11 @@
                     el.style.transformOrigin = 'center';
                 });
 
-                // ===================== 修复后的长按相机控制（唯一触发源） =====================
-                const isCtrlPressed = pressedKeys['Control'] || pressedKeys['Meta'];
-                // 互斥锁：确保同一时间只执行移动/旋转中的一个
-                let cameraActionLocked = false;
-
-                // 上键
-                if (pressedKeys['ArrowUp'] && !cameraActionLocked) {
-                    cameraActionLocked = true;
-                    isCtrlPressed ? throttledMove('forward') : throttledRotate('up');
-                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
-                }
-                // 下键
-                if (pressedKeys['ArrowDown'] && !cameraActionLocked) {
-                    cameraActionLocked = true;
-                    isCtrlPressed ? throttledMove('backward') : throttledRotate('down');
-                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
-                }
-                // 左键
-                if (pressedKeys['ArrowLeft'] && !cameraActionLocked) {
-                    cameraActionLocked = true;
-                    isCtrlPressed ? throttledMove('left') : throttledRotate('left');
-                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
-                }
-                // 右键
-                if (pressedKeys['ArrowRight'] && !cameraActionLocked) {
-                    cameraActionLocked = true;
-                    isCtrlPressed ? throttledMove('right') : throttledRotate('right');
-                    setTimeout(() => cameraActionLocked = false, CAMERA_CONFIG.throttleDelay);
-                }
+                // 仅处理方向键旋转（无任何移动逻辑）
+                if (pressedKeys['ArrowUp']) throttledRotate('up');
+                if (pressedKeys['ArrowDown']) throttledRotate('down');
+                if (pressedKeys['ArrowLeft']) throttledRotate('left');
+                if (pressedKeys['ArrowRight']) throttledRotate('right');
             }
             animate();
         }

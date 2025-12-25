@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D路径规划系统（仅旋转版）</title>
+    <title>3D路径规划系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Arial', sans-serif; }
@@ -305,6 +305,98 @@
             dirLight.shadow.camera.bottom = -50000;
             scene.add(dirLight);
 
+            // ===================== 新增：天空飘动的白云 =====================
+            let clouds = []; // 存储所有云，用于动画更新
+
+            // 创建单朵云（用多层半透明平面模拟蓬松感）
+            function createCloud(x, y, z, scale = 1) {
+                const cloudGroup = new THREE.Group();
+                const cloudCount = 3 + Math.floor(Math.random() * 3); // 每朵云由3~5层组成
+    
+                for (let i = 0; i < cloudCount; i++) {
+                    // 用Canvas生成云纹理（无需外部图片）
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 256;
+                    canvas.height = 256;
+                    const ctx = canvas.getContext('2d');
+        
+                    // 绘制不规则白色云朵（带模糊边缘）
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(128, 128, 80 + Math.random() * 40, 0, Math.PI * 2);
+                    ctx.fill();
+        
+                    // 叠加多个椭圆，模拟蓬松感
+                    for (let j = 0; j < 5; j++) {
+                        const offsetX = (Math.random() - 0.5) * 100;
+                        const offsetY = (Math.random() - 0.5) * 100;
+                        const radius = 40 + Math.random() * 50;
+                        ctx.beginPath();
+                        ctx.arc(128 + offsetX, 128 + offsetY, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+        
+                    // 云材质（半透明、双面渲染）
+                    const cloudMat = new THREE.MeshBasicMaterial({
+                        map: new THREE.CanvasTexture(canvas),
+                        transparent: true,
+                        opacity: 0.7 + Math.random() * 0.2, // 随机透明度
+                        side: THREE.DoubleSide,
+                        depthWrite: false // 避免云遮挡其他元素
+                    });
+        
+                    // 云几何体（平面）
+                    const cloudGeo = new THREE.PlaneGeometry(
+                        15000 * scale + Math.random() * 5000, // 随机宽度
+                        10000 * scale + Math.random() * 3000, // 随机高度
+                        1
+                    );
+        
+                    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+                    // 每层云随机偏移+旋转，模拟蓬松感
+                    cloudMesh.position.set(
+                        (Math.random() - 0.5) * 8000 * scale,
+                        (Math.random() - 0.5) * 5000 * scale,
+                        (Math.random() - 0.5) * 3000 * scale
+                    );
+                    cloudMesh.rotation.z = Math.random() * Math.PI * 2;
+                    cloudMesh.rotation.y = Math.random() * Math.PI * 2;
+        
+                    cloudGroup.add(cloudMesh);
+                }
+    
+                // 云的初始位置（天空高度：20000~50000）
+                cloudGroup.position.set(
+                    x,
+                    y || (20000 + Math.random() * 30000),
+                    z
+                );
+    
+                // 云的飘动参数（随机速度、方向）
+                cloudGroup.userData = {
+                    speedX: (Math.random() - 0.5) * 20 + 5, // X轴速度：5~25
+                    speedZ: (Math.random() - 0.5) * 15 + 3, // Z轴速度：3~18
+                    maxX: 150000, // 云的移动范围
+                    minX: -150000,
+                    maxZ: 150000,
+                    minZ: -150000
+                };
+    
+                scene.add(cloudGroup);
+                clouds.push(cloudGroup);
+            }
+
+            // 批量生成15~20朵云（随机分布在天空）
+            const cloudCount = 15 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < cloudCount; i++) {
+                createCloud(
+                    (Math.random() - 0.5) * 200000, // X：-10万~10万
+                    null, // Y：随机高度（内部处理）
+                    (Math.random() - 0.5) * 200000  // Z：-10万~10万
+                );
+            }
+
+            
             // 全局地板
             const floorGeometry = new THREE.PlaneGeometry(300000, 300000);
             const floorMaterial = new THREE.MeshStandardMaterial({
@@ -382,6 +474,28 @@
                 if (pressedKeys['ArrowLeft']) throttledRotate('left');
                 if (pressedKeys['ArrowRight']) throttledRotate('right');
             }
+
+            // ===================== 白云飘动动画 =====================
+            clouds.forEach(cloud => {
+                // 更新云的位置
+                cloud.position.x += cloud.userData.speedX;
+                cloud.position.z += cloud.userData.speedZ;
+    
+                // 超出边界后重置位置（循环飘动）
+                if (cloud.position.x > cloud.userData.maxX) {
+                    cloud.position.x = cloud.userData.minX;
+                } else if (cloud.position.x < cloud.userData.minX) {
+                    cloud.position.x = cloud.userData.maxX;
+                }
+                if (cloud.position.z > cloud.userData.maxZ) {
+                    cloud.position.z = cloud.userData.minZ;
+                } else if (cloud.position.z < cloud.userData.minZ) {
+                    cloud.position.z = cloud.userData.maxZ;
+                }
+    
+                // 轻微旋转，模拟云的变形
+                cloud.rotation.y += 0.001 * (Math.random() - 0.5);
+            });
             animate();
         }
 
@@ -1304,4 +1418,5 @@
     </script>
 </body>
 </html>
+
 

@@ -108,11 +108,11 @@
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">节点查找（直接设置起/终点）</div>
         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
             <div style="flex: 1;">
-                <label style="font-size: 12px; color: #666;">起点：</label>
+                <label for="start-node-input" style="font-size: 12px; color: #666;">起点：</label>
                 <input type="text" id="start-node-input" placeholder="输入节点名（如教室101）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
             </div>
             <div style="flex: 1;">
-                <label style="font-size: 12px; color: #666;">终点：</label>
+                <label for="end-node-input" style="font-size: 12px; color: #666;">终点：</label>
                 <input type="text" id="end-node-input" placeholder="输入节点名（如教室102）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
             </div>
         </div>
@@ -168,7 +168,7 @@
         let labelRenderer;
         let clouds = []; // 全局白云数组，用于动画更新
 
-        // ===================== 面板拖拽函数 =====================
+        // ===================== 面板拖拽函数（优化：添加边界限制） =====================
         function makePanelDraggable(panelElement) {
             if (!panelElement) return;
             let isDragging = false;
@@ -188,8 +188,18 @@
                 if (!isDragging) return;
                 const offsetX = e.clientX - startX;
                 const offsetY = e.clientY - startY;
-                panelElement.style.left = `${initialLeft + offsetX}px`;
-                panelElement.style.top = `${initialTop + offsetY}px`;
+                // 计算新位置并添加边界限制
+                let newLeft = initialLeft + offsetX;
+                let newTop = initialTop + offsetY;
+                
+                // 限制面板不超出可视区域
+                const panelWidth = panelElement.offsetWidth;
+                const panelHeight = panelElement.offsetHeight;
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panelWidth - 10));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - panelHeight - 10));
+
+                panelElement.style.left = `${newLeft}px`;
+                panelElement.style.top = `${newTop}px`;
             });
 
             document.addEventListener('mouseup', () => {
@@ -706,20 +716,34 @@
                     scene.add(boxMesh);
                     this.nodeMeshes.push(boxMesh);
 
-                    // 节点标签
+                    // 节点标签（优化：随机偏移+样式升级）
                     const labelDiv = document.createElement('div');
                     labelDiv.classList.add('css2d-label');
-                    labelDiv.style.fontSize = '12px';
-                    labelDiv.style.fontWeight = 'bold';
-                    labelDiv.style.color = id.includes('STAIR') || id.includes('CROSS') || id.includes('TURN') ? '#ffd070' : '#333';
-                    labelDiv.style.background = 'rgba(255,255,255,0.8)';
-                    labelDiv.style.padding = '2px 6px';
-                    labelDiv.style.borderRadius = '3px';
-                    labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+                    // 样式优化：更小字体、背景半透明、换行、阴影加深
+                    labelDiv.style.cssText = `
+                        font-size: 10px;
+                        font-weight: bold;
+                        color: ${id.includes('STAIR') || id.includes('CROSS') || id.includes('TURN') ? '#ffd070' : '#333'};
+                        background: rgba(255,255,255,0.95);
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        white-space: nowrap;
+                        max-width: 120px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    `;
                     labelDiv.textContent = id;
 
                     const label = new THREE.CSS2DObject(labelDiv);
-                    label.position.set(0, this.config.BOX_SIZE.y / 2 + 200, 0);
+                    // 核心修改：添加随机偏移（x/z轴），避免标签重叠
+                    const randomOffsetX = (Math.random() - 0.5) * 800; // 随机左右偏移
+                    const randomOffsetZ = (Math.random() - 0.5) * 800; // 随机前后偏移
+                    label.position.set(
+                        randomOffsetX, 
+                        this.config.BOX_SIZE.y / 2 + 300, // 提高标签高度
+                        randomOffsetZ
+                    );
                     boxMesh.add(label);
                     
                     this.nodes[id] = {
@@ -1059,18 +1083,32 @@
 
                     const labelDiv = document.createElement('div');
                     labelDiv.classList.add('css2d-label');
-                    labelDiv.style.fontSize = '14px';
-                    labelDiv.style.fontWeight = 'bold';
-                    labelDiv.style.color = '#333';
-                    labelDiv.style.background = 'rgba(255,255,255,0.8)';
-                    labelDiv.style.padding = '3px 8px';
-                    labelDiv.style.borderRadius = '3px';
-                    labelDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+                    // 样式优化
+                    labelDiv.style.cssText = `
+                        font-size: 12px;
+                        font-weight: bold;
+                        color: #333;
+                        background: rgba(255,255,255,0.95);
+                        padding: 3px 8px;
+                        border-radius: 3px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        white-space: nowrap;
+                        max-width: 150px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    `;
                     labelDiv.textContent = id;
 
                     if (!id.includes("CROSS") && !id.includes("TURN")) {
                         const label = new THREE.CSS2DObject(labelDiv);
-                        label.position.set(0, this.config.BOX_SIZE.y / 2 + 300, 0);
+                        // 核心修改：随机偏移避免重叠
+                        const randomOffsetX = (Math.random() - 0.5) * 1000;
+                        const randomOffsetZ = (Math.random() - 0.5) * 1000;
+                        label.position.set(
+                            randomOffsetX, 
+                            this.config.BOX_SIZE.y / 2 + 400, 
+                            randomOffsetZ
+                        );
                         boxMesh.add(label);
                     }
 

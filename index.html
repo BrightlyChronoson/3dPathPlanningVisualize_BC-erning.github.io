@@ -148,11 +148,11 @@
             rotateSpeed: 0.03,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 310    // 长按触发间隔
+            throttleDelay: 10    // 长按触发间隔
         };
 
         const CAMERA_MOVE_CONFIG = {
-        moveSpeed: 5,       // 移动速度（单位：像素/帧）
+        moveSpeed: 10,       // 移动速度（单位：像素/帧）
         throttleDelay: 10    // 移动节流间隔
     };
         // 存储按键状态
@@ -1512,5 +1512,6 @@
     </script>
 </body>
 </html>
+
 
 

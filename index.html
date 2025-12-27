@@ -430,6 +430,8 @@
                 const trunk = new THREE.Mesh(trunkGeo, trunkMat);
                 trunk.position.set(x, height * 0.35, z); // 树干底部贴地（y轴居中）
                 trunk.castShadow = true;
+                // 新增：给树干添加标记
+                trunk.userData = { isTree: true, type: 'trunk' };
                 scene.add(trunk);
 
                 // 2. 树冠（圆锥体）
@@ -440,33 +442,12 @@
                 const crown = new THREE.Mesh(crownGeo, crownMat);
                 crown.position.set(x, height * 0.7 + height * 0.35, z); // 树冠接树干顶部
                 crown.castShadow = true;
+                // 新增：给树冠添加标记
+                crown.userData = { isTree: true, type: 'crown' };
                 scene.add(crown);
             }
 
-            // 批量生成树木（围绕校园/教学楼，半径50000~100000范围内）
-            const treeCount = 80; // 树木数量，可调整
-            const minRadius = 50000;
-            const maxRadius = 100000;
-            for (let i = 0; i < treeCount; i++) {
-                // 随机角度 + 随机半径，生成环形分布的树
-                const angle = Math.random() * Math.PI * 2;
-                const radius = minRadius + Math.random() * (maxRadius - minRadius);
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                // 随机树高（5000~10000），避免单调
-                const treeHeight = 5000 ;
-                createTree(x, z, treeHeight);
-            }
-
-            // 窗口自适应
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                labelRenderer.setSize(window.innerWidth, window.innerHeight);
-            });
-
-            // 动画循环（仅处理旋转）
+                        // 动画循环（仅处理旋转）
             function animate() {
                 requestAnimationFrame(animate);
                 controls.update();
@@ -583,38 +564,46 @@
 
             // 销毁当前模式资源
             destroy() {
-                // 移除3D元素
-                this.pathMeshes.forEach(mesh => scene.remove(mesh));
-                this.nodeMeshes.forEach(mesh => scene.remove(mesh));
-                this.edgeMeshes.forEach(mesh => scene.remove(mesh));
+            // 移除3D元素
+            this.pathMeshes.forEach(mesh => scene.remove(mesh));
+            this.nodeMeshes.forEach(mesh => scene.remove(mesh));
+            this.edgeMeshes.forEach(mesh => scene.remove(mesh));
 
-                if (labelRenderer) {
-                    labelRenderer.domElement.innerHTML = '';
-                }
+            if (labelRenderer) {
+                labelRenderer.domElement.innerHTML = '';
+            }
 
-                scene.children.forEach(child => {
-                if (child.geometry instanceof THREE.CylinderGeometry && child.material.color.getHex() === 0x8B4513) {
-                    scene.remove(child); // 销毁树干
-                }
-                if (child.geometry instanceof THREE.ConeGeometry) {
-                    scene.remove(child); // 销毁树冠
+            // ========== 替换这里的树木删除逻辑 ==========
+            // 1. 先收集所有带树木标记的元素（避免遍历中修改数组导致漏删）
+            const treeMeshes = [];
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.isTree) {
+                    treeMeshes.push(child);
                 }
             });
-                
-                // 重置状态
-                this.nodes = {};
-                this.edges = {};
-                this.selectedNodes = [];
-                this.pathMeshes = [];
-                this.nodeMeshes = [];
-                this.edgeMeshes = [];
-                this.minLon = 0;
-                this.minLat = 0;
-                document.getElementById('path-detail').style.display = 'none';
-                document.getElementById('path1').innerHTML = '';
-                document.getElementById('path2').innerHTML = '';
-                hoveredNodeId = null;
-            }
+            // 2. 批量删除树木（树干+树冠），并释放内存
+            treeMeshes.forEach(mesh => {
+                scene.remove(mesh);
+                // 可选：释放几何体和材质内存，优化性能
+                mesh.geometry.dispose();
+                mesh.material.dispose();
+            });
+            // ===========================================
+    
+            // 重置状态
+            this.nodes = {};
+            this.edges = {};
+            this.selectedNodes = [];
+            this.pathMeshes = [];
+            this.nodeMeshes = [];
+            this.edgeMeshes = [];
+            this.minLon = 0;
+            this.minLat = 0;
+            document.getElementById('path-detail').style.display = 'none';
+            document.getElementById('path1').innerHTML = '';
+            document.getElementById('path2').innerHTML = '';
+            hoveredNodeId = null;
+        }
 
             // 加载模式数据
             loadData() {
@@ -1131,6 +1120,18 @@
 
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.mode-btn[data-mode="${modeType}"]`).classList.add('active');
+            
+            const treeCount = 80;
+            const minRadius = 50000;
+            const maxRadius = 100000;
+            for (let i = 0; i < treeCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = minRadius + Math.random() * (maxRadius - minRadius);
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const treeHeight = 5000;
+                createTree(x, z, treeHeight);
+            }
         }
 
         // ===================== 鼠标交互逻辑 =====================
@@ -1431,6 +1432,7 @@
     </script>
 </body>
 </html>
+
 
 
 

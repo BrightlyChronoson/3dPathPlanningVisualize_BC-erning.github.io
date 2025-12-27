@@ -55,14 +55,6 @@
         .css2d-label {
             transition: transform 0.2s ease;
         }
-        /* 新增：键盘操作提示 */
-        #keyboard-tip {
-            position: absolute; bottom: 10px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); color: white;
-            padding: 8px 15px; border-radius: 6px;
-            font-size: 12px; z-index: 100;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/controls/OrbitControls.js"></script>
@@ -127,11 +119,6 @@
         <button id="search-path-btn" style="padding: 5px 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">计算路径</button>
         <div id="search-tip" style="margin-top: 6px; font-size: 12px; color: #dc3545; display: none;"></div>
     </div>
-
-    <!-- 新增：键盘操作提示 -->
-    <div id="keyboard-tip">
-        🎹 操作提示：WSAD=移动视角 | ↑↓←→=旋转视角 | ESC=重置路径
-    </div>
     
     <script>
         // ===================== 全局基础层（共享） =====================
@@ -156,10 +143,9 @@
             };
         }
 
-        // ===================== 相机控制配置（新增移动速度） =====================
+        // ===================== 相机控制配置（仅保留旋转） =====================
         const CAMERA_CONFIG = {
             rotateSpeed: 0.01,    // 平缓的旋转速度
-            moveSpeed: 800,       // 相机移动速度（单位/帧）
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
             throttleDelay: 30     // 长按触发间隔
@@ -215,7 +201,7 @@
             });
         }
         
-        // ===================== 相机旋转函数（保留原有逻辑） =====================
+        // ===================== 相机旋转函数（仅保留旋转） =====================
         function rotateCamera(direction) {
             if (!controls) return;
             const spherical = new THREE.Spherical();
@@ -241,48 +227,8 @@
             controls.update();
         }
 
-        // ===================== 新增：相机移动函数（WSAD控制） =====================
-        function moveCamera(direction) {
-            if (!controls) return;
-            
-            // 创建基于相机当前朝向的方向向量
-            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-            const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-            
-            // 忽略Y轴（保持相机高度不变，避免上下飘）
-            forward.y = 0;
-            right.y = 0;
-            // 归一化向量（确保移动速度一致）
-            forward.normalize();
-            right.normalize();
-
-            // 根据按键方向移动相机和目标点（同步移动，保证视角中心不变）
-            switch(direction) {
-                case 'forward': // W键：向前（朝向视角前方）
-                    camera.position.add(forward.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    controls.target.add(forward.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    break;
-                case 'backward': // S键：向后
-                    camera.position.sub(forward.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    controls.target.sub(forward.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    break;
-                case 'left': // A键：向左
-                    camera.position.sub(right.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    controls.target.sub(right.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    break;
-                case 'right': // D键：向右
-                    camera.position.add(right.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    controls.target.add(right.multiplyScalar(CAMERA_CONFIG.moveSpeed));
-                    break;
-            }
-
-            // 更新控制器状态
-            controls.update();
-        }
-
-        // 节流包装旋转和移动函数
+        // 节流包装旋转函数
         const throttledRotate = throttle(rotateCamera, CAMERA_CONFIG.throttleDelay);
-        const throttledMove = throttle(moveCamera, CAMERA_CONFIG.throttleDelay);
 
         // ===================== 全局工具函数 =====================
         function updateInfo(text, isError = false) {
@@ -374,7 +320,7 @@
             labelRenderer.domElement.style.pointerEvents = 'none';
             document.body.appendChild(labelRenderer.domElement);
             
-            // 控制器配置（关闭自带键盘控制，避免冲突）
+            // 控制器配置（关闭自带键盘控制）
             controls.enableDamping = true;
             controls.dampingFactor = 0.08;
             controls.minDistance = 5000;
@@ -399,17 +345,20 @@
             dirLight.shadow.camera.bottom = -50000;
             scene.add(dirLight);
 
-            // ===================== 白云效果 =====================
+            // ===================== 新增：天空飘动的白云 =====================
+            // ===================== 修复：蓬松分散的白云 =====================
             function createCloud(x, y, z, scale = 1.3) {
                 const cloudGroup = new THREE.Group();
-                const cloudLayerCount = 2 + Math.floor(Math.random() * 4);
-
+                const cloudLayerCount = 2 + Math.floor(Math.random() * 4); // 2~5层（减少层数避免堆墙）
+        
+                // 生成更柔和的云纹理（用径向渐变+模糊）
                 function createCloudTexture() {
                     const canvas = document.createElement('canvas');
                     canvas.width = 512;
                     canvas.height = 512;
                     const ctx = canvas.getContext('2d');
             
+                    // 径向渐变：中心白→边缘透明
                     const gradient = ctx.createRadialGradient(
                         256, 256, 0,
                         256, 256, 256
@@ -418,6 +367,7 @@
                     gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.8)');
                     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
             
+                    // 多组随机椭圆（避免圆形规整感）
                     ctx.fillStyle = gradient;
                     for (let j = 0; j < 8; j++) {
                         const w = 100 + Math.random() * 200;
@@ -434,14 +384,16 @@
                 }
 
                 for (let i = 0; i < cloudLayerCount; i++) {
+                    // 云材质改用MeshBasicMaterial（不受光照影响，稳定显示白色）
                     const cloudMat = new THREE.MeshBasicMaterial({
-                        map: createCloudTexture(),
+                        map: createCloudTexture(), // 保持之前的白色纹理
                         transparent: true,
                         opacity: 0.4 + Math.random() * 0.3,
                         side: THREE.DoubleSide,
                         depthWrite: false
                     });
 
+                    // 每层云大小/形状随机（避免统一）
                     const cloudGeo = new THREE.PlaneGeometry(
                         10000 * scale + Math.random() * 12000,
                         8000 * scale + Math.random() * 10000,
@@ -449,6 +401,7 @@
                     );
 
                     const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+                    // 更大的随机偏移（避免堆叠成平面）
                     cloudMesh.position.set(
                         (Math.random() - 0.5) * 15000 * scale,
                         (Math.random() - 0.5) * 12000 * scale,
@@ -458,17 +411,19 @@
                         Math.random() * 0.5,
                         Math.random() * Math.PI,
                         Math.random() * 0.3
-                    );
+                    ); // 多角度旋转，不只是平面
             
                     cloudGroup.add(cloudMesh);
                 }
 
+                // 云的位置更分散（扩大范围）
                 cloudGroup.position.set(
                     x,
-                    y || (25000 + Math.random() * 40000),
+                    y || (25000 + Math.random() * 40000), // 高度范围更大
                     z
                 );
 
+                // 移动速度更随机（避免同步）
                 cloudGroup.userData = {
                     speedX: (Math.random() - 0.5) * 15 + 2,
                     speedZ: (Math.random() - 0.5) * 12 + 1,
@@ -482,15 +437,17 @@
                 clouds.push(cloudGroup);
             }
 
+            // 云数量减少+分布更散（8~12朵）
             const cloudCount = 15 + Math.floor(Math.random() * 5);
             for (let i = 0; i < cloudCount; i++) {
                 createCloud(
-                    (Math.random() - 0.5) * 300000,
+                    (Math.random() - 0.5) * 300000, // X范围扩大到±15万
                     null,
-                    (Math.random() - 0.5) * 300000
+                    (Math.random() - 0.5) * 300000  // Z范围扩大到±15万
                 );
             }
 
+            
             // 全局地板
             const floorGeometry = new THREE.PlaneGeometry(300000, 300000);
             const floorMaterial = new THREE.MeshStandardMaterial({
@@ -501,7 +458,7 @@
             floor.position.y = 0;
             scene.add(floor);
             
-            // 动画循环
+            // 动画循环（仅处理旋转）
             function animate() {
                 requestAnimationFrame(animate);
                 controls.update();
@@ -516,30 +473,19 @@
                     el.style.transformOrigin = 'center';
                 });
 
-                // ===================== 键盘控制逻辑（核心新增） =====================
-                // 1. 方向键：旋转摄像头朝向
+                // 仅处理方向键旋转（无任何移动逻辑）
                 if (pressedKeys['ArrowUp']) throttledRotate('up');
                 if (pressedKeys['ArrowDown']) throttledRotate('down');
                 if (pressedKeys['ArrowLeft']) throttledRotate('left');
                 if (pressedKeys['ArrowRight']) throttledRotate('right');
 
-                // 2. WSAD键：移动摄像头位置（大小写都支持）
-                if (pressedKeys['w'] || pressedKeys['W']) throttledMove('forward');
-                if (pressedKeys['s'] || pressedKeys['S']) throttledMove('backward');
-                if (pressedKeys['a'] || pressedKeys['A']) throttledMove('left');
-                if (pressedKeys['d'] || pressedKeys['D']) throttledMove('right');
-
-                // 3. ESC键：重置路径选择
-                if (pressedKeys['Escape']) {
-                    clearSelectedPath();
-                    pressedKeys['Escape'] = false; // 防止重复触发
-                }
-
-                // ===================== 白云飘动动画 =====================
+                // ===================== 白云飘动动画（移到animate内部实现持续动画） =====================
                 clouds.forEach(cloud => {
+                    // 更新云的位置
                     cloud.position.x += cloud.userData.speedX;
                     cloud.position.z += cloud.userData.speedZ;
             
+                    // 超出边界后重置位置（循环飘动）
                     if (cloud.position.x > cloud.userData.maxX) {
                         cloud.position.x = cloud.userData.minX;
                     } else if (cloud.position.x < cloud.userData.minX) {
@@ -551,6 +497,7 @@
                         cloud.position.z = cloud.userData.maxZ;
                     }
             
+                    // 轻微旋转，模拟云的变形
                     cloud.rotation.y += 0.001 * (Math.random() - 0.5);
                 });
             }
@@ -598,42 +545,46 @@
 
             // 销毁当前模式资源
             destroy() {
-                // 移除3D元素
-                this.pathMeshes.forEach(mesh => scene.remove(mesh));
-                this.nodeMeshes.forEach(mesh => scene.remove(mesh));
-                this.edgeMeshes.forEach(mesh => scene.remove(mesh));
+            // 移除3D元素
+            this.pathMeshes.forEach(mesh => scene.remove(mesh));
+            this.nodeMeshes.forEach(mesh => scene.remove(mesh));
+            this.edgeMeshes.forEach(mesh => scene.remove(mesh));
 
-                if (labelRenderer) {
-                    labelRenderer.domElement.innerHTML = '';
-                }
-
-                // 收集并删除树木
-                const treeMeshes = [];
-                scene.children.forEach(child => {
-                    if (child.userData && child.userData.isTree) {
-                        treeMeshes.push(child);
-                    }
-                });
-                treeMeshes.forEach(mesh => {
-                    scene.remove(mesh);
-                    mesh.geometry.dispose();
-                    mesh.material.dispose();
-                });
-        
-                // 重置状态
-                this.nodes = {};
-                this.edges = {};
-                this.selectedNodes = [];
-                this.pathMeshes = [];
-                this.nodeMeshes = [];
-                this.edgeMeshes = [];
-                this.minLon = 0;
-                this.minLat = 0;
-                document.getElementById('path-detail').style.display = 'none';
-                document.getElementById('path1').innerHTML = '';
-                document.getElementById('path2').innerHTML = '';
-                hoveredNodeId = null;
+            if (labelRenderer) {
+                labelRenderer.domElement.innerHTML = '';
             }
+
+            // ========== 替换这里的树木删除逻辑 ==========
+            // 1. 先收集所有带树木标记的元素（避免遍历中修改数组导致漏删）
+            const treeMeshes = [];
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.isTree) {
+                    treeMeshes.push(child);
+                }
+            });
+            // 2. 批量删除树木（树干+树冠），并释放内存
+            treeMeshes.forEach(mesh => {
+                scene.remove(mesh);
+                // 可选：释放几何体和材质内存，优化性能
+                mesh.geometry.dispose();
+                mesh.material.dispose();
+            });
+            // ===========================================
+    
+            // 重置状态
+            this.nodes = {};
+            this.edges = {};
+            this.selectedNodes = [];
+            this.pathMeshes = [];
+            this.nodeMeshes = [];
+            this.edgeMeshes = [];
+            this.minLon = 0;
+            this.minLat = 0;
+            document.getElementById('path-detail').style.display = 'none';
+            document.getElementById('path1').innerHTML = '';
+            document.getElementById('path2').innerHTML = '';
+            hoveredNodeId = null;
+        }
 
             // 加载模式数据
             loadData() {
@@ -1379,4 +1330,86 @@
                     return;
                 }
                 if (!endId) {
-                    search
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = `未找到终点：${endInput.value}`;
+                    return;
+                }
+                if (startId === endId) {
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = '起点和终点不能相同';
+                    return;
+                }
+
+                // 重置原有选中状态
+                if (currentModeInstance.selectedNodes.length > 0) {
+                    currentModeInstance.selectedNodes.forEach(id => {
+                        currentModeInstance.nodes[id].mesh.material = currentModeInstance.nodes[id].materials.default;
+                        currentModeInstance.nodes[id].mesh.scale.copy(currentModeInstance.nodes[id].originalScale);
+                    });
+                }
+
+                // 设置新起终点并计算路径
+                currentModeInstance.selectedNodes = [startId, endId];
+                currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
+                currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
+        
+                currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
+                currentModeInstance.pathMeshes = [];
+
+                updateInfo(`🔍 正在计算路径：${startId} → ${endId}`);
+                const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
+                if (kPaths.length === 0) {
+                    updateInfo(`❌ 未找到从 ${startId} 到 ${endId} 的路径`, true);
+                    searchTip.style.display = 'block';
+                    searchTip.textContent = `未找到从 ${startId} 到 ${endId} 的路径`;
+                } else {
+                    updateInfo(`✅ 找到 ${kPaths.length} 条路径，按ESC重新选择`);
+                    const pathColors = [0x00ffff, 0x8800ff];
+                    kPaths.forEach((path, idx) => {
+                        currentModeInstance.drawPath(path, idx + 1, pathColors[idx]);
+                    });
+                }
+            });
+
+            // 回车触发搜索
+            startInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchBtn.click();
+            });
+            endInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchBtn.click();
+            });
+        
+            // 初始化自动补全
+            initInputAutoComplete(startInput);
+            initInputAutoComplete(endInput);
+        }
+
+        // ===================== 页面初始化 =====================
+        window.addEventListener('load', () => {
+            // 初始化全局场景
+            initGlobalScene();
+
+            // 绑定模式切换事件
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const modeType = this.getAttribute('data-mode');
+                    switchMode(modeType);
+                });
+            });
+
+            // 绑定鼠标交互事件
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onMouseClick);
+
+            // 默认加载教学楼模式
+            switchMode('teaching');
+            initSearchPanel();
+
+            // 初始化面板拖拽
+            makePanelDraggable(document.getElementById('mode-panel'));
+            makePanelDraggable(document.getElementById('path-detail'));
+            makePanelDraggable(document.getElementById('search-panel'));
+        });
+    </script>
+</body>
+</html>

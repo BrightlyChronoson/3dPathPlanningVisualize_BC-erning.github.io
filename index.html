@@ -248,6 +248,48 @@
             pressedKeys[e.key] = false;
         });
 
+        // ===================== 树生成相关函数（抽离为全局函数） =====================
+        // 单个树生成
+        function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
+            // 1. 树干（圆柱体）
+            const trunkGeo = new THREE.CylinderGeometry(trunkRadius, trunkRadius, height * 0.7, 16);
+            const trunkMat = new THREE.MeshStandardMaterial({ 
+                color: 0x8B4513, roughness: 0.8, metalness: 0.1 
+            });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.set(x, height * 0.35, z); // 树干底部贴地（y轴居中）
+            trunk.castShadow = true;
+            scene.add(trunk);
+
+            // 2. 树冠（圆锥体）
+            const crownGeo = new THREE.ConeGeometry(crownRadius, height * 0.8, 16);
+            const crownMat = new THREE.MeshStandardMaterial({ 
+                color: 0x228B22, roughness: 0.7, metalness: 0.05 
+            });
+            const crown = new THREE.Mesh(crownGeo, crownMat);
+            crown.position.set(x, height * 0.7 + height * 0.35, z); // 树冠接树干顶部
+            crown.castShadow = true;
+            scene.add(crown);
+        }
+
+        // 批量生成树木
+        function createTrees() {
+            // 批量生成树木（围绕校园/教学楼，半径50000~100000范围内）
+            const treeCount = 80; // 树木数量，可调整
+            const minRadius = 50000;
+            const maxRadius = 100000;
+            for (let i = 0; i < treeCount; i++) {
+                // 随机角度 + 随机半径，生成环形分布的树
+                const angle = Math.random() * Math.PI * 2;
+                const radius = minRadius + Math.random() * (maxRadius - minRadius);
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                // 随机树高（5000~10000），避免单调
+                const treeHeight = 5000 ;
+                createTree(x, z, treeHeight);
+            }
+        }
+
         // ===================== 初始化全局Three.js环境 =====================
         function initGlobalScene() {
             // 天空背景
@@ -420,43 +462,8 @@
             floor.position.y = 0;
             scene.add(floor);
             
-            // ===================== 新增：校园周围生成树木 =====================
-            function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
-                // 1. 树干（圆柱体）
-                const trunkGeo = new THREE.CylinderGeometry(trunkRadius, trunkRadius, height * 0.7, 16);
-                const trunkMat = new THREE.MeshStandardMaterial({ 
-                    color: 0x8B4513, roughness: 0.8, metalness: 0.1 
-                });
-                const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-                trunk.position.set(x, height * 0.35, z); // 树干底部贴地（y轴居中）
-                trunk.castShadow = true;
-                scene.add(trunk);
-
-                // 2. 树冠（圆锥体）
-                const crownGeo = new THREE.ConeGeometry(crownRadius, height * 0.8, 16);
-                const crownMat = new THREE.MeshStandardMaterial({ 
-                    color: 0x228B22, roughness: 0.7, metalness: 0.05 
-                });
-                const crown = new THREE.Mesh(crownGeo, crownMat);
-                crown.position.set(x, height * 0.7 + height * 0.35, z); // 树冠接树干顶部
-                crown.castShadow = true;
-                scene.add(crown);
-            }
-
-            // 批量生成树木（围绕校园/教学楼，半径50000~100000范围内）
-            const treeCount = 80; // 树木数量，可调整
-            const minRadius = 50000;
-            const maxRadius = 100000;
-            for (let i = 0; i < treeCount; i++) {
-                // 随机角度 + 随机半径，生成环形分布的树
-                const angle = Math.random() * Math.PI * 2;
-                const radius = minRadius + Math.random() * (maxRadius - minRadius);
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                // 随机树高（5000~10000），避免单调
-                const treeHeight = 5000 ;
-                createTree(x, z, treeHeight);
-            }
+            // 调用批量生成树的函数
+            createTrees();
 
             // 窗口自适应
             window.addEventListener('resize', () => {
@@ -486,29 +493,29 @@
                 if (pressedKeys['ArrowDown']) throttledRotate('down');
                 if (pressedKeys['ArrowLeft']) throttledRotate('left');
                 if (pressedKeys['ArrowRight']) throttledRotate('right');
-            }
 
-            // ===================== 白云飘动动画 =====================
-            clouds.forEach(cloud => {
-                // 更新云的位置
-                cloud.position.x += cloud.userData.speedX;
-                cloud.position.z += cloud.userData.speedZ;
-    
-                // 超出边界后重置位置（循环飘动）
-                if (cloud.position.x > cloud.userData.maxX) {
-                    cloud.position.x = cloud.userData.minX;
-                } else if (cloud.position.x < cloud.userData.minX) {
-                    cloud.position.x = cloud.userData.maxX;
-                }
-                if (cloud.position.z > cloud.userData.maxZ) {
-                    cloud.position.z = cloud.userData.minZ;
-                } else if (cloud.position.z < cloud.userData.minZ) {
-                    cloud.position.z = cloud.userData.maxZ;
-                }
-    
-                // 轻微旋转，模拟云的变形
-                cloud.rotation.y += 0.001 * (Math.random() - 0.5);
-            });
+                // ===================== 白云飘动动画 =====================
+                clouds.forEach(cloud => {
+                    // 更新云的位置
+                    cloud.position.x += cloud.userData.speedX;
+                    cloud.position.z += cloud.userData.speedZ;
+        
+                    // 超出边界后重置位置（循环飘动）
+                    if (cloud.position.x > cloud.userData.maxX) {
+                        cloud.position.x = cloud.userData.minX;
+                    } else if (cloud.position.x < cloud.userData.minX) {
+                        cloud.position.x = cloud.userData.maxX;
+                    }
+                    if (cloud.position.z > cloud.userData.maxZ) {
+                        cloud.position.z = cloud.userData.minZ;
+                    } else if (cloud.position.z < cloud.userData.minZ) {
+                        cloud.position.z = cloud.userData.maxZ;
+                    }
+        
+                    // 轻微旋转，模拟云的变形
+                    cloud.rotation.y += 0.001 * (Math.random() - 0.5);
+                });
+            }
             animate();
         }
 
@@ -592,14 +599,21 @@
                     labelRenderer.domElement.innerHTML = '';
                 }
 
+                // ========== 关键修改1：批量删除树木元素（避免forEach漏删） ==========
+                // 收集所有需要删除的树木元素（树干和树冠）
+                const treesToRemove = [];
                 scene.children.forEach(child => {
-                if (child.geometry instanceof THREE.CylinderGeometry && child.material.color.getHex() === 0x8B4513) {
-                    scene.remove(child); // 销毁树干
-                }
-                if (child.geometry instanceof THREE.ConeGeometry) {
-                    scene.remove(child); // 销毁树冠
-                }
-            });
+                    // 检查树干：圆柱体且颜色为棕色（0x8B4513），增加material存在性判断避免报错
+                    if (child.geometry instanceof THREE.CylinderGeometry && child.material && child.material.color && child.material.color.getHex() === 0x8B4513) {
+                        treesToRemove.push(child);
+                    }
+                    // 检查树冠：圆锥体（仅树的树冠使用圆锥体）
+                    if (child.geometry instanceof THREE.ConeGeometry) {
+                        treesToRemove.push(child);
+                    }
+                });
+                // 批量删除收集到的树木元素
+                treesToRemove.forEach(tree => scene.remove(tree));
                 
                 // 重置状态
                 this.nodes = {};
@@ -1128,6 +1142,8 @@
             }
 
             currentModeInstance.loadData();
+            // ========== 关键修改2：切换模式后重新生成树木 ==========
+            createTrees();
 
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.mode-btn[data-mode="${modeType}"]`).classList.add('active');
@@ -1139,305 +1155,4 @@
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-
-            // 重置上一个悬停节点
-            if (hoveredNodeId && !currentModeInstance.selectedNodes.includes(hoveredNodeId)) {
-                const prevNode = currentModeInstance.nodes[hoveredNodeId];
-                if (prevNode) {
-                    prevNode.mesh.material = prevNode.materials.default;
-                    prevNode.mesh.scale.copy(prevNode.originalScale);
-                }
-                hoveredNodeId = null;
-            }
-
-            // 悬停新节点
-            const intersects = raycaster.intersectObjects(currentModeInstance.nodeMeshes, false);
-            if (intersects.length > 0) {
-                const targetNode = intersects[0].object;
-                const nodeId = targetNode.userData.id;
-                if (!currentModeInstance.selectedNodes.includes(nodeId)) {
-                    hoveredNodeId = nodeId;
-                    const currNode = currentModeInstance.nodes[nodeId];
-                    if (currNode) {
-                        currNode.mesh.material = currNode.materials.hover;
-                        currNode.mesh.scale.lerp(new THREE.Vector3(1.3, 1.3, 1.3), 0.1);
-                    }
-                }
-            }
-        }
-
-        function onMouseClick() {
-            if (!currentModeInstance) return;
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(currentModeInstance.nodeMeshes, false);
-
-            if (intersects.length === 0) {
-                updateInfo(`请点击有效${currentModeInstance.modeName === 'teaching' ? '教室' : '建筑'}（灰色长方体）`, true);
-                return;
-            }
-
-            const targetNode = intersects[0].object;
-            const nodeId = targetNode.userData.id;
-            const mode = currentModeInstance;
-
-            // 清空路径
-            mode.pathMeshes.forEach(mesh => scene.remove(mesh));
-            mode.pathMeshes = [];
-            document.getElementById('path-detail').style.display = 'none';
-            document.getElementById('path1').innerHTML = '';
-            document.getElementById('path2').innerHTML = '';
-
-            // 选择起点
-            if (mode.selectedNodes.length === 0) {
-                mode.selectedNodes.push(nodeId);
-                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.start;
-                mode.nodes[nodeId].mesh.scale.copy(mode.nodes[nodeId].originalScale);
-                updateInfo(`✅ 起点已选择：${nodeId}（绿色），点击选择终点（蓝色）`);
-            }
-            // 选择终点
-            else if (mode.selectedNodes.length === 1) {
-                if (nodeId === mode.selectedNodes[0]) {
-                    updateInfo("❌ 不能选择同一长方体作为终点，请重新点击", true);
-                    return;
-                }
-                mode.selectedNodes.push(nodeId);
-                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.end;
-                mode.nodes[nodeId].mesh.scale.copy(mode.nodes[nodeId].originalScale);
-                updateInfo(`🔍 正在计算路径：${mode.selectedNodes[0]} → ${nodeId}`);
-
-                // 计算K最短路径
-                const kPaths = mode.yenKShortestPaths(mode.selectedNodes[0], nodeId, mode.config.K);
-                if (kPaths.length === 0) {
-                    updateInfo(`❌ 未找到从 ${mode.selectedNodes[0]} 到 ${nodeId} 的路径`, true);
-                } else {
-                    updateInfo(`✅ 找到 ${kPaths.length} 条路径，按ESC重新选择`);
-                    const pathColors = [0x00ffff, 0x8800ff];
-                    kPaths.forEach((path, idx) => {
-                        mode.drawPath(path, idx + 1, pathColors[idx]);
-                    });
-                }
-            }
-            // 重新选择起点
-            else {
-                mode.selectedNodes.forEach(id => {
-                    mode.nodes[id].mesh.material = mode.nodes[id].materials.default;
-                    mode.nodes[id].mesh.scale.copy(mode.nodes[id].originalScale);
-                });
-                mode.selectedNodes = [nodeId];
-                mode.nodes[nodeId].mesh.material = mode.nodes[nodeId].materials.start;
-                updateInfo(`✅ 起点已选择：${nodeId}（绿色），点击选择终点（蓝色）`);
-            }
-        }
-
-        // ===================== 节点查找面板初始化 =====================
-        function initSearchPanel() {
-            const startInput = document.getElementById('start-node-input');
-            const endInput = document.getElementById('end-node-input');
-            const searchBtn = document.getElementById('search-path-btn');
-            const searchTip = document.getElementById('search-tip');
-
-            // 输入框自动补全
-            function initInputAutoComplete(inputEl) {
-                const dropdown = document.createElement('div');
-                dropdown.style.cssText = `
-                    position: absolute;
-                    background: rgba(255,255,255,0.95);
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                    max-height: 180px;
-                    overflow-y: auto;
-                    z-index: 300;
-                    display: none;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                    font-size: 12px;
-                `;
-                inputEl.parentNode.appendChild(dropdown);
-
-                // 输入监听
-                inputEl.addEventListener('input', () => {
-                    if (!currentModeInstance) return;
-                    const inputVal = inputEl.value.trim().toLowerCase();
-                    if (inputVal.length < 1) {
-                        dropdown.style.display = 'none';
-                        return;
-                    }
-
-                    // 匹配节点
-                    const matchNodes = Object.keys(currentModeInstance.nodes).filter(nodeId => 
-                        nodeId.toLowerCase().includes(inputVal)
-                    );
-
-                    if (matchNodes.length > 0) {
-                        dropdown.innerHTML = matchNodes.map(nodeId => `
-                            <div style="padding: 6px 8px; cursor: pointer; transition: background 0.2s;">
-                                ${nodeId}
-                            </div>
-                        `).join('');
-                        dropdown.style.display = 'block';
-
-                        // 定位下拉框
-                        const rect = inputEl.getBoundingClientRect();
-                        const parentRect = inputEl.parentNode.getBoundingClientRect();
-                        dropdown.style.top = `${rect.bottom - parentRect.top + 2}px`;
-                        dropdown.style.left = `${rect.left - parentRect.left}px`;
-                        dropdown.style.width = `${rect.width}px`;
-
-                        // 点击选项填充
-                        dropdown.querySelectorAll('div').forEach(item => {
-                            item.addEventListener('click', () => {
-                                inputEl.value = item.textContent;
-                                dropdown.style.display = 'none';
-                                searchTip.style.display = 'none';
-                            });
-                            item.addEventListener('mouseover', () => {
-                                item.style.background = '#f5f9ff';
-                            });
-                            item.addEventListener('mouseout', () => {
-                                item.style.background = 'transparent';
-                            });
-                        });
-                    } else {
-                        dropdown.style.display = 'none';
-                    }
-                });
-
-                // 点击空白处关闭
-                document.addEventListener('click', (e) => {
-                    if (!inputEl.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.style.display = 'none';
-                    }
-                });
-
-                // 回车关闭
-                inputEl.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        dropdown.style.display = 'none';
-                    }
-                });
-            }
-
-            // 匹配节点名（模糊匹配）
-            function matchNodeId(inputText) {
-                if (!currentModeInstance || !inputText) return null;
-                const lowerText = inputText.trim().toLowerCase();
-                for (const id in currentModeInstance.nodes) {
-                    if (id.toLowerCase().includes(lowerText)) {
-                        return id;
-                    }
-                }
-                return null;
-            }
-
-            // 搜索按钮点击事件
-            searchBtn.addEventListener('click', () => {
-                if (!currentModeInstance) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = '请先选择模式（教学楼/校园）';
-                    return;
-                }
-
-                searchTip.style.display = 'none';
-                const startId = matchNodeId(startInput.value);
-                const endId = matchNodeId(endInput.value);
-
-                if (!startId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到起点：${startInput.value}`;
-                    return;
-                }
-                if (!endId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到终点：${endInput.value}`;
-                    return;
-                }
-                if (startId === endId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = '起点和终点不能相同';
-                    return;
-                }
-
-                // 重置原有选中状态
-                if (currentModeInstance.selectedNodes.length > 0) {
-                    currentModeInstance.selectedNodes.forEach(id => {
-                        currentModeInstance.nodes[id].mesh.material = currentModeInstance.nodes[id].materials.default;
-                        currentModeInstance.nodes[id].mesh.scale.copy(currentModeInstance.nodes[id].originalScale);
-                    });
-                }
-
-                // 设置新起终点并计算路径
-                currentModeInstance.selectedNodes = [startId, endId];
-                currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
-                currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
-        
-                currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
-                currentModeInstance.pathMeshes = [];
-
-                updateInfo(`🔍 正在计算路径：${startId} → ${endId}`);
-                const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
-                if (kPaths.length === 0) {
-                    updateInfo(`❌ 未找到从 ${startId} 到 ${endId} 的路径`, true);
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到从 ${startId} 到 ${endId} 的路径`;
-                } else {
-                    updateInfo(`✅ 找到 ${kPaths.length} 条路径，按ESC重新选择`);
-                    const pathColors = [0x00ffff, 0x8800ff];
-                    kPaths.forEach((path, idx) => {
-                        currentModeInstance.drawPath(path, idx + 1, pathColors[idx]);
-                    });
-                }
-            });
-
-            // 回车触发搜索
-            startInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') searchBtn.click();
-            });
-            endInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') searchBtn.click();
-            });
-        
-            // 初始化自动补全
-            initInputAutoComplete(startInput);
-            initInputAutoComplete(endInput);
-        }
-
-        // ===================== 页面初始化 =====================
-        window.addEventListener('load', () => {
-            // 初始化全局场景
-            initGlobalScene();
-
-            // 绑定模式切换事件
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const modeType = this.getAttribute('data-mode');
-                    switchMode(modeType);
-                });
-            });
-
-            // 绑定鼠标交互事件
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('click', onMouseClick);
-
-            // 默认加载教学楼模式
-            switchMode('teaching');
-            initSearchPanel();
-
-            // 初始化面板拖拽
-            makePanelDraggable(document.getElementById('mode-panel'));
-            makePanelDraggable(document.getElementById('path-detail'));
-            makePanelDraggable(document.getElementById('search-panel'));
-        });
-    </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
+            raycaster

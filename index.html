@@ -145,15 +145,15 @@
 
         // ===================== 相机控制配置（仅保留旋转） =====================
         const CAMERA_CONFIG = {
-            rotateSpeed: 0.01,    // 平缓的旋转速度
+            rotateSpeed: 0.03,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 30     // 长按触发间隔
+            throttleDelay: 310    // 长按触发间隔
         };
 
         const CAMERA_MOVE_CONFIG = {
-        moveSpeed: 800,       // 移动速度（单位：像素/帧）
-        throttleDelay: 30     // 移动节流间隔
+        moveSpeed: 5,       // 移动速度（单位：像素/帧）
+        throttleDelay: 10    // 移动节流间隔
     };
         // 存储按键状态
         const pressedKeys = {};
@@ -1512,4 +1512,5 @@
     </script>
 </body>
 </html>
+
 

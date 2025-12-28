@@ -1255,34 +1255,51 @@
             // 鼠标悬停事件
             renderer.domElement.addEventListener('mousemove', (e) => {
                 if (!currentModeInstance || Object.keys(currentModeInstance.nodes).length === 0) return;
-
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
-
                 const intersects = raycaster.intersectObjects(currentModeInstance.nodeMeshes);
+
                 if (intersects.length === 0) {
-                    // 离开所有节点
+                    // 离开所有节点：仅恢复「未被选中」的节点材质
                     if (hoveredNodeId && currentModeInstance.nodes[hoveredNodeId]) {
-                        currentModeInstance.nodes[hoveredNodeId].mesh.material = currentModeInstance.nodes[hoveredNodeId].materials.default;
+                        const isSelected = currentModeInstance.selectedNodes.includes(hoveredNodeId);
+                        if (!isSelected) { // 未选中的节点才恢复默认材质
+                            currentModeInstance.nodes[hoveredNodeId].mesh.material = currentModeInstance.nodes[hoveredNodeId].materials.default;
+                        }
                         hoveredNodeId = null;
                     }
                     renderer.domElement.style.cursor = 'default';
                     return;
                 }
 
-                // 悬停在节点上
+                // 悬停在节点上：区分「已选中」和「未选中」节点
                 const hoveredId = intersects[0].object.userData.id;
                 if (hoveredId !== hoveredNodeId) {
-                    // 恢复之前悬停的节点
+                    // 1. 恢复之前悬停的节点材质（仅未选中节点）
                     if (hoveredNodeId && currentModeInstance.nodes[hoveredNodeId]) {
-                        currentModeInstance.nodes[hoveredNodeId].mesh.material = currentModeInstance.nodes[hoveredNodeId].materials.default;
+                        const isPrevSelected = currentModeInstance.selectedNodes.includes(hoveredNodeId);
+                        if (!isPrevSelected) {
+                            currentModeInstance.nodes[hoveredNodeId].mesh.material = currentModeInstance.nodes[hoveredNodeId].materials.default;
+                        }
                     }
-                    // 高亮当前悬停的节点
+
+                    // 2. 处理当前悬停节点的材质
                     hoveredNodeId = hoveredId;
-                    if (!currentModeInstance.selectedNodes.includes(hoveredId)) {
+                    const isCurrentSelected = currentModeInstance.selectedNodes.includes(hoveredId);
+                    if (isCurrentSelected) {
+                        // 已选中节点：保持「起点/终点」材质
+                        const node = currentModeInstance.nodes[hoveredId];
+                        if (currentModeInstance.selectedNodes[0] === hoveredId) {
+                            node.mesh.material = node.materials.start; // 起点保持绿色
+                        } else if (currentModeInstance.selectedNodes[1] === hoveredId) {
+                            node.mesh.material = node.materials.end; // 终点保持蓝色
+                        }
+                    } else {
+                        // 未选中节点：显示悬停高亮（浅黄色）
                         currentModeInstance.nodes[hoveredId].mesh.material = currentModeInstance.nodes[hoveredId].materials.hover;
                     }
+
                     renderer.domElement.style.cursor = 'pointer';
                 }
             });
@@ -1453,6 +1470,7 @@
     </script>
 </body>
 </html>
+
 
 
 

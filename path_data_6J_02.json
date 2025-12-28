@@ -1,0 +1,1007 @@
+{
+  "scale": 1000,
+  "min_lon": 116.3232459807,
+  "min_lat": 40.0017170286,
+  "nodes": {
+    "6BSTAIR_E1": {
+      "lon": 116.3239260613,
+      "lat": 40.002042527,
+      "alt": 60.0
+    },
+    "6BSTAIR_W1": {
+      "lon": 116.3232459807,
+      "lat": 40.002020349,
+      "alt": 60.0
+    },
+    "6BSTAIR_S1": {
+      "lon": 116.3235815538,
+      "lat": 40.0017170286,
+      "alt": 60.0
+    },
+    "6BSTAIR_E2": {
+      "lon": 116.3239260613,
+      "lat": 40.002042527,
+      "alt": 65.0
+    },
+    "6BSTAIR_W2": {
+      "lon": 116.3232459807,
+      "lat": 40.002020349,
+      "alt": 65.0
+    },
+    "6BSTAIR_S2": {
+      "lon": 116.3235815538,
+      "lat": 40.0017170286,
+      "alt": 65.0
+    },
+    "6BSTAIR_E3": {
+      "lon": 116.3239260613,
+      "lat": 40.002042527,
+      "alt": 70.0
+    },
+    "6BSTAIR_W3": {
+      "lon": 116.3232459807,
+      "lat": 40.002020349,
+      "alt": 70.0
+    },
+    "6BSTAIR_S3": {
+      "lon": 116.3235815538,
+      "lat": 40.0017170286,
+      "alt": 70.0
+    },
+    "6BSTAIR_E4": {
+      "lon": 116.3239260613,
+      "lat": 40.002042527,
+      "alt": 75.0
+    },
+    "6BSTAIR_W4": {
+      "lon": 116.3232459807,
+      "lat": 40.002020349,
+      "alt": 75.0
+    },
+    "6BSTAIR_S4": {
+      "lon": 116.3235815538,
+      "lat": 40.0017170286,
+      "alt": 75.0
+    },
+    "6B103": {
+      "lon": 116.323687508,
+      "lat": 40.0019752503,
+      "alt": 60.0
+    },
+    "6B104": {
+      "lon": 116.3236109396,
+      "lat": 40.0019742588,
+      "alt": 60.0
+    },
+    "6B105": {
+      "lon": 116.3235322328,
+      "lat": 40.0019727535,
+      "alt": 60.0
+    },
+    "6B106": {
+      "lon": 116.3234577759,
+      "lat": 40.0019745725,
+      "alt": 60.0
+    },
+    "6B108": {
+      "lon": 116.3234847417,
+      "lat": 40.0019248265,
+      "alt": 60.0
+    },
+    "6B109": {
+      "lon": 116.323548437,
+      "lat": 40.0018829294,
+      "alt": 60.0
+    },
+    "6B111": {
+      "lon": 116.3236049217,
+      "lat": 40.0018415298,
+      "alt": 60.0
+    },
+    "6B112": {
+      "lon": 116.3236563718,
+      "lat": 40.0018828105,
+      "alt": 60.0
+    },
+    "6B113": {
+      "lon": 116.323708662,
+      "lat": 40.0019232257,
+      "alt": 60.0
+    },
+    "6B201": {
+      "lon": 116.323762306,
+      "lat": 40.0019767505,
+      "alt": 65.0
+    },
+    "6B202": {
+      "lon": 116.323687508,
+      "lat": 40.0019752503,
+      "alt": 65.0
+    },
+    "6B203": {
+      "lon": 116.3236109396,
+      "lat": 40.0019742588,
+      "alt": 65.0
+    },
+    "6B204": {
+      "lon": 116.3235322328,
+      "lat": 40.0019727535,
+      "alt": 65.0
+    },
+    "6B205": {
+      "lon": 116.3234577759,
+      "lat": 40.0019745725,
+      "alt": 65.0
+    },
+    "6B206": {
+      "lon": 116.3233777845,
+      "lat": 40.0019740945,
+      "alt": 65.0
+    },
+    "6B207": {
+      "lon": 116.3234847417,
+      "lat": 40.0019248265,
+      "alt": 65.0
+    },
+    "6B208": {
+      "lon": 116.323548437,
+      "lat": 40.0018829294,
+      "alt": 65.0
+    },
+    "6B210": {
+      "lon": 116.3236049217,
+      "lat": 40.0018415298,
+      "alt": 65.0
+    },
+    "6B211": {
+      "lon": 116.3236563718,
+      "lat": 40.0018828105,
+      "alt": 65.0
+    },
+    "6B212": {
+      "lon": 116.323708662,
+      "lat": 40.0019232257,
+      "alt": 65.0
+    },
+    "6B301": {
+      "lon": 116.323762306,
+      "lat": 40.0019767505,
+      "alt": 70.0
+    },
+    "6B302": {
+      "lon": 116.323687508,
+      "lat": 40.0019752503,
+      "alt": 70.0
+    },
+    "6B303": {
+      "lon": 116.3236109396,
+      "lat": 40.0019742588,
+      "alt": 70.0
+    },
+    "6B304": {
+      "lon": 116.3235322328,
+      "lat": 40.0019727535,
+      "alt": 70.0
+    },
+    "6B305": {
+      "lon": 116.3234577759,
+      "lat": 40.0019745725,
+      "alt": 70.0
+    },
+    "6B306": {
+      "lon": 116.3233777845,
+      "lat": 40.0019740945,
+      "alt": 70.0
+    },
+    "6B307": {
+      "lon": 116.3234847417,
+      "lat": 40.0019248265,
+      "alt": 70.0
+    },
+    "6B308": {
+      "lon": 116.323548437,
+      "lat": 40.0018829294,
+      "alt": 70.0
+    },
+    "6B310": {
+      "lon": 116.3236049217,
+      "lat": 40.0018415298,
+      "alt": 70.0
+    },
+    "6B311": {
+      "lon": 116.3236563718,
+      "lat": 40.0018828105,
+      "alt": 70.0
+    },
+    "6B312": {
+      "lon": 116.323708662,
+      "lat": 40.0019232257,
+      "alt": 70.0
+    },
+    "6B401": {
+      "lon": 116.323762306,
+      "lat": 40.0019767505,
+      "alt": 75.0
+    },
+    "6B402": {
+      "lon": 116.323687508,
+      "lat": 40.0019752503,
+      "alt": 75.0
+    },
+    "6B403": {
+      "lon": 116.3236109396,
+      "lat": 40.0019742588,
+      "alt": 75.0
+    },
+    "6B404": {
+      "lon": 116.3235322328,
+      "lat": 40.0019727535,
+      "alt": 75.0
+    },
+    "6B405": {
+      "lon": 116.3234577759,
+      "lat": 40.0019745725,
+      "alt": 75.0
+    },
+    "6B406": {
+      "lon": 116.3233777845,
+      "lat": 40.0019740945,
+      "alt": 75.0
+    },
+    "6B407": {
+      "lon": 116.3234847417,
+      "lat": 40.0019248265,
+      "alt": 75.0
+    },
+    "6B408": {
+      "lon": 116.323548437,
+      "lat": 40.0018829294,
+      "alt": 75.0
+    },
+    "6B410": {
+      "lon": 116.3236049217,
+      "lat": 40.0018415298,
+      "alt": 75.0
+    },
+    "6B411": {
+      "lon": 116.3236563718,
+      "lat": 40.0018828105,
+      "alt": 75.0
+    },
+    "6B412": {
+      "lon": 116.323708662,
+      "lat": 40.0019232257,
+      "alt": 75.0
+    }
+  },
+  "edges": {
+    "6B106": {
+      "6B108": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B105": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B108": {
+      "6B106": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B109": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B109": {
+      "6B108": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B111": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B111": {
+      "6B109": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B112": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B112": {
+      "6B111": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B113": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B113": {
+      "6B112": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B103": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B103": {
+      "6B113": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B104": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B104": {
+      "6B103": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B105": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B105": {
+      "6B104": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B106": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B207": {
+      "6B208": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B206": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B208": {
+      "6B207": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B210": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B210": {
+      "6B208": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B211": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B211": {
+      "6B210": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B212": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B212": {
+      "6B211": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B201": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B201": {
+      "6B212": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B202": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B202": {
+      "6B201": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B203": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B203": {
+      "6B202": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B204": {
+      "6B205": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B205": {
+      "6B204": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B206": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B206": {
+      "6B205": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B207": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B307": {
+      "6B308": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B306": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B308": {
+      "6B307": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B310": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B310": {
+      "6B308": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B311": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B311": {
+      "6B310": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B312": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B312": {
+      "6B311": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B301": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B301": {
+      "6B312": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B302": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B302": {
+      "6B301": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B303": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B303": {
+      "6B302": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B304": {
+      "6B305": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B305": {
+      "6B304": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B306": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B306": {
+      "6B305": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B307": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B407": {
+      "6B408": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B406": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B408": {
+      "6B407": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B410": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B410": {
+      "6B408": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B411": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B411": {
+      "6B410": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B412": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B412": {
+      "6B411": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B401": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B401": {
+      "6B412": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B402": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B402": {
+      "6B401": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B403": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B403": {
+      "6B402": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B404": {
+      "6B405": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B405": {
+      "6B404": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B406": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6B406": {
+      "6B405": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B407": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_W1": {
+      "6B106": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B108": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_S1": {
+      "6B111": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S2": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_E1": {
+      "6B103": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6B113": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_W2": {
+      "6B206": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_E2": {
+      "6B201": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_S2": {
+      "6B210": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S1": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S3": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_W3": {
+      "6B306": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W4": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_E3": {
+      "6B301": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_S3": {
+      "6B310": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S2": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_W4": {
+      "6B406": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_W3": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_E4": {
+      "6B401": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_E3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "6BSTAIR_S4": {
+      "6B410": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6BSTAIR_S3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    }
+  }
+}

@@ -1,0 +1,1387 @@
+{
+  "scale": 1000,
+  "min_lon": 116.3167832768,
+  "min_lat": 40.0010657113,
+  "nodes": {
+    "6JB_ENT_W": {
+      "lon": 116.3231652041,
+      "lat": 40.0020302431,
+      "alt": 55.0
+    },
+    "6JB_ENT_E": {
+      "lon": 116.3240020501,
+      "lat": 40.0020526398,
+      "alt": 55.0
+    },
+    "6JA_ENT_N": {
+      "lon": 116.3241956854,
+      "lat": 40.001989109,
+      "alt": 55.0
+    },
+    "6JA_ENT_SE": {
+      "lon": 116.3242418222,
+      "lat": 40.0012720499,
+      "alt": 55.0
+    },
+    "CROSS_6J_1": {
+      "lon": 116.3237174677,
+      "lat": 40.0020870903,
+      "alt": 55.0
+    },
+    "CROSS_6J_2": {
+      "lon": 116.3230011186,
+      "lat": 40.0020568349,
+      "alt": 55.0
+    },
+    "CROSS_6J_3": {
+      "lon": 116.3243671034,
+      "lat": 40.0021023705,
+      "alt": 55.0
+    },
+    "3J1_ENT_E": {
+      "lon": 116.3230301734,
+      "lat": 40.0012635647,
+      "alt": 55.0
+    },
+    "3J2_ENT_E": {
+      "lon": 116.3229919198,
+      "lat": 40.0015067169,
+      "alt": 55.0
+    },
+    "3J1_ENT_W": {
+      "lon": 116.3221845786,
+      "lat": 40.0013402712,
+      "alt": 55.0
+    },
+    "3J3_ENT_E": {
+      "lon": 116.3226098659,
+      "lat": 40.0017113457,
+      "alt": 55.0
+    },
+    "3J3_ENT_W": {
+      "lon": 116.3221289213,
+      "lat": 40.0016979921,
+      "alt": 55.0
+    },
+    "CROSS_3J_1": {
+      "lon": 116.3230161376,
+      "lat": 40.0017296828,
+      "alt": 55.0
+    },
+    "CROSS_3J_2": {
+      "lon": 116.3216677144,
+      "lat": 40.0020269415,
+      "alt": 55.0
+    },
+    "CROSS_3J_3": {
+      "lon": 116.3217152544,
+      "lat": 40.001605631,
+      "alt": 55.0
+    },
+    "CROSS_3J_4": {
+      "lon": 116.3221603062,
+      "lat": 40.0016320365,
+      "alt": 55.0
+    },
+    "5J_ENT_E": {
+      "lon": 116.3205505109,
+      "lat": 40.0013414079,
+      "alt": 55.0
+    },
+    "CROSS_5J_1": {
+      "lon": 116.3217504559,
+      "lat": 40.0013719862,
+      "alt": 55.0
+    },
+    "CROSS_5J_2": {
+      "lon": 116.3209255863,
+      "lat": 40.0013757746,
+      "alt": 55.0
+    },
+    "CROSS_5J_3": {
+      "lon": 116.3208814474,
+      "lat": 40.0015858674,
+      "alt": 55.0
+    },
+    "CROSS_5J_4": {
+      "lon": 116.3201656353,
+      "lat": 40.001559403,
+      "alt": 55.0
+    },
+    "4J_ENT": {
+      "lon": 116.3214304722,
+      "lat": 40.0010657113,
+      "alt": 55.0
+    },
+    "CROSS_4J": {
+      "lon": 116.321755318,
+      "lat": 40.0010729975,
+      "alt": 55.0
+    },
+    "NEWHE": {
+      "lon": 116.3193582542,
+      "lat": 40.0022703129,
+      "alt": 55.0
+    },
+    "CROSS_NEWHE_1": {
+      "lon": 116.3186755797,
+      "lat": 40.0026299044,
+      "alt": 55.0
+    },
+    "CROSS_NEWHE_2": {
+      "lon": 116.318722407,
+      "lat": 40.0019641183,
+      "alt": 55.0
+    },
+    "CROSS_NEWHE_3": {
+      "lon": 116.3200984671,
+      "lat": 40.0020205116,
+      "alt": 55.0
+    },
+    "CROSS_NEWHE_4": {
+      "lon": 116.3201257179,
+      "lat": 40.0026879759,
+      "alt": 55.0
+    },
+    "CROSS_NEWHE_5": {
+      "lon": 116.3208239045,
+      "lat": 40.0033106994,
+      "alt": 55.0
+    },
+    "DORM_ZIJING3_U1": {
+      "lon": 116.3192932004,
+      "lat": 40.0090563851,
+      "alt": 55.0
+    },
+    "DORM_ZIJING3_U2": {
+      "lon": 116.3195688099,
+      "lat": 40.0090651471,
+      "alt": 55.0
+    },
+    "DORM_ZIJING_U3": {
+      "lon": 116.3198052893,
+      "lat": 40.0090758688,
+      "alt": 55.0
+    },
+    "CROSS_DORM1": {
+      "lon": 116.3211544944,
+      "lat": 40.0088010559,
+      "alt": 55.0
+    },
+    "CROSS_DORM2": {
+      "lon": 116.3204136086,
+      "lat": 40.0092532532,
+      "alt": 55.0
+    },
+    "CROSS_DORM3": {
+      "lon": 116.3189247598,
+      "lat": 40.0092055323,
+      "alt": 55.0
+    },
+    "CROSS_DORM4": {
+      "lon": 116.3176825981,
+      "lat": 40.0090711147,
+      "alt": 55.0
+    },
+    "NLIB": {
+      "lon": 116.3178369468,
+      "lat": 40.0046647643,
+      "alt": 55.0
+    },
+    "WLIB": {
+      "lon": 116.317703738,
+      "lat": 40.003749002,
+      "alt": 55.0
+    },
+    "OLDLIB": {
+      "lon": 116.3189212526,
+      "lat": 40.0035129871,
+      "alt": 55.0
+    },
+    "CROSS_LIB_1": {
+      "lon": 116.3181976534,
+      "lat": 40.0047096923,
+      "alt": 55.0
+    },
+    "CROSS_LIB_2": {
+      "lon": 116.3183252969,
+      "lat": 40.0037851568,
+      "alt": 55.0
+    },
+    "CROSS_LIB_3": {
+      "lon": 116.3180665649,
+      "lat": 40.0035834569,
+      "alt": 55.0
+    },
+    "CROSS_LIB_4": {
+      "lon": 116.3181345732,
+      "lat": 40.0030215353,
+      "alt": 55.0
+    },
+    "CROSS_LIB_5": {
+      "lon": 116.3186411479,
+      "lat": 40.0030404689,
+      "alt": 55.0
+    },
+    "CROSS_LIB_6": {
+      "lon": 116.3167832768,
+      "lat": 40.0046464413,
+      "alt": 55.0
+    },
+    "CROSS_LIB_7": {
+      "lon": 116.3168842927,
+      "lat": 40.0030137475,
+      "alt": 55.0
+    },
+    "CANT_QINGFEN_W": {
+      "lon": 116.3217254603,
+      "lat": 40.0044470613,
+      "alt": 55.0
+    },
+    "CROSS_QINGFEN": {
+      "lon": 116.3214399336,
+      "lat": 40.0041692609,
+      "alt": 55.0
+    },
+    "CANT_TAOLI_1": {
+      "lon": 116.3202484348,
+      "lat": 40.0094883034,
+      "alt": 55.0
+    },
+    "CANT_TAOLI_2": {
+      "lon": 116.3196546859,
+      "lat": 40.0095048511,
+      "alt": 55.0
+    },
+    "CANT_TAOLI_3": {
+      "lon": 116.3201379196,
+      "lat": 40.0099470459,
+      "alt": 55.0
+    },
+    "CANT_TINGTAO": {
+      "lon": 116.32084825,
+      "lat": 40.0049449834,
+      "alt": 55.0
+    },
+    "C_BUILDING": {
+      "lon": 116.3226064877,
+      "lat": 40.0086190014,
+      "alt": 55.0
+    },
+    "CROSS_CBUILDING_1": {
+      "lon": 116.3227072809,
+      "lat": 40.0076998119,
+      "alt": 55.0
+    },
+    "CROSS_CBUILIDNG_2": {
+      "lon": 116.3225757735,
+      "lat": 40.0095610208,
+      "alt": 55.0
+    },
+    "CROSS_CBUILDING_3": {
+      "lon": 116.3239996163,
+      "lat": 40.0096289288,
+      "alt": 55.0
+    },
+    "CROSS_CBUILDING_4": {
+      "lon": 116.3240719019,
+      "lat": 40.0086811545,
+      "alt": 55.0
+    },
+    "NGYM": {
+      "lon": 116.326909876,
+      "lat": 40.0061953696,
+      "alt": 55.0
+    },
+    "CROSS_NGYM_1": {
+      "lon": 116.3254299282,
+      "lat": 40.0059303899,
+      "alt": 55.0
+    },
+    "CROSS_NGYM_2": {
+      "lon": 116.3254758178,
+      "lat": 40.0053949008,
+      "alt": 55.0
+    },
+    "EGYM": {
+      "lon": 116.325165854,
+      "lat": 40.0044533301,
+      "alt": 55.0
+    },
+    "CROSS_EGYM_1": {
+      "lon": 116.3243056733,
+      "lat": 40.0044372375,
+      "alt": 55.0
+    },
+    "SSLIB": {
+      "lon": 116.321882424,
+      "lat": 40.003061212,
+      "alt": 55.0
+    },
+    "CROSS_SSLIB_1": {
+      "lon": 116.321504417,
+      "lat": 40.0033622054,
+      "alt": 55.0
+    },
+    "EXPRESS_ZIJING": {
+      "lon": 116.3254333107,
+      "lat": 40.008733098,
+      "alt": 55.0
+    },
+    "EXPRESS_HEQING": {
+      "lon": 116.3208503163,
+      "lat": 40.0115240466,
+      "alt": 55.0
+    },
+    "NEWCE": {
+      "lon": 116.3237163813,
+      "lat": 40.0022412719,
+      "alt": 55.0
+    },
+    "CROSS_XUETANG_ZHISHAN": {
+      "lon": 116.3213826137,
+      "lat": 40.0049028137,
+      "alt": 55.0
+    },
+    "CROSS_XINMIN_ZHISHAN": {
+      "lon": 116.324264242,
+      "lat": 40.0053130224,
+      "alt": 55.0
+    },
+    "CROSS_XINMIN_ZIJING": {
+      "lon": 116.3241641039,
+      "lat": 40.0077826337,
+      "alt": 55.0
+    },
+    "CROSS_XUETANG_ZIJING": {
+      "lon": 116.3211705453,
+      "lat": 40.0081492638,
+      "alt": 55.0
+    },
+    "TURN_ZHISHAN1": {
+      "lon": 116.3221210661,
+      "lat": 40.0052420696,
+      "alt": 55.0
+    }
+  },
+  "edges": {
+    "CROSS_DORM3": {
+      "DORM_ZIJING3_U1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_DORM4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "DORM_ZIJING3_U1": {
+      "CROSS_DORM3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "DORM_ZIJING3_U2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "DORM_ZIJING3_U2": {
+      "DORM_ZIJING3_U1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "DORM_ZIJING_U3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CANT_TAOLI_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "DORM_ZIJING_U3": {
+      "DORM_ZIJING3_U2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_DORM2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_DORM2": {
+      "DORM_ZIJING_U3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CANT_TAOLI_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CANT_TAOLI_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CANT_TAOLI_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_DORM1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CANT_TAOLI_1": {
+      "CROSS_DORM2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CANT_TAOLI_2": {
+      "CROSS_DORM2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "DORM_ZIJING_U1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "DORM_ZIJING3_U2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CANT_TAOLI_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CANT_TAOLI_3": {
+      "CROSS_DORM2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CANT_TAOLI_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "EXPRESS_HEQING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "DORM_ZIJING_U1": {
+      "CANT_TAOLI_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "EXPRESS_HEQING": {
+      "CANT_TAOLI_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_DORM4": {
+      "CROSS_DORM3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "NLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_DORM1": {
+      "CROSS_DORM2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_CBUILIDNG_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XUETANG_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_CBUILIDNG_2": {
+      "CROSS_DORM1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_CBUILDING_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_CBUILDING_3": {
+      "CROSS_CBUILIDNG_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_CBUILDING_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_CBUILDING_4": {
+      "CROSS_CBUILDING_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XINMIN_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "EXPRESS_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_XINMIN_ZIJING": {
+      "CROSS_CBUILDING_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_CBUILDING_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XINMIN_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_CBUILDING_1": {
+      "CROSS_XINMIN_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XUETANG_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "C_BUILDING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_XUETANG_ZIJING": {
+      "CROSS_CBUILDING_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XUETANG_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_DORM1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "EXPRESS_ZIJING": {
+      "CROSS_CBUILDING_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_XUETANG_ZHISHAN": {
+      "CROSS_XUETANG_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_QINGFEN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "TURN_ZHISHAN1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CANT_TINGTAO": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_QINGFEN": {
+      "CROSS_XUETANG_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_SSLIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CANT_QINGFEN_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_SSLIB_1": {
+      "CROSS_QINGFEN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_3J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "SSLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_NEWHE_5": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_3J_2": {
+      "CROSS_SSLIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_3J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_6J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_3J_3": {
+      "CROSS_3J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_5J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_3J_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_5J_1": {
+      "CROSS_3J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_4J": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_5J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_4J": {
+      "CROSS_5J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "4J_ENT": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_XINMIN_ZHISHAN": {
+      "CROSS_XINMIN_ZIJING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_EGYM_1": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "TURN_ZHISHAN1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_NGYM_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_EGYM_1": {
+      "CROSS_XINMIN_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "CROSS_6J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "EGYM": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_6J_3": {
+      "CROSS_EGYM_1": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "6JA_ENT_SE": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "6JB_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "6JA_ENT_N": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "6JA_ENT_SE": {
+      "CROSS_6J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "3J1_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "TURN_ZHISHAN1": {
+      "CROSS_XUETANG_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_XINMIN_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "NLIB": {
+      "CROSS_LIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_6": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_DORM4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_LIB_1": {
+      "NLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CANT_TINGTAO": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_LIB_2": {
+      "CROSS_LIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "WLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_LIB_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "WLIB": {
+      "CROSS_LIB_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_LIB_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_LIB_3": {
+      "WLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_LIB_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_LIB_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_LIB_4": {
+      "CROSS_LIB_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_LIB_7": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_5": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_LIB_7": {
+      "CROSS_LIB_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_6": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_LIB_6": {
+      "CROSS_LIB_7": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "NLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_LIB_5": {
+      "CROSS_LIB_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "OLDLIB": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_NEWHE_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "OLDLIB": {
+      "CROSS_LIB_5": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_NEWHE_1": {
+      "CROSS_NEWHE_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_NEWHE_4": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_5": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_NEWHE_2": {
+      "CROSS_NEWHE_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "NEWHE": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "NEWHE": {
+      "CROSS_NEWHE_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_NEWHE_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_NEWHE_3": {
+      "NEWHE": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_NEWHE_4": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "CROSS_5J_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_NEWHE_4": {
+      "CROSS_NEWHE_3": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      },
+      "CROSS_NEWHE_5": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_NEWHE_1": {
+        "max_cap": 50.0,
+        "actual_flow": 45.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_NEWHE_5": {
+      "CROSS_NEWHE_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_SSLIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_5J_4": {
+      "CROSS_NEWHE_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_5J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_5J_3": {
+      "CROSS_5J_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_5J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_5J_2": {
+      "CROSS_5J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "5J_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_5J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "5J_ENT_E": {
+      "CROSS_5J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "3J1_ENT_W": {
+      "CROSS_3J_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_3J_4": {
+      "3J1_ENT_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "3J3_ENT_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_3J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "3J3_ENT_W": {
+      "CROSS_3J_4": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "3J3_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "3J3_ENT_E": {
+      "3J3_ENT_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_3J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_3J_1": {
+      "3J3_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_6J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "3J2_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_6J_2": {
+      "CROSS_3J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6JB_ENT_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_3J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "6JB_ENT_W": {
+      "CROSS_6J_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_6J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_6J_1": {
+      "6JB_ENT_W": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "6JB_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "NEWCE": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "6JB_ENT_E": {
+      "CROSS_6J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "6JA_ENT_N": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_6J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "6JA_ENT_N": {
+      "6JB_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "CROSS_6J_3": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "3J2_ENT_E": {
+      "CROSS_3J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "3J1_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "3J1_ENT_E": {
+      "3J2_ENT_E": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "6JA_ENT_SE": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "NEWCE": {
+      "CROSS_6J_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CANT_TINGTAO": {
+      "CROSS_XUETANG_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_LIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CANT_QINGFEN_W": {
+      "CROSS_QINGFEN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "SSLIB": {
+      "CROSS_SSLIB_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "4J_ENT": {
+      "CROSS_4J": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "EGYM": {
+      "CROSS_EGYM_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_NGYM_2": {
+      "CROSS_XINMIN_ZHISHAN": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_NGYM_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "CROSS_NGYM_1": {
+      "CROSS_NGYM_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      },
+      "NGYM": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "NGYM": {
+      "CROSS_NGYM_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "side"
+      }
+    },
+    "C_BUILDING": {
+      "CROSS_CBUILDING_1": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      },
+      "CROSS_CBUILDING_2": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    },
+    "CROSS_CBUILDING_2": {
+      "C_BUILDING": {
+        "max_cap": 50.0,
+        "actual_flow": 10.0,
+        "road_type": "main"
+      }
+    }
+  }
+}

@@ -172,38 +172,35 @@
             };
         }
 
-        // ===================== 相机控制配置（旋转+移动） =====================
+        // 相机控制
         const CAMERA_CONFIG = {
-            rotateSpeed: 0.04,    // 平缓的旋转速度
-            maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
+            rotateSpeed: 0.04,   
+            maxPolarAngle: Math.PI / 2 - 0.1, //防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 10     // 长按触发间隔
+            throttleDelay: 10  
         };
 
         const CAMERA_MOVE_CONFIG = {
-            moveSpeed: 50,       // 移动速度（单位：像素/帧）
-            throttleDelay: 10     // 移动节流间隔
+            moveSpeed: 50,       
+            throttleDelay: 10  
         };
 
-        // 存储按键状态
         const pressedKeys = {};
         
-        // Three.js核心对象
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         
-        // 全局状态
         let currentModeInstance = null;
-        let currentScenario = '01'; // 默认情境1
+        let currentScenario = '01';
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hoveredNodeId = null;
         let labelRenderer;
-        let clouds = []; // 全局白云数组，用于动画更新
+        let clouds = []; 
 
-        // ===================== 面板拖拽函数（优化：添加边界限制） =====================
+        // 面板拖拽
         function makePanelDraggable(panelElement) {
             if (!panelElement) return;
             let isDragging = false;
@@ -246,7 +243,7 @@
             });
         }
         
-        // ===================== 相机旋转函数（仅保留旋转） =====================
+        // 相机旋转函数
         function rotateCamera(direction) {
             if (!controls) return;
             const spherical = new THREE.Spherical();
@@ -275,14 +272,14 @@
         // 节流包装旋转函数
         const throttledRotate = throttle(rotateCamera, CAMERA_CONFIG.throttleDelay);
 
-        // ===================== 镜头移动函数 =====================
+        // 镜头移动函数 
         function moveCamera(direction) {
+            return;
             if (!controls) return;
-            
-            // 创建相机方向向量（仅沿X/Z轴移动，保持Y轴高度不变）
+
             const forward = new THREE.Vector3();
             camera.getWorldDirection(forward);
-            forward.y = 0; // 取消垂直方向移动，避免镜头上下飘
+            forward.y = 0;
             forward.normalize();
 
             const right = new THREE.Vector3();
@@ -1456,5 +1453,6 @@
     </script>
 </body>
 </html>
+
 
 

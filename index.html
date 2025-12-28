@@ -1238,7 +1238,7 @@
                     currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
                     currentModeInstance.pathMeshes = [];
                     kPaths.forEach((path, index) => {
-                        const color = index === 0 ? 0xff0000 : 0x0000ff;
+                        const color = index === 0 ? 0x00ffff : 0x7c16f5;
                         currentModeInstance.drawPath(path, index + 1, color);
                     });
 
@@ -1456,4 +1456,5 @@
     </script>
 </body>
 </html>
+
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D路径规划系统</title>
+    <title>3D路径规划系统（模式+情境版）</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { overflow: hidden; font-family: 'Arial', sans-serif; }
@@ -29,6 +29,27 @@
         }
         .mode-btn:hover { background: #e9ecef; }
         .mode-btn.active:hover { background: #0069d9; }
+        
+        /* 情境切换面板样式 */
+        #scenario-panel {
+            position: absolute; top: 10px; left: 480px;
+            background: rgba(255,255,255,0.9); padding: 10px 15px;
+            border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 100;
+            cursor: move; 
+        }
+        .scenario-btn {
+            padding: 6px 12px; margin: 0 5px;
+            border: 1px solid #ccc; border-radius: 4px;
+            background: #f5f5f5; cursor: pointer; font-size: 13px;
+            transition: all 0.2s;
+        }
+        .scenario-btn.active {
+            background: #28a745; color: white; border-color: #28a745;
+        }
+        .scenario-btn:hover { background: #e9ecef; }
+        .scenario-btn.active:hover { background: #218838; }
+
         #path-detail {
             position: absolute; top: 70px; left: 10px;
             background: rgba(255,255,255,0.9); padding: 12px 15px;
@@ -66,6 +87,13 @@
         <span style="font-size:13px; font-weight:bold; margin-right:8px;">选择模式：</span>
         <button class="mode-btn active" data-mode="teaching">教学楼模式</button>
         <button class="mode-btn" data-mode="campus">校园模式</button>
+    </div>
+    <!-- 新增情境切换面板 -->
+    <div id="scenario-panel">
+        <span style="font-size:13px; font-weight:bold; margin-right:8px;">选择情境：</span>
+        <button class="scenario-btn active" data-scenario="01">情境1</button>
+        <button class="scenario-btn" data-scenario="02">情境2</button>
+        <button class="scenario-btn" data-scenario="03">情境3</button>
     </div>
     <div id="path-detail">
         <div style="font-weight: bold; margin-bottom: 5px;">路径详情</div>
@@ -143,18 +171,20 @@
             };
         }
 
-        // ===================== 相机控制配置（仅保留旋转） =====================
+        // ===================== 相机控制配置 =====================
         const CAMERA_CONFIG = {
-            rotateSpeed: 0.02,    // 平缓的旋转速度
+            rotateSpeed: 0.01,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 10    // 长按触发间隔
+            throttleDelay: 30     // 长按触发间隔
         };
 
+        // 相机移动配置
         const CAMERA_MOVE_CONFIG = {
-        moveSpeed: 10,       // 移动速度（单位：像素/帧）
-        throttleDelay: 10    // 移动节流间隔
-    };
+            moveSpeed: 800,       // 移动速度（单位：像素/帧）
+            throttleDelay: 30     // 移动节流间隔
+        };
+
         // 存储按键状态
         const pressedKeys = {};
         
@@ -166,6 +196,7 @@
         
         // 全局状态
         let currentModeInstance = null;
+        let currentScenario = '01'; // 当前情境（默认情境1）
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hoveredNodeId = null;
@@ -215,7 +246,7 @@
             });
         }
         
-        // ===================== 相机旋转函数（仅保留旋转） =====================
+        // ===================== 相机旋转函数 =====================
         function rotateCamera(direction) {
             if (!controls) return;
             const spherical = new THREE.Spherical();
@@ -244,9 +275,10 @@
         // 节流包装旋转函数
         const throttledRotate = throttle(rotateCamera, CAMERA_CONFIG.throttleDelay);
 
+        // ===================== 相机移动函数 =====================
         function moveCamera(direction) {
             if (!controls) return;
-    
+            
             // 创建相机方向向量（仅沿X/Z轴移动，保持Y轴高度不变）
             const forward = new THREE.Vector3();
             camera.getWorldDirection(forward);
@@ -275,13 +307,13 @@
                     controls.target.sub(right.multiplyScalar(CAMERA_MOVE_CONFIG.moveSpeed));
                     break;
             }
-    
+            
             controls.update();
         }
 
         // 节流包装移动函数
         const throttledMove = throttle(moveCamera, CAMERA_MOVE_CONFIG.throttleDelay);
-        
+
         // ===================== 全局工具函数 =====================
         function updateInfo(text, isError = false) {
             const panel = document.getElementById('info-panel');
@@ -313,7 +345,7 @@
             updateInfo(`点击第一个长方体作为起点（绿色），第二个作为终点（蓝色）`);
         }
 
-        // ===================== 全局树木创建函数（修复作用域问题） =====================
+        // ===================== 全局树木创建函数 =====================
         function createTree(x, z, height = 8000, trunkRadius = 200, crownRadius = 1500) {
             // 1. 树干（圆柱体）
             const trunkGeo = new THREE.CylinderGeometry(trunkRadius, trunkRadius, height * 0.7, 16);
@@ -397,13 +429,12 @@
             dirLight.shadow.camera.bottom = -50000;
             scene.add(dirLight);
 
-            // ===================== 新增：天空飘动的白云 =====================
-            // ===================== 修复：蓬松分散的白云 =====================
+            // 天空飘动的白云
             function createCloud(x, y, z, scale = 1.3) {
                 const cloudGroup = new THREE.Group();
-                const cloudLayerCount = 2 + Math.floor(Math.random() * 4); // 2~5层（减少层数避免堆墙）
-        
-                // 生成更柔和的云纹理（用径向渐变+模糊）
+                const cloudLayerCount = 2 + Math.floor(Math.random() * 4); // 2~5层
+
+                // 生成更柔和的云纹理
                 function createCloudTexture() {
                     const canvas = document.createElement('canvas');
                     canvas.width = 512;
@@ -419,7 +450,7 @@
                     gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.8)');
                     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
             
-                    // 多组随机椭圆（避免圆形规整感）
+                    // 多组随机椭圆
                     ctx.fillStyle = gradient;
                     for (let j = 0; j < 8; j++) {
                         const w = 100 + Math.random() * 200;
@@ -436,16 +467,16 @@
                 }
 
                 for (let i = 0; i < cloudLayerCount; i++) {
-                    // 云材质改用MeshBasicMaterial（不受光照影响，稳定显示白色）
+                    // 云材质改用MeshBasicMaterial
                     const cloudMat = new THREE.MeshBasicMaterial({
-                        map: createCloudTexture(), // 保持之前的白色纹理
+                        map: createCloudTexture(),
                         transparent: true,
                         opacity: 0.4 + Math.random() * 0.3,
                         side: THREE.DoubleSide,
                         depthWrite: false
                     });
 
-                    // 每层云大小/形状随机（避免统一）
+                    // 每层云大小/形状随机
                     const cloudGeo = new THREE.PlaneGeometry(
                         10000 * scale + Math.random() * 12000,
                         8000 * scale + Math.random() * 10000,
@@ -453,7 +484,7 @@
                     );
 
                     const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-                    // 更大的随机偏移（避免堆叠成平面）
+                    // 更大的随机偏移
                     cloudMesh.position.set(
                         (Math.random() - 0.5) * 15000 * scale,
                         (Math.random() - 0.5) * 12000 * scale,
@@ -463,19 +494,19 @@
                         Math.random() * 0.5,
                         Math.random() * Math.PI,
                         Math.random() * 0.3
-                    ); // 多角度旋转，不只是平面
+                    );
             
                     cloudGroup.add(cloudMesh);
                 }
 
-                // 云的位置更分散（扩大范围）
+                // 云的位置更分散
                 cloudGroup.position.set(
                     x,
-                    y || (25000 + Math.random() * 40000), // 高度范围更大
+                    y || (25000 + Math.random() * 40000),
                     z
                 );
 
-                // 移动速度更随机（避免同步）
+                // 移动速度更随机
                 cloudGroup.userData = {
                     speedX: (Math.random() - 0.5) * 15 + 2,
                     speedZ: (Math.random() - 0.5) * 12 + 1,
@@ -489,17 +520,16 @@
                 clouds.push(cloudGroup);
             }
 
-            // 云数量减少+分布更散（8~12朵）
+            // 云数量减少+分布更散
             const cloudCount = 15 + Math.floor(Math.random() * 5);
             for (let i = 0; i < cloudCount; i++) {
                 createCloud(
-                    (Math.random() - 0.5) * 300000, // X范围扩大到±15万
+                    (Math.random() - 0.5) * 300000,
                     null,
-                    (Math.random() - 0.5) * 300000  // Z范围扩大到±15万
+                    (Math.random() - 0.5) * 300000
                 );
             }
 
-            
             // 全局地板
             const floorGeometry = new THREE.PlaneGeometry(300000, 300000);
             const floorMaterial = new THREE.MeshStandardMaterial({
@@ -510,7 +540,7 @@
             floor.position.y = 0;
             scene.add(floor);
             
-            // 动画循环（仅处理旋转）
+            // 动画循环
             function animate() {
                 requestAnimationFrame(animate);
                 controls.update();
@@ -525,7 +555,8 @@
                     el.style.transformOrigin = 'center';
                 });
 
-                // 仅处理方向键旋转（无任何移动逻辑）
+                // 按键处理
+                // 1. 上下左右键：镜头朝向旋转
                 if (pressedKeys['ArrowUp']) throttledRotate('up');
                 if (pressedKeys['ArrowDown']) throttledRotate('down');
                 if (pressedKeys['ArrowLeft']) throttledRotate('left');
@@ -537,13 +568,13 @@
                 if (pressedKeys['a'] || pressedKeys['A']) throttledMove('left');
                 if (pressedKeys['d'] || pressedKeys['D']) throttledMove('right');
 
-                // ===================== 白云飘动动画（移到animate内部实现持续动画） =====================
+                // 白云飘动动画
                 clouds.forEach(cloud => {
                     // 更新云的位置
                     cloud.position.x += cloud.userData.speedX;
                     cloud.position.z += cloud.userData.speedZ;
             
-                    // 超出边界后重置位置（循环飘动）
+                    // 超出边界后重置位置
                     if (cloud.position.x > cloud.userData.maxX) {
                         cloud.position.x = cloud.userData.minX;
                     } else if (cloud.position.x < cloud.userData.minX) {
@@ -565,10 +596,11 @@
 
         // ===================== 模式基类 =====================
         class BaseMode {
-            constructor(modeName, config, dataFile) {
+            constructor(modeName, config) {
                 this.modeName = modeName;
                 this.config = config;
-                this.dataFile = dataFile;
+                // 动态拼接数据文件名（模式+情境）
+                this.dataFile = `${modeName === 'teaching' ? 'path_data_6J' : 'path_data_campus'}_${currentScenario}.json`;
 
                 // 模式私有资源
                 this.nodes = {};
@@ -603,50 +635,46 @@
 
             // 销毁当前模式资源
             destroy() {
-            // 移除3D元素
-            this.pathMeshes.forEach(mesh => scene.remove(mesh));
-            this.nodeMeshes.forEach(mesh => scene.remove(mesh));
-            this.edgeMeshes.forEach(mesh => scene.remove(mesh));
+                // 移除3D元素
+                this.pathMeshes.forEach(mesh => scene.remove(mesh));
+                this.nodeMeshes.forEach(mesh => scene.remove(mesh));
+                this.edgeMeshes.forEach(mesh => scene.remove(mesh));
 
-            if (labelRenderer) {
-                labelRenderer.domElement.innerHTML = '';
-            }
-
-            // ========== 替换这里的树木删除逻辑 ==========
-            // 1. 先收集所有带树木标记的元素（避免遍历中修改数组导致漏删）
-            const treeMeshes = [];
-            scene.children.forEach(child => {
-                if (child.userData && child.userData.isTree) {
-                    treeMeshes.push(child);
+                if (labelRenderer) {
+                    labelRenderer.domElement.innerHTML = '';
                 }
-            });
-            // 2. 批量删除树木（树干+树冠），并释放内存
-            treeMeshes.forEach(mesh => {
-                scene.remove(mesh);
-                // 可选：释放几何体和材质内存，优化性能
-                mesh.geometry.dispose();
-                mesh.material.dispose();
-            });
-            // ===========================================
-    
-            // 重置状态
-            this.nodes = {};
-            this.edges = {};
-            this.selectedNodes = [];
-            this.pathMeshes = [];
-            this.nodeMeshes = [];
-            this.edgeMeshes = [];
-            this.minLon = 0;
-            this.minLat = 0;
-            document.getElementById('path-detail').style.display = 'none';
-            document.getElementById('path1').innerHTML = '';
-            document.getElementById('path2').innerHTML = '';
-            hoveredNodeId = null;
-        }
+
+                // 删除树木
+                const treeMeshes = [];
+                scene.children.forEach(child => {
+                    if (child.userData && child.userData.isTree) {
+                        treeMeshes.push(child);
+                    }
+                });
+                treeMeshes.forEach(mesh => {
+                    scene.remove(mesh);
+                    mesh.geometry.dispose();
+                    mesh.material.dispose();
+                });
+        
+                // 重置状态
+                this.nodes = {};
+                this.edges = {};
+                this.selectedNodes = [];
+                this.pathMeshes = [];
+                this.nodeMeshes = [];
+                this.edgeMeshes = [];
+                this.minLon = 0;
+                this.minLat = 0;
+                document.getElementById('path-detail').style.display = 'none';
+                document.getElementById('path1').innerHTML = '';
+                document.getElementById('path2').innerHTML = '';
+                hoveredNodeId = null;
+            }
 
             // 加载模式数据
             loadData() {
-                updateInfo(`正在加载${this.modeName === 'teaching' ? '教学楼' : '校园'}模式数据...`);
+                updateInfo(`正在加载${this.modeName === 'teaching' ? '教学楼' : '校园'}模式-情境${currentScenario.replace('0', '')}数据...`);
                 fetch(this.dataFile)
                     .then(response => {
                         if (!response.ok) throw new Error(`数据加载失败（${response.status}）`);
@@ -663,7 +691,7 @@
                         this.drawNodes();
                         this.adjustCamera();
                         document.getElementById('legend-node-text').innerText = this.modeName === 'teaching' ? '教室' : '建筑';
-                        updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式加载完成，点击选择起点`);
+                        updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式-情境${currentScenario.replace('0', '')}加载完成，点击选择起点`);
                     })
                     .catch(error => {
                         updateInfo(`⚠️ 加载失败：${error.message}`, true);
@@ -767,7 +795,6 @@
                     // 节点标签（优化：随机偏移+样式升级）
                     const labelDiv = document.createElement('div');
                     labelDiv.classList.add('css2d-label');
-                    // 样式优化：更小字体、背景半透明、换行、阴影加深
                     labelDiv.style.cssText = `
                         font-size: 10px;
                         font-weight: bold;
@@ -785,11 +812,11 @@
 
                     const label = new THREE.CSS2DObject(labelDiv);
                     // 核心修改：添加随机偏移（x/z轴），避免标签重叠
-                    const randomOffsetX = (Math.random() - 0.5) * 800; // 随机左右偏移
-                    const randomOffsetZ = (Math.random() - 0.5) * 800; // 随机前后偏移
+                    const randomOffsetX = (Math.random() - 0.5) * 800;
+                    const randomOffsetZ = (Math.random() - 0.5) * 800;
                     label.position.set(
                         randomOffsetX, 
-                        this.config.BOX_SIZE.y / 2 + 300, // 提高标签高度
+                        this.config.BOX_SIZE.y / 2 + 300,
                         randomOffsetZ
                     );
                     boxMesh.add(label);
@@ -994,7 +1021,7 @@
                     PATH_RADIUS: 80,
                     STAIR_PENALTY: true
                 };
-                super('teaching', config, 'path_data_6J.json');
+                super('teaching', config);
             }
 
             // 教学楼专属权重算法
@@ -1050,7 +1077,7 @@
                     PATH_RADIUS: 150,
                     STAIR_PENALTY: false
                 };
-                super('campus', config, 'path_data_campus.json');
+                super('campus', config);
             }
 
             // 校园专属权重算法
@@ -1131,7 +1158,6 @@
 
                     const labelDiv = document.createElement('div');
                     labelDiv.classList.add('css2d-label');
-                    // 样式优化
                     labelDiv.style.cssText = `
                         font-size: 12px;
                         font-weight: bold;
@@ -1199,6 +1225,56 @@
                 const treeHeight = 5000;
                 createTree(x, z, treeHeight);
             }
+        }
+
+        // ===================== 情境切换逻辑 =====================
+        function switchScenario(scenarioId) {
+            // 如果当前无激活模式，提示先选模式
+            if (!currentModeInstance) {
+                updateInfo(`请先选择模式（教学楼/校园）再切换情境`, true);
+                return;
+            }
+
+            // 更新当前情境
+            currentScenario = scenarioId;
+            
+            // 更新UI状态
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.scenario-btn[data-scenario="${scenarioId}"]`).classList.add('active');
+
+            // 获取当前激活的模式类型
+            const currentModeType = document.querySelector('.mode-btn.active').getAttribute('data-mode');
+            
+            // 销毁当前模式资源，重新加载对应情境的模式
+            if (currentModeInstance) {
+                currentModeInstance.destroy();
+                currentModeInstance = null;
+            }
+
+            // 重新初始化当前模式
+            if (currentModeType === 'teaching') {
+                currentModeInstance = new TeachingMode();
+            } else if (currentModeType === 'campus') {
+                currentModeInstance = new CampusMode();
+            }
+
+            // 加载新情境的数据
+            currentModeInstance.loadData();
+
+            // 重新生成树木
+            const treeCount = 80;
+            const minRadius = 50000;
+            const maxRadius = 100000;
+            for (let i = 0; i < treeCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = minRadius + Math.random() * (maxRadius - minRadius);
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const treeHeight = 5000;
+                createTree(x, z, treeHeight);
+            }
+
+            updateInfo(`✅ 已切换至${currentModeType === 'teaching' ? '教学楼' : '校园'}模式-情境${scenarioId.replace('0', '')}`);
         }
 
         // ===================== 鼠标交互逻辑 =====================
@@ -1373,146 +1449,4 @@
 
                 // 点击空白处关闭
                 document.addEventListener('click', (e) => {
-                    if (!inputEl.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.style.display = 'none';
-                    }
-                });
-
-                // 回车关闭
-                inputEl.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        dropdown.style.display = 'none';
-                    }
-                });
-            }
-
-            // 匹配节点名（模糊匹配）
-            function matchNodeId(inputText) {
-                if (!currentModeInstance || !inputText) return null;
-                const lowerText = inputText.trim().toLowerCase();
-                for (const id in currentModeInstance.nodes) {
-                    if (id.toLowerCase().includes(lowerText)) {
-                        return id;
-                    }
-                }
-                return null;
-            }
-
-            // 搜索按钮点击事件
-            searchBtn.addEventListener('click', () => {
-                if (!currentModeInstance) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = '请先选择模式（教学楼/校园）';
-                    return;
-                }
-
-                searchTip.style.display = 'none';
-                const startId = matchNodeId(startInput.value);
-                const endId = matchNodeId(endInput.value);
-
-                if (!startId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到起点：${startInput.value}`;
-                    return;
-                }
-                if (!endId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到终点：${endInput.value}`;
-                    return;
-                }
-                if (startId === endId) {
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = '起点和终点不能相同';
-                    return;
-                }
-
-                // 重置原有选中状态
-                if (currentModeInstance.selectedNodes.length > 0) {
-                    currentModeInstance.selectedNodes.forEach(id => {
-                        currentModeInstance.nodes[id].mesh.material = currentModeInstance.nodes[id].materials.default;
-                        currentModeInstance.nodes[id].mesh.scale.copy(currentModeInstance.nodes[id].originalScale);
-                    });
-                }
-
-                // 设置新起终点并计算路径
-                currentModeInstance.selectedNodes = [startId, endId];
-                currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
-                currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
-        
-                currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
-                currentModeInstance.pathMeshes = [];
-
-                updateInfo(`🔍 正在计算路径：${startId} → ${endId}`);
-                const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
-                if (kPaths.length === 0) {
-                    updateInfo(`❌ 未找到从 ${startId} 到 ${endId} 的路径`, true);
-                    searchTip.style.display = 'block';
-                    searchTip.textContent = `未找到从 ${startId} 到 ${endId} 的路径`;
-                } else {
-                    updateInfo(`✅ 找到 ${kPaths.length} 条路径，按ESC重新选择`);
-                    const pathColors = [0x00ffff, 0x8800ff];
-                    kPaths.forEach((path, idx) => {
-                        currentModeInstance.drawPath(path, idx + 1, pathColors[idx]);
-                    });
-                }
-            });
-
-            // 回车触发搜索
-            startInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') searchBtn.click();
-            });
-            endInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') searchBtn.click();
-            });
-        
-            // 初始化自动补全
-            initInputAutoComplete(startInput);
-            initInputAutoComplete(endInput);
-        }
-
-        // ===================== 页面初始化 =====================
-        window.addEventListener('load', () => {
-            // 初始化全局场景
-            initGlobalScene();
-
-            // 绑定模式切换事件
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const modeType = this.getAttribute('data-mode');
-                    switchMode(modeType);
-                });
-            });
-
-            // 绑定鼠标交互事件
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('click', onMouseClick);
-
-            window.addEventListener('keydown', (e) => {
-            pressedKeys[e.key] = true;
-            // 阻止方向键/WSAD的默认行为（如页面滚动）
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'W', 's', 'S', 'a', 'A', 'd', 'D'].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
-
-        // 松开按键时清除状态
-        window.addEventListener('keyup', (e) => {
-            pressedKeys[e.key] = false;
-        });
-
-            // 默认加载教学楼模式
-            switchMode('teaching');
-            initSearchPanel();
-
-            // 初始化面板拖拽
-            makePanelDraggable(document.getElementById('mode-panel'));
-            makePanelDraggable(document.getElementById('path-detail'));
-            makePanelDraggable(document.getElementById('search-panel'));
-        });
-    </script>
-</body>
-</html>
-
-
-
-
+                    if (!inputEl.contains(e.target) && !dropdown.contains(e.target))

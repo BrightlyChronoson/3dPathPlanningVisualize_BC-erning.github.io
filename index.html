@@ -172,7 +172,7 @@
         }
         // 相机控制相关配置和函数（移动功能暂取消），实现相机的角度调整和位置控制，带节流优化
         const CAMERA_CONFIG = {
-            rotateSpeed: 0.02,   
+            rotateSpeed: 0.01,   
             maxPolarAngle: Math.PI / 2 - 0.1, //防止相机翻倒
             minPolarAngle: 0.1,
             throttleDelay: 10  
@@ -1340,4 +1340,5 @@
     </script>
 </body>
 </html>
+
 

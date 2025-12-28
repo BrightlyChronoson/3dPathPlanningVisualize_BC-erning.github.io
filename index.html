@@ -123,25 +123,25 @@
             <span>连接通道</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #0000ff;"></div>
+            <div class="legend-color" style="background: #00ffff;"></div>
             <span>第1条最短路径</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #8800ff;"></div>
+            <div class="legend-color" style="background: #7c16f5;"></div>
             <span>第2条最短路径</span>
         </div>
     </div>
 
     <div id="search-panel" style="position: absolute; top: 220px; left: 10px; background: rgba(255,255,255,0.9); padding: 12px 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;">
-        <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">节点查找（直接设置起/终点）</div>
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">节点查找</div>
         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
             <div style="flex: 1;">
                 <label for="start-node-input" style="font-size: 12px; color: #666;">起点：</label>
-                <input type="text" id="start-node-input" placeholder="输入节点名（如教室101）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
+                <input type="text" id="start-node-input" placeholder="输入节点名" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
             </div>
             <div style="flex: 1;">
                 <label for="end-node-input" style="font-size: 12px; color: #666;">终点：</label>
-                <input type="text" id="end-node-input" placeholder="输入节点名（如教室102）" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
+                <input type="text" id="end-node-input" placeholder="输入节点名" style="width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; margin-top: 4px;">
             </div>
         </div>
         <button id="search-path-btn" style="padding: 5px 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">计算路径</button>
@@ -174,15 +174,15 @@
 
         // ===================== 相机控制配置（旋转+移动） =====================
         const CAMERA_CONFIG = {
-            rotateSpeed: 0.01,    // 平缓的旋转速度
+            rotateSpeed: 0.04,    // 平缓的旋转速度
             maxPolarAngle: Math.PI / 2 - 0.1, // 防止相机翻倒
             minPolarAngle: 0.1,
-            throttleDelay: 30     // 长按触发间隔
+            throttleDelay: 10     // 长按触发间隔
         };
 
         const CAMERA_MOVE_CONFIG = {
-            moveSpeed: 800,       // 移动速度（单位：像素/帧）
-            throttleDelay: 30     // 移动节流间隔
+            moveSpeed: 50,       // 移动速度（单位：像素/帧）
+            throttleDelay: 10     // 移动节流间隔
         };
 
         // 存储按键状态
@@ -1349,7 +1349,7 @@
                 currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
                 currentModeInstance.pathMeshes = [];
                 kPaths.forEach((path, index) => {
-                    const color = index === 0 ? 0xff0000 : 0x0000ff;
+                    const color = index === 0 ? 0x00ffff : 0x7c16f5;
                     currentModeInstance.drawPath(path, index + 1, color);
                 });
 
@@ -1456,3 +1456,4 @@
     </script>
 </body>
 </html>
+

@@ -692,9 +692,9 @@
                         updateInfo(`✅ ${this.modeName === 'teaching' ? '教学楼' : '校园'}模式-情境${currentScenario.replace('0', '')}加载完成，点击选择起点`);
                     })
                     .catch(error => {
-                        updateInfo(`⚠️ 加载失败：${error.message}`, true);
+                        updateInfo(`加载失败：${error.message}`, true);
                         if (error.message.includes('404')) {
-                            updateInfo(`⚠️ 未找到${this.dataFile}（请确保与index.html同目录）`, true);
+                            updateInfo(`未找到${this.dataFile}（请确保与index.html同目录）`, true);
                         }
                     });
             }
@@ -1135,7 +1135,7 @@
                 createTree(x, z, treeHeight);
             }
 
-            updateInfo(`✅ 已切换至${modeType === 'teaching' ? '教学楼' : '校园'}模式-情境${currentScenario.replace('0', '')}`);
+            updateInfo(`已切换至${modeType === 'teaching' ? '教学楼' : '校园'}模式-情境${currentScenario.replace('0', '')}`);
         }
 
         // ===================== 情境切换逻辑 =====================
@@ -1185,7 +1185,7 @@
                 createTree(x, z, treeHeight);
             }
 
-            updateInfo(`✅ 已切换至${currentModeType === 'teaching' ? '教学楼' : '校园'}模式-情境${scenarioId.replace('0', '')}`);
+            updateInfo(`已切换至${currentModeType === 'teaching' ? '教学楼' : '校园'}模式-情境${scenarioId.replace('0', '')}`);
         }
 
         // ===================== 节点点击/悬停处理 =====================
@@ -1208,17 +1208,17 @@
                     currentModeInstance.selectedNodes.push(clickedNodeId);
                     currentModeInstance.nodes[clickedNodeId].mesh.material = currentModeInstance.nodes[clickedNodeId].materials.start;
                     currentModeInstance.nodes[clickedNodeId].mesh.scale.set(1.2, 1.2, 1.2);
-                    updateInfo(`✅ 已选择起点：${clickedNodeId}，请选择终点`);
+                    updateInfo(`已选择起点：${clickedNodeId}，请选择终点`);
                 } else if (currentModeInstance.selectedNodes.length === 1) {
                     // 选择终点
                     if (clickedNodeId === currentModeInstance.selectedNodes[0]) {
-                        updateInfo(`⚠️ 起点和终点不能相同，请重新选择`, true);
+                        updateInfo(`起点和终点不能相同，请重新选择`, true);
                         return;
                     }
                     currentModeInstance.selectedNodes.push(clickedNodeId);
                     currentModeInstance.nodes[clickedNodeId].mesh.material = currentModeInstance.nodes[clickedNodeId].materials.end;
                     currentModeInstance.nodes[clickedNodeId].mesh.scale.set(1.2, 1.2, 1.2);
-                    updateInfo(`✅ 已选择终点：${clickedNodeId}，正在计算最短路径...`);
+                    updateInfo(`已选择终点：${clickedNodeId}，正在计算最短路径...`);
 
                     // 计算K最短路径
                     const startId = currentModeInstance.selectedNodes[0];
@@ -1226,7 +1226,7 @@
                     const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
 
                     if (kPaths.length === 0) {
-                        updateInfo(`⚠️ 未找到从${startId}到${endId}的路径`, true);
+                        updateInfo(`未找到从${startId}到${endId}的路径`, true);
                         clearSelectedPath();
                         return;
                     }
@@ -1239,7 +1239,7 @@
                         currentModeInstance.drawPath(path, index + 1, color);
                     });
 
-                    updateInfo(`✅ 路径计算完成：找到${kPaths.length}条最短路径`);
+                    updateInfo(`路径计算完成：找到${kPaths.length}条最短路径`);
                 } else {
                     // 重置选择
                     clearSelectedPath();
@@ -1248,7 +1248,7 @@
                     currentModeInstance.selectedNodes.push(clickedNodeId);
                     currentModeInstance.nodes[clickedNodeId].mesh.material = currentModeInstance.nodes[clickedNodeId].materials.start;
                     currentModeInstance.nodes[clickedNodeId].mesh.scale.set(1.2, 1.2, 1.2);
-                    updateInfo(`✅ 已重置选择，新起点：${clickedNodeId}，请选择终点`);
+                    updateInfo(`已重置选择，新起点：${clickedNodeId}，请选择终点`);
                 }
             });
 
@@ -1307,78 +1307,193 @@
 
         // ===================== 搜索面板逻辑 =====================
         function setupSearchPanel() {
-            const startInput = document.getElementById('start-node-input');
-            const endInput = document.getElementById('end-node-input');
-            const searchBtn = document.getElementById('search-path-btn');
+        const startInput = document.getElementById('start-node-input');
+        const endInput = document.getElementById('end-node-input');
+        const searchBtn = document.getElementById('search-path-btn');
+        const searchPanel = document.getElementById('search-panel');
 
-            // 搜索按钮点击事件
-            searchBtn.addEventListener('click', () => {
-                if (!currentModeInstance || Object.keys(currentModeInstance.nodes).length === 0) {
-                    updateInfo(`⚠️ 请先加载模式数据再搜索路径`, true);
-                    return;
+        // 1. 创建推荐列表容器（两个输入框各对应一个）
+        const startRecommendList = createRecommendList();
+        const endRecommendList = createRecommendList();
+        // 将推荐列表添加到搜索面板中（输入框下方）
+        startInput.parentNode.appendChild(startRecommendList);
+        endInput.parentNode.appendChild(endRecommendList);
+
+        // 2. 通用推荐列表创建函数（统一样式和初始状态）
+        function createRecommendList() {
+            const list = document.createElement('div');
+            list.style.cssText = `
+                position: absolute;
+                top: 40px;
+                left: 0;
+                right: 0;
+                max-height: 150px;
+                overflow-y: auto;
+                background: white;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                z-index: 300;
+                display: none;
+                padding: 4px 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            `;
+            // 点击推荐项的通用逻辑
+            list.addEventListener('click', (e) => {
+                if (e.target.tagName === 'DIV' || e.target.tagName === 'SPAN') {
+                    const inputEl = list.previousElementSibling; // 关联对应的输入框
+                    // 取整个推荐项的文本（避免只取高亮部分）
+                    inputEl.value = e.target.closest('div').textContent; 
+                    list.style.display = 'none'; // 隐藏列表
                 }
-
-                const startId = startInput.value.trim().toUpperCase();
-                const endId = endInput.value.trim().toUpperCase();
-
-                // 验证输入
-                if (!startId || !endId) {
-                    updateInfo(`⚠️ 起点和终点不能为空`, true);
-                    return;
-                }
-                if (!currentModeInstance.nodes[startId]) {
-                    updateInfo(`⚠️ 未找到起点：${startId}`, true);
-                    return;
-                }
-                if (!currentModeInstance.nodes[endId]) {
-                    updateInfo(`⚠️ 未找到终点：${endId}`, true);
-                    return;
-                }
-                if (startId === endId) {
-                    updateInfo(`⚠️ 起点和终点不能相同`, true);
-                    return;
-                }
-
-                // 重置之前的选择和路径
-                clearSelectedPath();
-                currentModeInstance.selectedNodes = [startId, endId];
-
-                // 高亮起点和终点
-                currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
-                currentModeInstance.nodes[startId].mesh.scale.set(1.2, 1.2, 1.2);
-                currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
-                currentModeInstance.nodes[endId].mesh.scale.set(1.2, 1.2, 1.2);
-
-                // 计算K最短路径
-                updateInfo(`✅ 正在计算从${startId}到${endId}的最短路径...`);
-                const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
-
-                if (kPaths.length === 0) {
-                    updateInfo(`⚠️ 未找到从${startId}到${endId}的路径`, true);
-                    clearSelectedPath();
-                    return;
-                }
-
-                // 绘制路径
-                currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
-                currentModeInstance.pathMeshes = [];
-                kPaths.forEach((path, index) => {
-                    const color = index === 0 ? 0x00ffff : 0x7c16f5;
-                    currentModeInstance.drawPath(path, index + 1, color);
-                });
-
-                updateInfo(`✅ 路径计算完成：找到${kPaths.length}条最短路径`);
             });
+            return list;
+        }
 
-            // 输入框回车事件
-            [startInput, endInput].forEach(input => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        searchBtn.click();
+        // 3. 通用输入匹配函数（模糊匹配节点名，不区分大小写）
+        function matchNodes(inputVal) {
+            if (!currentModeInstance || !inputVal.trim()) return [];
+            const lowerVal = inputVal.trim().toLowerCase();
+            // 筛选包含输入字符的节点名（不区分大小写）
+            return Object.keys(currentModeInstance.nodes).filter(nodeId => 
+                nodeId.toLowerCase().includes(lowerVal)
+            );
+        }
+
+        // 4. 给输入框绑定输入事件（实时生成推荐，含优化功能）
+        function bindInputRecommend(inputEl, recommendList) {
+            inputEl.addEventListener('input', () => {
+                const inputVal = inputEl.value;
+                let matchedNodes = matchNodes(inputVal);
+
+                // 优化1：限制推荐列表最大数量（最多10个）
+                matchedNodes = matchedNodes.slice(0, 10);
+
+                // 无匹配结果或输入为空，隐藏推荐列表
+                if (matchedNodes.length === 0 || !inputVal.trim()) {
+                    recommendList.style.display = 'none';
+                    return;
+                }
+
+                // 渲染推荐项（清空原有内容，添加新匹配项）
+                recommendList.innerHTML = '';
+                const lowerInputVal = inputVal.trim().toLowerCase(); // 用于匹配位置（不区分大小写）
+            
+                matchedNodes.forEach(nodeId => {
+                    const item = document.createElement('div');
+                    item.style.cssText = `
+                        padding: 4px 8px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        color: #333;
+                    `;
+
+                    // 优化2：高亮匹配字符（标红用户输入的部分）
+                    const matchIndex = nodeId.toLowerCase().indexOf(lowerInputVal);
+                    if (matchIndex !== -1) {
+                        // 拆分节点名：匹配前 + 匹配部分（标红） + 匹配后
+                        const before = nodeId.slice(0, matchIndex);
+                        const matchText = nodeId.slice(matchIndex, matchIndex + lowerInputVal.length);
+                        const after = nodeId.slice(matchIndex + lowerInputVal.length);
+                        // 用span标签标红匹配部分，保持原节点名大小写
+                        item.innerHTML = `${before}<span style="color: #dc3545; font-weight: bold;">${matchText}</span>${after}`;
+                    } else {
+                        // 极端情况（理论上不会触发）：直接显示节点名
+                        item.textContent = nodeId;
                     }
+
+                    // 鼠标悬停高亮
+                    item.addEventListener('mouseover', () => {
+                        item.style.background = '#e9ecef';
+                    });
+                    item.addEventListener('mouseout', () => {
+                        item.style.background = 'transparent';
+                    });
+                    recommendList.appendChild(item);
                 });
+
+                // 显示推荐列表
+                recommendList.style.display = 'block';
             });
         }
+
+        // 给起点、终点输入框绑定推荐功能
+        bindInputRecommend(startInput, startRecommendList);
+        bindInputRecommend(endInput, endRecommendList);
+
+        // 5. 点击页面其他区域，隐藏推荐列表
+        document.addEventListener('click', (e) => {
+            // 点击区域不是输入框或推荐列表时，隐藏
+            if (
+                !startInput.contains(e.target) && 
+                !startRecommendList.contains(e.target) &&
+                !endInput.contains(e.target) && 
+                !endRecommendList.contains(e.target)
+            ) {
+                startRecommendList.style.display = 'none';
+                endRecommendList.style.display = 'none';
+            }
+        });
+
+        // 原有搜索按钮点击逻辑（保持不变）
+        searchBtn.addEventListener('click', () => {
+            if (!currentModeInstance || Object.keys(currentModeInstance.nodes).length === 0) {
+                updateInfo(`请先加载模式数据再搜索路径`, true);
+                return;
+            }
+            const startId = startInput.value.trim().toUpperCase();
+            const endId = endInput.value.trim().toUpperCase();
+            // 验证输入
+            if (!startId || !endId) {
+                updateInfo(`起点和终点不能为空`, true);
+                return;
+            }
+            if (!currentModeInstance.nodes[startId]) {
+                updateInfo(`未找到起点：${startId}`, true);
+                return;
+            }
+            if (!currentModeInstance.nodes[endId]) {
+                updateInfo(`未找到终点：${endId}`, true);
+                return;
+            }
+            if (startId === endId) {
+                updateInfo(`起点和终点不能相同`, true);
+                return;
+            }
+            // 重置之前的选择和路径
+            clearSelectedPath();
+            currentModeInstance.selectedNodes = [startId, endId];
+            // 高亮起点和终点
+            currentModeInstance.nodes[startId].mesh.material = currentModeInstance.nodes[startId].materials.start;
+            currentModeInstance.nodes[startId].mesh.scale.set(1.2, 1.2, 1.2);
+            currentModeInstance.nodes[endId].mesh.material = currentModeInstance.nodes[endId].materials.end;
+            currentModeInstance.nodes[endId].mesh.scale.set(1.2, 1.2, 1.2);
+            // 计算K最短路径
+            updateInfo(`正在计算从${startId}到${endId}的最短路径...`);
+            const kPaths = currentModeInstance.yenKShortestPaths(startId, endId, currentModeInstance.config.K);
+            if (kPaths.length === 0) {
+                updateInfo(`未找到从${startId}到${endId}的路径`, true);
+                clearSelectedPath();
+                return;
+            }
+            // 绘制路径
+            currentModeInstance.pathMeshes.forEach(mesh => scene.remove(mesh));
+            currentModeInstance.pathMeshes = [];
+            kPaths.forEach((path, index) => {
+                const color = index === 0 ? 0x00ffff : 0x7c16f5;
+                currentModeInstance.drawPath(path, index + 1, color);
+            });
+            updateInfo(`路径计算完成：找到${kPaths.length}条最短路径`);
+        });
+
+        // 原有输入框回车事件（保持不变）
+        [startInput, endInput].forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+        });
+    }
 
         // ===================== 窗口适配 =====================
         function setupWindowResize() {
@@ -1462,7 +1577,7 @@
                 });
             });
 
-            updateInfo(`✅ 系统初始化完成，当前为教学楼模式-情境1，点击选择起点`);
+            updateInfo(`系统初始化完成，当前为教学楼模式-情境1，点击选择起点`);
         }
 
         // 页面加载完成后初始化
@@ -1470,6 +1585,7 @@
     </script>
 </body>
 </html>
+
 
 
 
